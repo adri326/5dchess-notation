@@ -6,11 +6,11 @@ Other, proposed notations include:
 - [Axel's algebraic, a take on 5D chess notation](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view)
 - [Matrix Notation](https://drive.google.com/drive/folders/10332r6crq_pD-d4pG4VSynM8ziu1uT98)
 
-This algebraic notation attempts is supposed to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation), applied to 5D chess.
+This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
 
 ## Vocabulary
 
-- A **turn** is an alternation between white's turn and black's turn. Each player may only make moves during their turn.
+- A **turn** is an alternation between white's sub-turn and black's sub-turn. Each player may only make moves during their (sub-)turn. This differs from a board **step**.
 - A **move** happens when a player moves one of their pieces to a legal position. Moves that were not submitted with the submit button yet are referred to as **temporary moves**. We will only consider moves that were already submitted.
 - A **board** is the state of the chess board at any point in time. Each time a player moves a piece, one or two new board(s) is/are created, with the new piece disposition(s).
 - A **multiverse** or a **timeline** is an alternate version of one of the game's universe. A new multiverse is created when a piece from another dimension or from the future jumps to an already-played board. Each game starts with at least one multiverse.
