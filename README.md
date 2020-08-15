@@ -1,4 +1,4 @@
-# 5dchess-notation
+# Shad's 5D chess algebraic notation
 
 This is my take at an algebraic notation for [5D chess](https://5dchesswithmultiversetimetravel.com/).
 Other, proposed notations include:
