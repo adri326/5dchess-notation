@@ -1,0 +1,18 @@
+[Event "5D chess online game"]
+[Site "5D chess"]
+[White "Shad Amethyst"]
+[Black "Ovines"]
+[Date "2020.08.18"]
+[Result "1-0"]
+[Mode "5D"]
+[Board "Misc - Small"]
+[Size "5x5"]
+
+1. (0T1)c3 / (0T1)dxc3
+2. (0T2)dxc3 / (0T2)bxc3?
+3. (0T3)Nxc3 / (0T3)Nxc3
+4. (0T4)Qc2 / (0T4)Bb4
+5. (0T5)Bd2 / (0T5)Nc3>>x(0T4)c1+~
+6. (-1T5)Rxc1 / (-1T5)Nxa2
+7. (0T6)Qc2>(-1T6)c3+ / (-1T6)Nxc3 (0T6)Bxd2
+8. (0T7)Rd1 (-1T7)Qxc3# {Checks (-1T6)Ka5} 1-0

@@ -1,0 +1,33 @@
+{
+  "name": "5dchess-notation",
+  "version": "1.0.0",
+  "description": "Shad's 5D chess notation, extending PGN to the game '5D chess'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adri326/5dchess-notation.git"
+  },
+  "keywords": [
+    "chess",
+    "pgn",
+    "converter"
+  ],
+  "author": "Adrien Burgun <adrien.burgun@orange.fr>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adri326/5dchess-notation/issues"
+  },
+  "homepage": "https://github.com/adri326/5dchess-notation#readme",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./parsers/pgn": "./parsers/pgn.js",
+    "./parsers/game": "./parsers/game.js"
+  },
+  "dependencies": {
+    "yargs": "^15.4.1"
+  }
+}

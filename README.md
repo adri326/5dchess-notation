@@ -8,6 +8,10 @@ Other, proposed notations include:
 
 This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
 
+## Included converter
+
+This repository includes a converter. For information on how to run it and use it, check [USAGE.md](USAGE.md).
+
 ## Vocabulary
 
 - A **turn** is an alternation between white's sub-turn and black's sub-turn. Each player may only make moves during their (sub-)turn. This differs from a board **step**.
@@ -55,9 +59,8 @@ Jumps use the following syntax:
 - The physical coordinate of the target square
 - `+` or `#` if the moves checks or checkmates the adversary
 - `~` if the jump is branching and the present is being moved to the new branch
-- `(+L<a>)` if the jump is branching, where `<a>` is the index of the created branch
 
-All put together, it looks like this: `(-1T4)Nc3>>x(0T2)c3+~(+L-2)` ("The knight from board -1L, T4, c3 jumps and takes on L, T2, c3, creating a new timeline (-2L) and moving the present").
+All put together, it looks like this: `(-1T4)Nc3>>x(0T2)c3+` ("The knight from board -1L, T4, c3 jumps and takes on L, T2, c3, creating a new timeline (-2L) and moving the present").
 
 A non-branching jump may look like this: `(0T6)Pd5>(1T6)d5`.
 
@@ -109,7 +112,7 @@ This format's specific tags are the following:
 
 1. (0T1)Nd2 / (0T1)c3
 2. (0T2)Nb3 / (0T2)c2
-3. (0T3)Nb3>>(0T1)a3~(+L1) / (1T1)Ke4
+3. (0T3)Nb3>>(0T1)a3 / (1T1)Ke4
 4. (1T2)Nb5# {attacks (0T3)Kd5}
 ```
 
@@ -131,9 +134,9 @@ Following is an example of a game, encoded in the described standard:
 3. (0T3)g3 / (0T3)g4
 4. (0T4)Bg2 / (0T4)d5
 5. (0T5)O-O {to the right} / (0T5)Be5
-6. (0T6)Nb1>>(0T5)b3~(+L1) / (1T5)Bb6
+6. (0T6)Nb1>>(0T5)b3 / (1T5)Bb6
 7. (1T6)Nc3 / (0T6)Ne7>(1T6)e5
-8. (0T7)a4 (1T7)O-O {to the right} / (0T7)Be5>>(0T6)e4~(+L-1)
+8. (0T7)a4 (1T7)O-O {to the right} / (0T7)Be5>>(0T6)e4
 9. (-1T7)Bxe4 / (-1T7)dxe4 (1T7)c4
 10. (1T8)Nb3>(0T8)d3 (-1T8)a4 / (-1T8)Bd4 (0T8)Kd7>(1T8)d6
 11. (-1T9)Ra3 (0T9)Ra3 (1T9)b3 / (-1T9)Bd4>x(0T9)d3 (1T9)cxb3
@@ -147,9 +150,9 @@ Following is an example of a game, encoded in the described standard:
 19. (-1T17)Rb4>(1T17)b4 (0T17)Bxg5 / (-1T17)Bc4 (0T17)Bc4 (1T17)Nd5
 20. (-1T18)Be3 (0T18)Rc1 (1T18)Rd4 / (-1T18)Rd7 (0T18)Kc6>(1T18)b6?
 21. (-1T19)Bb6+ {checks (1T19)d6} (0T19)Rb1 (1T19)Raxd5+ / (-1T19)c6>(0T19)c6 {blocks (-1T20)Bb6>>x(1T20)d6 1-0} (1T19)exd5
-22. (-1T20)Bb6>x(0T20)b7+ {checks (1T20)d7} (1T20)Rxd5+ / (-1T20)Bc4>>x(-1T18)a4~(+L-2)
+22. (-1T20)Bb6>x(0T20)b7+ {checks (1T20)d7} (1T20)Rxd5+ / (-1T20)Bc4>>x(-1T18)a4
 23. (-2T19)Bb6 / (-2T19)Rb7
-24. (-2T20)Bb6>>x(-1T20)a6+~(+L2) {checks (1T20)b6, (2T20)b6 also checks (1T19)b6} 1-0 {Black forfeits}
+24. (-2T20)Bb6>>x(-1T20)a6+ {checks (1T20)b6, (2T20)b6 also checks (1T19)b6} 1-0 {Black forfeits}
 ```
 
 Here is what the end of that game looks like:
