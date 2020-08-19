@@ -29,9 +29,49 @@ export const MOVE_KIND = {
 };
 
 export const BOARDS = {
-  "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0"],
-  "MISC - SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0"],
-}
+  "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
+  "MISC - SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0", "5x5"],
+  "MISC - TIMELINE INVASION": ["nbkrb/ppppp/5/5/PPPPP ppppp/5/5/PPPPP/NBKRB", "0 1", "5x5"],
+  "SIMPLE - NO QUEEN": ["rnbknbr/ppppppp/7/7/7/PPPPPPP/RNBKNBR", "0", "7x7"],
+  "SIMPLE - KNIGHTS VS. BISHOP": ["rbqkbr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
+  "SIMPLE - NO BISHOPS": ["rnqknr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
+  "SIMPLE - NO KNIGHTS": ["rbqkbr/pppppp/6/6/PPPPPP/RBQKBR", "0", "6x6"],
+  "SIMPLE - NO ROOKS": ["nbqkbn/pppppp/6/6/PPPPPP/NBQKBN", "0", "6x6"],
+  "MISC - SMALL FLIPPED": ["nbrqk/ppppp/5/PPPPP/KQRBN", "0", "5x5"],
+  "MISC - SMALL CENTERED": ["rnkqr/ppppp/5/PPPPP/RQKNR", "0", "5x5"],
+  "MISC - SMALL OPEN": ["prnbk/3pp/5/PP3/KBNRP", "0", "5x5"],
+  "MISC - VERY SMALL": ["krbn/pppp/PPPP/KRBN", "0", "4x4"],
+  "MISC - VERY SMALL OPEN": ["nbrk/4p/P4/KRBN", "0", "4x4"],
+  "MISC - TIMELINE FORMATIONS": ["ppppp/5/5/5/2K2 2k2/5/5/5/PPPPP", "0 1", "5x5"],
+  "MISC - TIMELINE TACTITIAN": ["kbnr/pppp/4/4 4/4/PPPP/KBNR", "0 1", "4x4"],
+  "MISC - TIMELINE STRATEGOS": ["nbrur/ppppp/5/5/5 5/5/5/PPPPP/RUKBN", "0 1", "5x5"],
+  "MISC - TIMELINE BATTLEGROUNDS": ["rrkrr/bbqbb/ppppp/5/PPPPP nnnnn/ppppp/5/PPPPP/NNNNN ppppp/5/PPPPP/BBQBB/RRKRR", "-1 0 1", "5x5"],
+  "MISC - EXCESSIVE": ["kruqdrk/rnbknbr/pppppppp/8/PPPPPPPP/RNBKNBR/KRUQDRK", "0", "8x8"],
+  "MISC - REFLECTED STANDARD": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR", "0", "8x8"],
+  "MISC - GLOBAL WARMING": ["1", "0", "1x1"],
+  "FOCUSED - JUST KNIGHTS": ["n1kn1/5/5/5/1NK1N", "0", "5x5"],
+  "FOCUSED - JUST BISHOPS": ["1bbk1/5/5/5/1KBB1", "0", "5x5"],
+  "FOCUSED - JUST ROOKS": ["1rk1r/5/5/5/R1KR1", "0", "5x5"],
+  "FOCUSED - JUST QUEENS": ["1q1k2/6/6/6/6/2K1Q1", "0", "6x6"],
+  "FOCUSED - JUST PAWNS": ["ppppk/5/5/5/KPPPP", "0", "5x5"],
+  "FOCUSED - JUST KINGS": ["2k/3/k2", "0", "3x3"],
+  "FOCUSED - JUST UNICORNS": ["1u1uk/5/5/5/KU1U1", "0", "5x5"],
+  "FOCUSED - JUST DRAGONS": ["2ddk/5/5/5/KDD2", "0", "5x5"],
+  "CHECKMATE PRACTICE - KNIGHT": ["5n/6/6/6/6/K5", "0", "6x6"],
+  "CHECKMATE PRACTICE - BISHOP": ["4b1/6/6/6/6/K5", "0", "6x6"],
+  "CHECKMATE PRACTICE - ROOK": ["5r/6/6/6/6/K5", "0", "6x6"],
+  "CHECKMATE PRACTICE - KNIGHT": ["5n/6/6/6/6/K5", "0", "6x6"],
+  "CHECKMATE PRACTICE - QUEEN": ["4q1/6/6/6/6/K5", "0", "6x6"],
+  "CHECKMATE PRACTICE - KNIGHT": ["5n/6/6/6/6/K5", "0", "6x6"],
+  "CHECKMATE PRACTICE - PAWNS": ["2ppp1/6/6/6/6/3K2", "0", "6x6"]
+};
+
+export const OMIT = {
+  NONE: 0,
+  X: 1,
+  Y: 2,
+  BOTH: 3,
+};
 
 export class Game {
   /**?
