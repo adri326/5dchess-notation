@@ -1,3 +1,7 @@
+/**!
+  Parses and writes 5dpgn (Shad's notation).
+**/
+
 import {Game, BOARDS, PIECES} from "./game.js";
 
 export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*(-?\d+)\s*T\s*(\d+)\s*\)/;
@@ -256,8 +260,19 @@ function parse_move(raw) {
   } else if (match = /^[O0]-[O0](-[O0])?/.exec(raw.slice(ptr))) {
     // Castling
     ptr += match[0].length;
+
+    if (raw.slice(ptr).startsWith("+")) {
+      ptr++;
+      check = true;
+    } else if (raw.slice(ptr).startsWith("#")) {
+      ptr++;
+      checkmate = true;
+    }
+
     return [{
       type: "castle",
+      check,
+      checkmate,
       from: sp1,
       long: !!match[1],
     }, raw.slice(ptr).trimLeft()];
@@ -348,11 +363,11 @@ function parse_comment(raw) {
 
 // TODO: parse_branch?
 
-function letter_to_index(letter) {
+export function letter_to_index(letter) {
   if (!letter || letter < "a" || letter > "z" || letter.length != 1) return -1;
   return "abcdefghijklmnopqrstuvw".split("").indexOf(letter);
 }
 
-function index_to_letter(index) {
+export function index_to_letter(index) {
   return "abcdefghijklmnopqrstuvw"[index];
 }

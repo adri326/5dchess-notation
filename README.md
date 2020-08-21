@@ -1,4 +1,4 @@
-# Shad's 5D chess algebraic notation
+# Shad's 5D chess algebraic notation (5dpgn)
 
 This is my take at an algebraic notation for [5D chess](https://5dchesswithmultiversetimetravel.com/).
 Other, proposed notations include:
@@ -158,3 +158,24 @@ Following is an example of a game, encoded in the described standard:
 Here is what the end of that game looks like:
 
 ![End of the aforementionned game](https://cdn.discordapp.com/attachments/740361438375313540/743827989321744467/unknown.png)
+
+## Notes
+
+### Even-numbered starting boards
+
+If there is an even number of starting boards, these should be numbered `0`, `1`, `-1`, `2`, ...
+
+They should **NOT** be numbered `-0`, `0`, `-1`, `1`, ...
+
+This is as to be consistent with the inner format of the game and to make it easier to store the number as a signed integer or a floating-point number.
+(Under IEEE 754, [`-0 == 0`](https://en.wikipedia.org/wiki/Floating-point_arithmetic#Signed_zero)).
+
+### Branching
+
+Branching notation (as in SAN) is not yet supported, and it is unknown how it should behave with the super-physical coordinates.
+Possibilities include:
+
+- Keeping parenthesis-enclosed super-physical coordinates and simply introducing branching (both are compatible as long as token priority is introduced)
+- Having square bracket-enclosed super-physical coordinates and parenthesis-enclosed branches
+- Having square bracket-enclosed super-physical coordinates *in* parenthesis-enclosed branches
+- Remove the parentheses around super-physical coordinates, at the cost of readability

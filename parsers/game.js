@@ -20,6 +20,26 @@ export const PIECES = {
   B_OFFSET: 10,
 };
 
+export const PIECE_CHAR = {
+  [PIECES.BLANK]: ".",
+  [PIECES.W_PAWN]: "P",
+  [PIECES.W_KNIGHT]: "N",
+  [PIECES.W_BISHOP]: "B",
+  [PIECES.W_ROOK]: "R",
+  [PIECES.W_QUEEN]: "Q",
+  [PIECES.W_KING]: "K",
+  [PIECES.W_UNICORN]: "U",
+  [PIECES.W_DRAGON]: "D",
+  [PIECES.B_PAWN]: "p",
+  [PIECES.B_KNIGHT]: "n",
+  [PIECES.B_BISHOP]: "b",
+  [PIECES.B_ROOK]: "r",
+  [PIECES.B_QUEEN]: "q",
+  [PIECES.B_KING]: "k",
+  [PIECES.B_UNICORN]: "u",
+  [PIECES.B_DRAGON]: "d"
+};
+
 export const MOVE_KIND = {
   MOVE: 0,
   JUMP_OUT: 1,
@@ -46,7 +66,7 @@ export const BOARDS = {
   "MISC - TIMELINE TACTITIAN": ["kbnr/pppp/4/4 4/4/PPPP/KBNR", "0 1", "4x4"],
   "MISC - TIMELINE STRATEGOS": ["nbrur/ppppp/5/5/5 5/5/5/PPPPP/RUKBN", "0 1", "5x5"],
   "MISC - TIMELINE BATTLEGROUNDS": ["rrkrr/bbqbb/ppppp/5/PPPPP nnnnn/ppppp/5/PPPPP/NNNNN ppppp/5/PPPPP/BBQBB/RRKRR", "-1 0 1", "5x5"],
-  "MISC - EXCESSIVE": ["kruqdrk/rnbknbr/pppppppp/8/PPPPPPPP/RNBKNBR/KRUQDRK", "0", "8x8"],
+  "MISC - EXCESSIVE": ["kruqdrk/rnbknbr/ppppppp/7/PPPPPPP/RNBKNBR/KRUQDRK", "0", "7x7"],
   "MISC - REFLECTED STANDARD": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR", "0", "8x8"],
   "MISC - GLOBAL WARMING": ["1", "0", "1x1"],
   "FOCUSED - JUST KNIGHTS": ["n1kn1/5/5/5/1NK1N", "0", "5x5"],
@@ -102,8 +122,8 @@ export class Game {
       for (let row in rows) {
         let chars = rows[row].split("");
 
-        for (let n = 0; n < this.width; n++) {
-          switch (chars[n]) {
+        for (let n = 0, o = 0; n < this.width; n++, o++) {
+          switch (chars[o]) {
             case "p": board.push(PIECES.B_PAWN); break;
             case "n": board.push(PIECES.B_KNIGHT); break;
             case "b": board.push(PIECES.B_BISHOP); break;
@@ -121,12 +141,12 @@ export class Game {
             case "U": board.push(PIECES.W_UNICORN); break;
             case "D": board.push(PIECES.W_DRAGON); break;
             default:
-              if (/^\d$/.exec(chars[n])) {
-                for (let o = 0; o < +chars[n]; o++) {
+              if (/^\d$/.exec(chars[o])) {
+                for (let p = 0; p < +chars[o]; p++) {
                   board.push(PIECES.BLANK);
                 }
-                n += +chars[n];
-              } else throw new Error("Unexpected character in FEN: " + chars[n]);
+                n += +chars[o] - 1;
+              } else throw new Error("Unexpected character in FEN: " + chars[o]);
           }
         }
       }
@@ -136,13 +156,25 @@ export class Game {
   get_board(l, t) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return null;
-    return timeline.states[t - timeline.begins_at] || null;
+    return timeline.states[t - timeline.begins_at];
+  }
+
+  get_board_as(l, t, white) {
+    let timeline = this.timelines.find(board => board.index === l);
+    if (timeline == null) return null;
+    return timeline.states[t * 2 + !white - timeline.begins_at];
   }
 
   get(l, t, x, y) {
-    let board = get_board(l, t);
+    let board = this.get_board(l, t);
     if (!board) return null;
-    return board[x + y * this.width] || null;
+    return board[x + y * this.width];
+  }
+
+  get_as(l, t, x, y, white) {
+    let board = this.get_board_as(l, t, white);
+    if (!board) return null;
+    return board[x + y * this.width];
   }
 
   is_present(l, t) {
@@ -155,6 +187,7 @@ export class Game {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return false;
     timeline.states.push(board);
+    timeline.turn = !timeline.turn;
     return true;
   }
 
@@ -168,7 +201,127 @@ export class Game {
       to,
       white,
       piece_taken,
-    })
+    });
+    return true;
+  }
+
+  can_move(piece, from, to, white) {
+    if (from[0] === to[0] && from[1] === to[1] && from[2] === to[2] && from[3] === to[3]) return false;
+    switch (piece) {
+      case PIECES.W_PAWN:
+        if (this.get_as(...to, white) != PIECES.BLANK) {
+          return from[0] === to[0]
+            && from[1] === to[1]
+            && (from[2] === to[2] + 1 || from[2] === to[2] - 1)
+            && from[3] === to[3] - 1
+            || from[0] === to[0] - 1
+            && from[1] === to[1] + 1
+            && from[2] === to[2]
+            && from[3] === to[3];
+        } else {
+          return from[0] === to[0]
+            && from[1] === to[1]
+            && from[2] === to[2]
+            && (
+              from[3] === to[3] - 1
+              || from[3] === to[3] - 2 && this.get_as(to[0], to[1], to[2], to[3] - 1, white) === PIECES.BLANK
+            )
+            || from[0] === to[1] - 1
+            && from[1] === to[1]
+            && from[2] === to[2]
+            && from[3] === to[3]
+        }
+        break;
+      case PIECES.B_PAWN:
+        if (this.get_as(...to, white) != PIECES.BLANK) {
+          return from[0] === to[0]
+            && from[1] === to[1]
+            && (from[2] === to[2] + 1 || from[2] === to[2] - 1)
+            && from[3] === to[3] + 1
+            || from[0] === to[0] + 1
+            && from[1] === to[1] + 1
+            && from[2] === to[2]
+            && from[3] === to[3];
+        } else {
+          return from[0] === to[0]
+            && from[1] === to[1]
+            && from[2] === to[2]
+            && (
+              from[3] === to[3] + 1
+              || from[3] === to[3] + 2 && this.get_as(to[0], to[1], to[2], to[3] + 1, white) === PIECES.BLANK
+            )
+            || from[0] === to[0] + 1
+            && from[1] === to[1]
+            && from[2] === to[2]
+            && from[3] === to[3]
+        }
+        break;
+      case PIECES.W_KNIGHT:
+      case PIECES.B_KNIGHT: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return a[0] === 2 && a[1] === 1 && a[2] === 0 && a[3] === 0;
+      }
+      case PIECES.W_ROOK:
+      case PIECES.B_ROOK: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return a[1] === 0 && a[2] === 0 && a[3] === 0 && this.path_clear(from, to, white);
+      }
+      case PIECES.W_BISHOP:
+      case PIECES.B_BISHOP: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return a[0] === a[1] && a[2] === 0 && a[3] === 0 && this.path_clear(from, to, white);
+      }
+      case PIECES.W_UNICORN:
+      case PIECES.B_UNICORN: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return a[0] === a[1] && a[1] === a[2] && a[3] === 0 && this.path_clear(from, to, white);
+      }
+      case PIECES.W_DRAGON:
+      case PIECES.B_DRAGON: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return a[0] === a[1] && a[1] === a[2] && a[2] === a[3] && this.path_clear(from, to, white);
+      }
+      case PIECES.W_QUEEN:
+      case PIECES.B_QUEEN: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return (
+            a[1] === 0 && a[2] === 0 && a[3] === 0
+            || a[0] === a[1] && a[2] === 0 && a[3] === 0 // diagonal
+            || a[0] === a[1] && a[1] === a[2] && a[3] === 0 // trigonal
+            || a[0] === a[1] && a[1] === a[2] && a[2] === a[3] // quadragonal
+          ) && this.path_clear(from, to, white);
+      }
+      case PIECES.W_KING:
+      case PIECES.B_KING: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return a.every(x => x < 2);
+      }
+    }
+  }
+
+  /**?
+    Checks that the path from `from` to `to` is clear as `white`. Asserts that this path is an n-gonal.
+  **/
+  path_clear(from, to, white) {
+    let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+    let length = Math.abs([...a].sort()[0]);
+    let inc = a.map(x => x / length);
+    for (let n = 1; n < length; n++) {
+      if (this.get_as(
+        from[0] + inc[0] * n,
+        from[1] + inc[1] * n,
+        from[2] + inc[2] * n,
+        from[3] + inc[3] * n,
+        white
+      ) !== PIECES.BLANK) return false;
+    }
     return true;
   }
 
@@ -196,24 +349,36 @@ export class Game {
       if (has_y) {
         candidates = candidates.filter(([i, p]) => ~~(i / this.width) === from[3]);
       }
-      if (piece % PIECES.B_OFFSET === PIECES.W_ROOK) {
-        candidates = candidates.filter(([i, p]) => i % this.width === to[2] || ~~(i / this.width) === to[3]);
-      } else if (piece % PIECES.B_OFFSET === PIECES.W_PAWN) {
-        if (has_x && to[2] !== from[2]) {
-          // pawn takes
-          candidates = candidates.filter(([i, p]) => i % this.width === from[2]);
-        } else {
-          candidates = candidates.filter(([i, p]) => i % this.width === to[2]);
-        }
-      }
 
-      if (piece === PIECES.W_PAWN) {
-        candidates = [candidates.reduce(([i, p], [ai, ap]) => i > ai ? [i, p] : [ai, ap])];
-      } else if (piece === PIECES.B_PAWN) {
-        candidates = [candidates.reduce(([i, p], [ai, ap]) => i < ai ? [i, p] : [ai, ap])];
-      }
+      candidates = candidates.filter(([i, p]) => this.can_move(
+        p,
+        [from[0], from[1], i % this.width, ~~(i / this.width)],
+        to,
+        white
+      ));
+
+      // if (piece % PIECES.B_OFFSET === PIECES.W_ROOK) {
+      //   candidates = candidates.filter(([i, p]) => i % this.width === to[2] || ~~(i / this.width) === to[3]);
+      // } else if (piece % PIECES.B_OFFSET === PIECES.W_PAWN) {
+      //   if (has_x && to[2] !== from[2]) {
+      //     // pawn takes
+      //     candidates = candidates.filter(([i, p]) => i % this.width === from[2]);
+      //   } else {
+      //     candidates = candidates.filter(([i, p]) => i % this.width === to[2]);
+      //   }
+      // }
+
+      // if (piece === PIECES.W_PAWN) {
+      //   candidates = [candidates.reduce(([i, p], [ai, ap]) => i > ai ? [i, p] : [ai, ap])];
+      // } else if (piece === PIECES.B_PAWN) {
+      //   candidates = [candidates.reduce(([i, p], [ai, ap]) => i < ai ? [i, p] : [ai, ap])];
+      // }
 
       if (candidates.length > 1) {
+        this.print(source_board);
+        console.log("Looking for: " + PIECE_CHAR[piece]);
+        console.log("Target square: " + to[2] + ":" + to[3]);
+        console.log("Source board: " + from[0] + "T" + from[1]);
         throw new Error(
           "Ambiguous move: two or more source pieces could be found ("
           + candidates.map(([i, p]) => `(${i % this.width}, ${~~(i / this.width)})`).join("; ")
@@ -263,6 +428,7 @@ export class Game {
       }
 
       let new_timeline = new Timeline(this.width, this.height, new_index, to[1] * 2 + !white + 1);
+      new_timeline.turn = !white;
       new_timeline.states = [new_target_board];
       this.timelines.push(new_timeline);
       this.board_indices.push(new_index);
@@ -279,6 +445,66 @@ export class Game {
   castle(piece, from, long, white) {
     throw new Error("Castling hasn't been implemented yet!");
   }
+
+  lowest_active_timeline(white = null) {
+    let index = this.highest_timeline();
+    for (let timeline of this.timelines) {
+      if ((timeline.active_player() == white || white === null) && timeline.index < index) {
+        index = timeline.index;
+      }
+    }
+    return index;
+  }
+
+  highest_active_timeline(white = null) {
+    let index = this.lowest_timeline();
+    for (let timeline of this.timelines) {
+      if ((timeline.active_player() == white || white === null) && timeline.index > index) {
+        index = timeline.index;
+      }
+    }
+    return index;
+  }
+
+  lowest_timeline() {
+    let index = Infinity;
+    for (let timeline of this.timelines) {
+      if (timeline.index < index) {
+        index = timeline.index;
+      }
+    }
+    return index;
+  }
+
+  highest_timeline() {
+    let index = -Infinity;
+    for (let timeline of this.timelines) {
+      if (timeline.index > index) {
+        index = timeline.index;
+      }
+    }
+    return index;
+  }
+
+  get_last_turn_in(l) {
+    let timeline = this.timelines.find(board => board.index === l);
+    if (timeline == null) return null;
+    return ~~((timeline.states.length + timeline.begins_at - 1) / 2);
+  }
+
+  get_timeline(l) {
+    let timeline = this.timelines.find(board => board.index === l);
+    return timeline;
+  }
+
+  print(board) {
+    for (let y = this.height - 1; y >= 0; y--) {
+      for (let x = 0; x < this.width; x++) {
+        process.stdout.write(PIECE_CHAR[board[x + y * this.width]]);
+      }
+      process.stdout.write("\n");
+    }
+  }
 }
 
 export class Timeline {
@@ -289,5 +515,12 @@ export class Timeline {
     this.height = height;
     this.begins_at = begins_at;
     this.moves = [];
+    this.synthetic = begins_at != 2;
+    this.turn = true;
+  }
+
+  active_player() {
+    return this.turn;
+    return !!((this.states.length + this.begins_at) % 2) != this.synthetic;
   }
 }
