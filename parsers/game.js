@@ -1,3 +1,14 @@
+/**!
+  Contains various bits useful for parsing and handling different notations.
+
+  The inner, coordinate format is as follows:
+  [l, t, x, y]
+  Where `l` is the index of the branch, `t` is the turn (**starts at 0**), `x` is the X coordinate (**starts at 0**) and `y` is the Y coordinate (**starts at 0**).
+
+  Functions which work with a `white` parameter will accept as `t` the value that is seen on the game, minus one.
+  Others will accept as `t` the actual index of the board (`t = 2*t' + !white`, with `t'` the visible board index minus one).
+**/
+
 export const PIECES = {
   BLANK: 0,
   W_PAWN: 1,
@@ -16,6 +27,8 @@ export const PIECES = {
   B_KING: 16,
   B_UNICORN: 17,
   B_DRAGON: 18,
+
+  MARKER: 99,
 
   B_OFFSET: 10,
 };
@@ -37,7 +50,8 @@ export const PIECE_CHAR = {
   [PIECES.B_QUEEN]: "q",
   [PIECES.B_KING]: "k",
   [PIECES.B_UNICORN]: "u",
-  [PIECES.B_DRAGON]: "d"
+  [PIECES.B_DRAGON]: "d",
+  [PIECES.MARKER]: "*",
 };
 
 export const MOVE_KIND = {
@@ -363,37 +377,20 @@ export class Game {
         white
       ));
 
-      // if (piece % PIECES.B_OFFSET === PIECES.W_ROOK) {
-      //   candidates = candidates.filter(([i, p]) => i % this.width === to[2] || ~~(i / this.width) === to[3]);
-      // } else if (piece % PIECES.B_OFFSET === PIECES.W_PAWN) {
-      //   if (has_x && to[2] !== from[2]) {
-      //     // pawn takes
-      //     candidates = candidates.filter(([i, p]) => i % this.width === from[2]);
-      //   } else {
-      //     candidates = candidates.filter(([i, p]) => i % this.width === to[2]);
-      //   }
-      // }
-
-      // if (piece === PIECES.W_PAWN) {
-      //   candidates = [candidates.reduce(([i, p], [ai, ap]) => i > ai ? [i, p] : [ai, ap])];
-      // } else if (piece === PIECES.B_PAWN) {
-      //   candidates = [candidates.reduce(([i, p], [ai, ap]) => i < ai ? [i, p] : [ai, ap])];
-      // }
-
       if (candidates.length > 1) {
-        this.print(source_board);
-        console.log("Looking for: " + PIECE_CHAR[piece]);
-        console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
-        console.log("Source board: " + from[0] + "T" + from[1]);
+        // this.print(source_board);
+        // console.log("Looking for: " + PIECE_CHAR[piece]);
+        // console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
+        // console.log("Source board: " + from[0] + "T" + from[1]);
         throw new Error(
           "Ambiguous move: two or more source pieces could be found ("
           + candidates.map(([i, p]) => `(${i % this.width}, ${~~(i / this.width)})`).join("; ")
           + ")");
       } else if (candidates.length === 0) {
-        this.print(source_board);
-        console.log("Looking for: " + PIECE_CHAR[piece]);
-        console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
-        console.log("Source board: " + from[0] + "T" + from[1]);
+        // this.print(source_board);
+        // console.log("Looking for: " + PIECE_CHAR[piece]);
+        // console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
+        // console.log("Source board: " + from[0] + "T" + from[1]);
         throw new Error(`No piece candidate found! (${from[0]}T${from[1]})${has_x ? index_to_letter(from[2]) : ""}${has_y ? from[3] + 1 : ""} to (${to[0]}T${to[1]})${index_to_letter(to[2])}${to[3] + 1}; ${PIECE_CHAR[piece]}`);
       }
       from[2] = candidates[0][0] % this.width;
@@ -610,7 +607,7 @@ export class Timeline {
     this.begins_at = begins_at;
     this.emerges_from = emerges_from;
     this.moves = [];
-    this.synthetic = begins_at != 2;
+    this.synthetic = begins_at != 0;
     this.turn = true;
   }
 

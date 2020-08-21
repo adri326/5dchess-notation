@@ -92,31 +92,49 @@ export function parse(raw) {
 
   tokens = tokens.map((token, i) => {
     if (token.type == "move") {
-      let res = {
-        ...token,
-        white,
-        turn,
-        piece_index: PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
-        ...game.play(
-          PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
-          token.from,
-          token.to,
+      try {
+        let res = {
+          ...token,
           white,
-        ),
-      };
-      if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
-        console.log(res);
-        game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + 1, !white));
-        console.log("");
-        if (res.branches) {
-          game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.new_index, res.to[1] + 1, !white));
-        } else {
-          game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.to[0], res.to[1] + 1, !white));
+          turn,
+          piece_index: PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
+          ...game.play(
+            PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
+            token.from,
+            token.to,
+            white,
+          ),
+        };
+        if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
+          console.log(res);
+          game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + 1, !white));
+          console.log("");
+          if (res.branches) {
+            game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.new_index, res.to[1] + 1, !white));
+          } else {
+            game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.to[0], res.to[1] + 1, !white));
+          }
+          console.log("");
+          console.log("");
         }
-        console.log("");
-        console.log("");
+        return res;
+      } catch (err) {
+        console.error(err.toString());
+        console.error("Raw move: " + token.raw);
+        if (token.from[0] === token.to[0] && token.from[1] === token.to[1]) {
+          console.log("\nBoard / marked board:\n");
+          let board = [...game.get_board_as(token.from[0], token.from[1], white)];
+          board[token.to[2] + token.to[3] * game.width] = PIECES.MARKER;
+          game.print(game.get_board_as(token.from[0], token.from[1], white), board);
+        } else {
+          console.log("Source board / marked target board:\n");
+          let target_board = [...game.get_board_as(token.to[0], token.to[1], white)];
+          target_board[token.to[2] + token.to[3] * game.width] = PIECES.MARKER;
+          game.print(game.get_board_as(token.from[0], token.from[1], white), target_board);
+        }
+        console.log("\n");
+        process.exit(1);
       }
-      return res;
     } else if (token.type == "castle") {
       return {
         ...token,
@@ -170,16 +188,19 @@ export function write(game) {
 }
 
 function parse_tag(raw) {
+  let token_raw = raw[0];
   let ptr = 1;
 
   let name = /^\s*([\w\d]+)\s/.exec(raw.slice(ptr));
   if (!name) throw new Error("Invalid tag!");
   ptr += name[0].length;
+  token_raw += name[0];
   name = name[1];
 
   let value = /^\s*"(.+?)(?<=[^\\])"/.exec(raw.slice(ptr));
   if (!value) throw new Error("Invalid tag!");
   ptr += value[0].length;
+  token_raw += value[0];
   value = value[1];
 
   ptr += raw.slice(ptr).split("").findIndex(e => e == "]") + 1;
@@ -187,6 +208,7 @@ function parse_tag(raw) {
   return [{
     type: "tag",
     name,
+    raw: token_raw,
     value,
   }, raw.slice(ptr).trimLeft()]
 }
@@ -197,6 +219,7 @@ function parse_turn_index(raw) {
   return [{
     type: "turn_index",
     value: +match[1],
+    raw: match[0],
   }, raw.slice(match[0].length).trimLeft()];
 }
 
@@ -317,6 +340,7 @@ function parse_move(raw) {
     jumps,
     check,
     checkmate,
+    raw: raw.slice(0, ptr),
     ...(jumps ? {branches} : {}),
     ...(branches ? {moves_present} : {}),
   }, raw.slice(ptr).trimLeft()];
