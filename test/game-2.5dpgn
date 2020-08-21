@@ -1,0 +1,33 @@
+[Board "Standard"]
+[Size "8x8"]
+[Mode "5D"]
+[White "Shad Amethyst"]
+[Black "ZL"]
+[Date "2020.08.21"]
+[Event "5D chess online game"]
+[Result "1-0"]
+
+
+1. (0T1)c4 / (0T1)g6
+2. (0T2)Nc3 / (0T2)Nf6
+3. (0T3)b4 / (0T3)c5
+4. (0T4)bxc5 / (0T4)Qc7
+5. (0T5)Ba3 / (0T5)Ng4
+6. (0T6)h3? / (0T6)Qf4!
+7. (0T7)e3?? / (0T7)Qf4>>x(0T4)c4~
+8. (-1T5)Ba3 (0T8)hxg4 / (-1T5)Bh6
+9. (-1T6)e3 / (-1T6)Qxf1+
+10. (-1T7)Kxf1 / (-1T7)O-O
+11. (-1T8)Qd1>>(-1T5)a4~ / (1T5)Qxa4
+12. (1T6)Qxa4 / (1T6)Nc6
+13. (1T7)Bb2 / (1T7)Bh6
+14. (1T8)Nb5 / (-1T8)b6 (0T8)a6 (1T8)Bxd2+
+15. (-1T9)cxb6 (0T9)Qd1>x(1T9)d2 / (-1T9)Ba6+ (0T9)Pa6>(1T9)a6
+16. (-1T10)Nce2 (1T10)Nb5>x(0T10)b7 / (-1T10)Qxb6 (0T10)Bxb7 (1T10)O-O
+17. (-1T11)Rb1 (0T11)O-O-O (1T11)Rb1 / (-1T11)Qc6 (0T11)Ra3 (1T11)b5
+18. (-1T12)Bxe7 (1T12)Qa4>x(0T12)a3 / (0T12)Ke8>x(-1T12)e7 (1T12)Ne4
+19. (0T13)Qa5 (1T13)Qd2>(-1T13)d4 / (-1T13)Bxe2+ (0T13)Nc6 (1T13)Nxf2
+20. (-1T14)Nxe2 (0T14)Qb5 (1T14)Kxf2 / (-1T14)Qd6 (0T14)Nd4 (1T14)e5
+21. (-1T15)Qxd6+ (0T15)Qxd7+ (1T15)Bd4 / (1T15)Qd8>>(-1T13)b6~
+22. (-2T14)Rxb6 / (-2T14)Qc6>x(-1T15)d6
+23. (-2T15)Qd6# 1-0

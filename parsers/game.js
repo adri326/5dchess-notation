@@ -331,8 +331,14 @@ export class Game {
   play(piece, from, to, white) {
     let source_board = this.get_board(from[0], from[1] * 2 + !white);
     let target_board = this.get_board(to[0], to[1] * 2 + !white);
-    if (!source_board) throw new Error(`Invalid source board: ${from} (${from[0]}, ${from[1] * 2 + !white})`);
-    if (!target_board) throw new Error(`Invalid target board: ${to} (${to[0]}, ${to[1] * 2 + !white})`);
+    if (!source_board) {
+      console.log("Valid timelines are: " + this.timelines.map(t => `${t.index}(${t.states.length + t.begins_at})`).join(", "));
+      throw new Error(`Invalid source board: ${from} (${from[0]}, ${from[1] * 2 + !white})`);
+    }
+    if (!target_board) {
+      console.log("Valid timelines are: " + this.timelines.map(t => `${t.index}(${t.states.length + t.begins_at})`).join(", "));
+      throw new Error(`Invalid target board: ${to} (${to[0]}, ${to[1] * 2 + !white})`);
+    }
 
     if (from[2] === -1 || from[3] === -1 || from.length < 4) {
       let has_x = from[2] !== -1 && from.length > 2;
@@ -377,14 +383,18 @@ export class Game {
       if (candidates.length > 1) {
         this.print(source_board);
         console.log("Looking for: " + PIECE_CHAR[piece]);
-        console.log("Target square: " + to[2] + ":" + to[3]);
+        console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
         console.log("Source board: " + from[0] + "T" + from[1]);
         throw new Error(
           "Ambiguous move: two or more source pieces could be found ("
           + candidates.map(([i, p]) => `(${i % this.width}, ${~~(i / this.width)})`).join("; ")
           + ")");
       } else if (candidates.length === 0) {
-        throw new Error(`No valid move found! ${from}; ${to};${piece}`);
+        this.print(source_board);
+        console.log("Looking for: " + PIECE_CHAR[piece]);
+        console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
+        console.log("Source board: " + from[0] + "T" + from[1]);
+        throw new Error(`No piece candidate found! (${from[0]}T${from[1]})${has_x ? index_to_letter(from[2]) : ""}${has_y ? from[3] + 1 : ""} to (${to[0]}T${to[1]})${index_to_letter(to[2])}${to[3] + 1}; ${PIECE_CHAR[piece]}`);
       }
       from[2] = candidates[0][0] % this.width;
       from[3] = ~~(candidates[0][0] / this.width);
@@ -392,6 +402,7 @@ export class Game {
     }
 
     let piece_taken = target_board[to[2] + to[3] * this.width];
+    let new_index = null;
 
     if (source_board === target_board) {
       let new_board = [...source_board];
@@ -418,16 +429,13 @@ export class Game {
       if (!this.push_board(from[0], new_source_board)) throw new Error("Couldn't push board");
       this.record_move(from[0], MOVE_KIND.JUMP_OUT, piece, from, to, white, piece_taken);
 
-      let new_index = white ? 1 : -1;
-      for (let timeline of this.timelines) {
-        if (white) {
-          if (timeline.index > new_index) new_index = timeline.index + 1;
-        } else {
-          if (timeline.index < new_index) new_index = timeline.index - 1;
-        }
+      if (white) {
+        new_index = this.highest_timeline() + 1;
+      } else {
+        new_index = this.lowest_timeline() - 1;
       }
 
-      let new_timeline = new Timeline(this.width, this.height, new_index, to[1] * 2 + !white + 1);
+      let new_timeline = new Timeline(this.width, this.height, new_index, to[1] * 2 + !white + 1, to[0]);
       new_timeline.turn = !white;
       new_timeline.states = [new_target_board];
       this.timelines.push(new_timeline);
@@ -438,12 +446,75 @@ export class Game {
     return {
       from,
       to,
+      ...(new_index !== null ? {new_index} : {}),
       piece_taken,
     };
   }
 
   castle(piece, from, long, white) {
-    throw new Error("Castling hasn't been implemented yet!");
+    let king_candidates = [...this.get_board_as(from[0], from[1], white).entries()].filter(([i, p]) =>
+      p === PIECES.W_KING + !white * PIECES.B_OFFSET
+    );
+    let rook_candidates = [...this.get_board_as(from[0], from[1], white).entries()].filter(([i, p]) =>
+      p === PIECES.W_ROOK + !white * PIECES.B_OFFSET
+    );
+    this.bubble_up_as(from[0], from[1], (board, l, t) => {
+      king_candidates = king_candidates.filter(([i, p]) => board[i] === p);
+      rook_candidates = rook_candidates.filter(([i, p]) => board[i] === p);
+    }, white);
+
+    if (king_candidates.length > 1) {
+      throw new Error(
+        "Ambiguous castling: several kings are eligible ("
+        + king_candidates.map(([i]) =>
+          `${index_to_letter(i % this.width)}${~~(i / this.width)}`
+        ).join(", ")
+        + ")"
+      );
+    }
+
+    rook_candidates = rook_candidates.filter(([i]) => ~~(i / this.width) === ~~(king_candidates[0][0] / this.width));
+
+    rook_candidates = rook_candidates.sort(([i], [j]) => i - j);
+
+    if (long) { // castle to the rightmost left rook
+      rook_candidates = rook_candidates.filter(([i]) => i % this.width < king_candidates[0][0] % this.width);
+      rook_candidates = rook_candidates.slice(-1);
+    } else {
+      rook_candidates = rook_candidates.filter(([i]) => i % this.width > king_candidates[0][0] % this.width);
+      rook_candidates = rook_candidates.slice(0, 1);
+    }
+
+    let source_board = this.get_board_as(from[0], from[1], white);
+    let new_source_board = [...source_board];
+    let y = ~~(rook_candidates[0][0] / this.width);
+
+    new_source_board[rook_candidates[0][0]] = PIECES.BLANK;
+    new_source_board[king_candidates[0][0]] = PIECES.BLANK;
+    new_source_board[(long ? 2 : this.width - 1) + y * this.width] = PIECES.W_KING + !white * PIECES.B_OFFSET;
+    new_source_board[(long ? 3 : this.width - 2) + y * this.width] = PIECES.W_ROOK + !white * PIECES.B_OFFSET;
+
+    if (!this.push_board(from[0], new_source_board)) throw new Error("Couldn't push board");
+
+    this.record_move(
+      from[0],
+      long ? MOVE_KIND.CASTLE_LONG : MOVE_KIND.CASTLE_SHORT,
+      PIECES.W_KING + !white * PIECES.B_OFFSET,
+      [
+        from[0],
+        from[1],
+        king_candidates[0][0] % this.width,
+        y
+      ],
+      [
+        from[0],
+        from[1],
+        long ? 2 : this.width - 1,
+        y
+      ],
+      white,
+      PIECES.BLANK,
+    );
   }
 
   lowest_active_timeline(white = null) {
@@ -497,23 +568,47 @@ export class Game {
     return timeline;
   }
 
-  print(board) {
+  print(...boards) {
     for (let y = this.height - 1; y >= 0; y--) {
-      for (let x = 0; x < this.width; x++) {
-        process.stdout.write(PIECE_CHAR[board[x + y * this.width]]);
+      for (let board of boards) {
+        for (let x = 0; x < this.width; x++) {
+          process.stdout.write(PIECE_CHAR[board[x + y * this.width]]);
+        }
+        process.stdout.write("  ");
       }
       process.stdout.write("\n");
     }
   }
+
+  bubble_up(l, t, fn) {
+    let timeline = this.get_timeline(l);
+    if (timeline === null) return false;
+    while (t > 1) {
+      fn(this.get_board(l, t), l, t);
+      if (t == timeline.begins_at) {
+        l = timeline.emerges_from;
+        if (l === null) break;
+        timeline = this.get_timeline(l);
+        if (timeline === null) return false;
+      }
+      t--;
+    }
+    return true;
+  }
+
+  bubble_up_as(l, t, fn, white) {
+    this.bubble_up(l, t * 2 + !white, fn);
+  }
 }
 
 export class Timeline {
-  constructor(width, height, index, begins_at = 2) {
+  constructor(width, height, index, begins_at = 2, emerges_from = null) {
     this.states = [new Array(width * height).fill(PIECES.BLANK)];
     this.index = index;
     this.width = width;
     this.height = height;
     this.begins_at = begins_at;
+    this.emerges_from = emerges_from;
     this.moves = [];
     this.synthetic = begins_at != 2;
     this.turn = true;
@@ -523,4 +618,13 @@ export class Timeline {
     return this.turn;
     return !!((this.states.length + this.begins_at) % 2) != this.synthetic;
   }
+}
+
+export function letter_to_index(letter) {
+  if (!letter || letter < "a" || letter > "z" || letter.length != 1) return -1;
+  return "abcdefghijklmnopqrstuvw".split("").indexOf(letter);
+}
+
+export function index_to_letter(index) {
+  return "abcdefghijklmnopqrstuvw"[index];
 }

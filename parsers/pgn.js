@@ -2,7 +2,7 @@
   Parses and writes 5dpgn (Shad's notation).
 **/
 
-import {Game, BOARDS, PIECES} from "./game.js";
+import {Game, BOARDS, PIECES, letter_to_index, index_to_letter} from "./game.js";
 
 export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*(-?\d+)\s*T\s*(\d+)\s*\)/;
 export const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
@@ -90,9 +90,9 @@ export function parse(raw) {
   let white = true;
   let turn = 1;
 
-  tokens = tokens.map(token => {
+  tokens = tokens.map((token, i) => {
     if (token.type == "move") {
-      return {
+      let res = {
         ...token,
         white,
         turn,
@@ -104,6 +104,19 @@ export function parse(raw) {
           white,
         ),
       };
+      if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
+        console.log(res);
+        game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + 1, !white));
+        console.log("");
+        if (res.branches) {
+          game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.new_index, res.to[1] + 1, !white));
+        } else {
+          game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.to[0], res.to[1] + 1, !white));
+        }
+        console.log("");
+        console.log("");
+      }
+      return res;
     } else if (token.type == "castle") {
       return {
         ...token,
@@ -362,12 +375,3 @@ function parse_comment(raw) {
 }
 
 // TODO: parse_branch?
-
-export function letter_to_index(letter) {
-  if (!letter || letter < "a" || letter > "z" || letter.length != 1) return -1;
-  return "abcdefghijklmnopqrstuvw".split("").indexOf(letter);
-}
-
-export function index_to_letter(index) {
-  return "abcdefghijklmnopqrstuvw"[index];
-}
