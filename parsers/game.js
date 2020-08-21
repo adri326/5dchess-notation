@@ -378,20 +378,14 @@ export class Game {
       ));
 
       if (candidates.length > 1) {
-        // this.print(source_board);
-        // console.log("Looking for: " + PIECE_CHAR[piece]);
-        // console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
-        // console.log("Source board: " + from[0] + "T" + from[1]);
         throw new Error(
-          "Ambiguous move: two or more source pieces could be found ("
-          + candidates.map(([i, p]) => `(${i % this.width}, ${~~(i / this.width)})`).join("; ")
-          + ")");
+          `Ambiguous move: two or more source pieces could be found: `
+          + candidates.map(([i, p]) =>
+            `${index_to_letter(i % this.width)}${~~(i / this.width) + 1}`
+          ).join(", ")
+        );
       } else if (candidates.length === 0) {
-        // this.print(source_board);
-        // console.log("Looking for: " + PIECE_CHAR[piece]);
-        // console.log("Target square: " + to[2] + ":" + to[3] + " (" + index_to_letter(to[2]) + (to[3] + 1) + ")");
-        // console.log("Source board: " + from[0] + "T" + from[1]);
-        throw new Error(`No piece candidate found! (${from[0]}T${from[1]})${has_x ? index_to_letter(from[2]) : ""}${has_y ? from[3] + 1 : ""} to (${to[0]}T${to[1]})${index_to_letter(to[2])}${to[3] + 1}; ${PIECE_CHAR[piece]}`);
+        throw new Error(`No piece candidate found! (${from[0]}T${from[1] + 1})${has_x ? index_to_letter(from[2]) : ""}${has_y ? from[3] + 1 : ""} to (${to[0]}T${to[1] + 1})${index_to_letter(to[2])}${to[3] + 1}; ${PIECE_CHAR[piece]}`);
       }
       from[2] = candidates[0][0] % this.width;
       from[3] = ~~(candidates[0][0] / this.width);
@@ -488,8 +482,8 @@ export class Game {
 
     new_source_board[rook_candidates[0][0]] = PIECES.BLANK;
     new_source_board[king_candidates[0][0]] = PIECES.BLANK;
-    new_source_board[(long ? 2 : this.width - 1) + y * this.width] = PIECES.W_KING + !white * PIECES.B_OFFSET;
-    new_source_board[(long ? 3 : this.width - 2) + y * this.width] = PIECES.W_ROOK + !white * PIECES.B_OFFSET;
+    new_source_board[(long ? 2 : this.width - 2) + y * this.width] = PIECES.W_KING + !white * PIECES.B_OFFSET;
+    new_source_board[(long ? 3 : this.width - 3) + y * this.width] = PIECES.W_ROOK + !white * PIECES.B_OFFSET;
 
     if (!this.push_board(from[0], new_source_board)) throw new Error("Couldn't push board");
 
@@ -599,7 +593,7 @@ export class Game {
 }
 
 export class Timeline {
-  constructor(width, height, index, begins_at = 2, emerges_from = null) {
+  constructor(width, height, index, begins_at = 0, emerges_from = null) {
     this.states = [new Array(width * height).fill(PIECES.BLANK)];
     this.index = index;
     this.width = width;

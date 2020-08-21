@@ -179,3 +179,13 @@ Possibilities include:
 - Having square bracket-enclosed super-physical coordinates and parenthesis-enclosed branches
 - Having square bracket-enclosed super-physical coordinates *in* parenthesis-enclosed branches
 - Remove the parentheses around super-physical coordinates, at the cost of readability
+
+### Omission
+
+As in SAN, parts of the source square's coordinates may be omitted.
+While the parser bundled here could handle omission in super-physical moves, this format requires you to specify these coordinates nonetheless.
+
+In some cases, moving a piece to an otherwise valid square is illegal because it would put the king in check.
+In those cases, this piece can be considered pinned and may be left out of the equation when looking for omission.
+
+Because checks in 5D chess aren't as trivial as in traditional chess (sometimes requiring a specific move order between boards), the source square's coordinates should still be specified.

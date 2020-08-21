@@ -8,6 +8,8 @@ describe("Testing the FEN parsing", () => {
       let g = new Game(1, 1, [0]);
       if (index == PIECES.BLANK) {
         g.parse_fen("1");
+      } else if (index == PIECES.MARKER) {
+        continue;
       } else {
         g.parse_fen(PIECE_CHAR[index]);
       }

@@ -48,7 +48,13 @@ export function parse(raw) {
     } else if (raw.match(/^\d+\s*\./)) { // turn index token
       [token, raw] = parse_turn_index(raw);
     } else if (SUPERPHYSICAL_REGEXP.exec(raw)) { // move token
-      [token, raw] = parse_move(raw);
+      try {
+        [token, raw] = parse_move(raw);
+      } catch (err) {
+        console.error(err.toString());
+        console.log("Raw string: " + raw.slice(0, 10) + "...");
+        process.exit(1);
+      }
     } else if (raw.startsWith("/")) { // player separator token
       tokens.push({type: "player_separator"});
       raw = raw.slice(1).trimLeft();
@@ -88,7 +94,7 @@ export function parse(raw) {
   }
 
   let white = true;
-  let turn = 1;
+  let turn = 0;
 
   tokens = tokens.map((token, i) => {
     if (token.type == "move") {
@@ -105,6 +111,8 @@ export function parse(raw) {
             white,
           ),
         };
+
+        // Debug informations
         if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
           console.log(res);
           game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + 1, !white));
@@ -117,17 +125,40 @@ export function parse(raw) {
           console.log("");
           console.log("");
         }
+
         return res;
       } catch (err) {
         console.error(err.toString());
         console.error("Raw move: " + token.raw);
-        if (token.from[0] === token.to[0] && token.from[1] === token.to[1]) {
+        if (!game.get_board_as(token.from[0], token.from[1], white)) {
+          // Couldn't find source board
+          console.log(`\nBoard (${token.from[0]}T${token.from[1] + 1}) does not exit (yet)!`);
+          if (game.get_timeline(token.from[0])) {
+            let tl = game.get_timeline(token.from[0]);
+            console.log(`Timeline ${token.from[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+          } else {
+            console.log(`Couldn't find timeline ${token.from[0]}: existing timelines are ${game.timelines.map(t => t.index).join(", ")}.`);
+          }
+        } else if (!game.get_board_as(token.to[0], token.to[1], white)) {
+          // Couldn't find target board
+          console.log(`\nBoard (${token.to[0]}T${token.to[1] + 1}) does not exit (yet)!`);
+          if (game.get_timeline(token.to[0])) {
+            let tl = game.get_timeline(token.to[0]);
+            console.log(`Timeline ${token.to[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+          } else {
+            console.log(`Couldn't find timeline ${token.to[0]}: existing timelines are ${game.timelines.map(t => t.index).join(", ")}.`);
+          }
+        } else if (token.from[0] === token.to[0] && token.from[1] === token.to[1]) {
+          // Show one marked & unmarked board
           console.log("\nBoard / marked board:\n");
+
           let board = [...game.get_board_as(token.from[0], token.from[1], white)];
           board[token.to[2] + token.to[3] * game.width] = PIECES.MARKER;
           game.print(game.get_board_as(token.from[0], token.from[1], white), board);
         } else {
+          // Show the source board and the marked target board
           console.log("Source board / marked target board:\n");
+
           let target_board = [...game.get_board_as(token.to[0], token.to[1], white)];
           target_board[token.to[2] + token.to[3] * game.width] = PIECES.MARKER;
           game.print(game.get_board_as(token.from[0], token.from[1], white), target_board);
@@ -136,18 +167,49 @@ export function parse(raw) {
         process.exit(1);
       }
     } else if (token.type == "castle") {
-      return {
-        ...token,
-        white,
-        turn,
-        piece_index: PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
-        ...game.castle(
-          PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
-          token.from,
-          token.long,
+      try {
+        let res = {
+          ...token,
           white,
-        ),
-      };
+          turn,
+          piece_index: PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
+          ...game.castle(
+            PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
+            token.from,
+            token.long,
+            white,
+          ),
+        };
+
+        // Debug informations
+        if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
+          console.log(res);
+          game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + 1, !white));
+          console.log("");
+          console.log("");
+        }
+
+        return res;
+      } catch (err) {
+        console.error(err.toString());
+        console.error("Raw move: " + token.raw);
+        if (!game.get_board_as(token.from[0], token.from[1], white)) {
+          // Couldn't find source board
+          console.log(`\nBoard (${token.from[0]}T${token.from[1] + 1}) does not exit (yet)!`);
+          if (game.get_timeline(token.from[0])) {
+            let tl = game.get_timeline(token.from[0]);
+            console.log(`Timeline ${token.from[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+          } else {
+            console.log(`Couldn't find timeline ${token.from[0]}: existing timelines are ${game.timelines.map(t => t.index).join(", ")}.`);
+          }
+        } else {
+          // Show one marked & unmarked board
+          console.log("\nBoard / marked board:\n");
+
+          let board = [...game.get_board_as(token.from[0], token.from[1], white)];
+          game.print(game.get_board_as(token.from[0], token.from[1], white), board);
+        }
+      }
     } else if (token.type == "player_separator") {
       white = false;
     } else if (token.type == "turn_index") {
@@ -233,7 +295,7 @@ function parse_move(raw) {
   let sp1 = SUPERPHYSICAL_REGEXP.exec(raw);
   if (!sp1) throw new Error("Invalid move: missing super-physical coordinates!");
   ptr += sp1[0].length;
-  let sp2 = sp1 = [+sp1[1], +sp1[2]];
+  let sp2 = sp1 = [+sp1[1], +sp1[2] - 1];
 
   let piece;
   let p1 = [];
@@ -260,7 +322,7 @@ function parse_move(raw) {
       sp2 = SUPERPHYSICAL_REGEXP.exec(raw.slice(ptr));
       if (!sp2) throw new Error("Invalid move: expected super-physical coordinates after the jump operator");
       ptr += sp2[0].length;
-      sp2 = [+sp2[1], +sp2[2]];
+      sp2 = [+sp2[1], +sp2[2] - 1];
 
       if (!(match = /^([a-w])(\d+)/.exec(raw.slice(ptr)))) throw new Error("Invalid move: expected target coordinates in a piece jump");
       ptr += match[0].length;
