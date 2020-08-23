@@ -2,9 +2,9 @@
   Parses and writes 5dpgn (Shad's notation).
 **/
 
-import {Game, BOARDS, PIECES, letter_to_index, index_to_letter} from "./game.js";
+import {Game, BOARDS, PIECES, letter_to_index, index_to_letter, parse_timeline, write_timeline} from "./game.js";
 
-export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*(-?\d+)\s*T\s*(\d+)\s*\)/;
+export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*([+-]?\d+)\s*T\s*(\d+)\s*\)/;
 export const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
 export const PIECES_REGEXP = /^[PKNRQDUB]/;
 export const PIECE_TO_NUM = {
@@ -84,13 +84,14 @@ export function parse(raw) {
   tokens.filter(t => t.type == "tag").forEach(t => tags[t.name] = t.value);
 
   let [width, height] = (tags["Size"] || "8x8").split("x");
-  let board_indices = (tags["InitialMultiverses"] || "0").split(" ").map(n => +n);
+  let board_indices = (tags["InitialMultiverses"] || "0").split(" ").map(n => parse_timeline(n));
   let game = new Game(width, height, board_indices);
 
   let board_name = tags["Board"] || "Standard";
   if (BOARDS[board_name.toUpperCase()]) {
+    board_indices = BOARDS[board_name.toUpperCase()][1].split(" ").map(x => parse_timeline(x));
+    game = new Game(width, height, board_indices);
     game.parse_fen(BOARDS[board_name.toUpperCase()][0]);
-    game.board_indices = BOARDS[board_name.toUpperCase()][1].split(" ").map(x => +x);
   }
 
   let white = true;
@@ -104,11 +105,13 @@ export function parse(raw) {
           white,
           turn,
           piece_index: PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
+          ...(token.promotion ? {promotion_index: PIECE_TO_NUM[token.promotion] + (white ? 0 : PIECES.B_OFFSET)} : {}),
           ...game.play(
             PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
             token.from,
             token.to,
             white,
+            PIECE_TO_NUM[token.promotion || "."] + (white ? 0 : PIECES.B_OFFSET),
           ),
         };
 
@@ -295,7 +298,7 @@ function parse_move(raw) {
   let sp1 = SUPERPHYSICAL_REGEXP.exec(raw);
   if (!sp1) throw new Error("Invalid move: missing super-physical coordinates!");
   ptr += sp1[0].length;
-  let sp2 = sp1 = [+sp1[1], +sp1[2] - 1];
+  let sp2 = sp1 = [parse_timeline(sp1[1]), +sp1[2] - 1];
 
   let piece;
   let p1 = [];
@@ -306,6 +309,7 @@ function parse_move(raw) {
   let moves_present = false;
   let check = false;
   let checkmate = false;
+  let promotion = null;
 
   let match;
 
@@ -322,7 +326,7 @@ function parse_move(raw) {
       sp2 = SUPERPHYSICAL_REGEXP.exec(raw.slice(ptr));
       if (!sp2) throw new Error("Invalid move: expected super-physical coordinates after the jump operator");
       ptr += sp2[0].length;
-      sp2 = [+sp2[1], +sp2[2] - 1];
+      sp2 = [parse_timeline(sp2[1]), +sp2[2] - 1];
 
       if (!(match = /^([a-w])(\d+)/.exec(raw.slice(ptr)))) throw new Error("Invalid move: expected target coordinates in a piece jump");
       ptr += match[0].length;
@@ -388,6 +392,19 @@ function parse_move(raw) {
       p1 = [letter_to_index(match[1])];
       takes = true;
     } else throw new Error("Invalid move: invalid pawn move or missing/wrong piece name: " + raw.slice(ptr, 10) + "...");
+
+    if (match = /^=([QRBNDU])/.exec(raw.slice(ptr))) {
+      promotion = match[1];
+      ptr += match[0].length;
+    }
+
+    if (raw.slice(ptr).startsWith("+")) {
+      ptr++;
+      check = true;
+    } else if (raw.slice(ptr).startsWith("#")) {
+      ptr++;
+      checkmate = true;
+    }
   }
 
   if (p1.length === 2) p1[1]--;
@@ -405,21 +422,22 @@ function parse_move(raw) {
     raw: raw.slice(0, ptr),
     ...(jumps ? {branches} : {}),
     ...(branches ? {moves_present} : {}),
+    ...(promotion ? {promotion} : {}),
   }, raw.slice(ptr).trimLeft()];
 }
 
 function write_move(move, game) {
   if (move.type == "castle") {
-    return `(${move.from[0]}T${move.from[1]})O${"-O".repeat(move.long + 1)}`;
+    return `(${write_timeline(move.from[0])}T${move.from[1]})O${"-O".repeat(move.long + 1)}`;
   }
-  let res = `(${move.from[0]}T${move.from[1]})`;
+  let res = `(${write_timeline(move.from[0])}T${move.from[1]})`;
   if (move.from[0] !== move.to[0] || move.from[1] !== move.to[1]) {
     res += NUM_TO_PIECE[move.piece_index % PIECES.B_OFFSET];
     res += `${index_to_letter(move.from[2])}${move.from[3] + 1}`;
     if (move.branches) res += ">>";
     else res += ">";
     if (move.piece_taken !== 0) res += "x";
-    res += `(${move.to[0]}T${move.to[1]})`;
+    res += `(${write_timeline(move.to[0])}T${move.to[1]})`;
     res += `${index_to_letter(move.to[2])}${move.to[3] + 1}`;
     if (move.check) res += "+";
     if (move.checkmate) res += "#";
@@ -440,6 +458,8 @@ function write_move(move, game) {
       if (board.filter(p => p === move.piece_index).length == 1) {
         omit_x = true;
         omit_y = true;
+      } else {
+        [omit_x, omit_y] = game.can_omit(move.piece_index, move.from, move.to, move.white);
       }
     }
 

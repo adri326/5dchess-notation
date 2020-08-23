@@ -60,9 +60,15 @@ Jumps use the following syntax:
 - `+` or `#` if the moves checks or checkmates the adversary
 - `~` if the jump is branching and the present is being moved to the new branch
 
-All put together, it looks like this: `(-1T4)Nc3>>x(0T2)c3+` ("The knight from board -1L, T4, c3 jumps and takes on L, T2, c3, creating a new timeline (-2L) and moving the present").
+All put together, it looks like this: `(-1T4)Nc3>>x(0T2)c3+~` ("The knight from board -1L, T4, c3 jumps and takes on L, T2, c3, creating a new timeline (-2L) and moving the present").
 
 A non-branching jump may look like this: `(0T6)Pd5>(1T6)d5`.
+
+### Promotions
+
+As of right now, underpromotion is not allowed/implemented yet.
+
+Promotions can only occur in physical moves and are denoted by adding the `=` symbol at the end of the move (before `+` or `#`), optionally with the piece the pawn is promoted into (`Q`).
 
 ## Turns
 
@@ -88,7 +94,7 @@ This format's specific tags are the following:
 
 - `Board`: which variation was chosen (`Standard`, `Simple - No Queens`, etc.)
 - `Size`: the size of the board (`8x8`, `7x7`, `5x5`)
-- `InitialMultiverses`: a list of space-separated, initial multiverses' indexes (`-1 0`); defaults to `0`, unless the board is already known
+- `InitialMultiverses`: a list of space-separated, initial multiverses' indexes (`-0 +0 1`); defaults to `0`, unless the board is already known
 - `Mode`: should always be set to `5D`
 
 ## Examples
@@ -163,12 +169,26 @@ Here is what the end of that game looks like:
 
 ### Even-numbered starting boards
 
-If there is an even number of starting boards, these should be numbered `0`, `1`, `-1`, `2`, ...
+Originally, this notation planned to not number boards `-0` and `+0`.
+There are some arguments for this:
 
-They should **NOT** be numbered `-0`, `0`, `-1`, `1`, ...
+- Under IEEE 754, [`-0 == 0`](https://en.wikipedia.org/wiki/Floating-point_arithmetic#Signed_zero)
+- Internally in the game, `-0` is `-1`
 
-This is as to be consistent with the inner format of the game and to make it easier to store the number as a signed integer or a floating-point number.
-(Under IEEE 754, [`-0 == 0`](https://en.wikipedia.org/wiki/Floating-point_arithmetic#Signed_zero)).
+Arguments for numbering boards using `-0` and `+0` are:
+
+- The game shows you the board indices as such, making it easier to manually transcribe a game
+- The displayed timeline index gives a hint about who has or hasn't branching priority
+- It can be converted when parsed and later stored as `-0.5` and `+0.5`
+- Axel's notation, Hexicube's parser and the Matrix notation already use `-0` and `+0`
+
+Thus, this notation now allows using `-0` and `+0` as starting board indices.
+Reluctants may still use `-1` and `0` by specifying it in the `InitialMultiverses` tag.
+
+If `-0` and `+0` are used, the `+` sign is mandatory (just like how it's always displayed in such cases in the game).
+The `+` sign can be omitted for other integers.
+
+The included parser goes around the signed zero equality issue by converting during the token parsing phase `"-0"` to `-0.5` and `"+0"` to `0.5`.
 
 ### Branching
 
@@ -189,3 +209,5 @@ In some cases, moving a piece to an otherwise valid square is illegal because it
 In those cases, this piece can be considered pinned and may be left out of the equation when looking for omission.
 
 Because checks in 5D chess aren't as trivial as in traditional chess (sometimes requiring a specific move order between boards), the source square's coordinates should still be specified.
+
+Omission of super-physical coordinates is being considered.

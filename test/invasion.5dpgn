@@ -1,0 +1,21 @@
+[Event "5D chess online game"]
+[Site "5D chess"]
+[White "CPU"]
+[Black "Shad Amethyst"]
+[Date "2020.08.23"]
+[Result "0-1"]
+[Mode "5D"]
+[Board "Misc - Timeline Invasion"]
+[Size "5x5"]
+
+1. (-0T1)a2 (+0T1)c4 / (-0T1)a3 (+0T1)bxc4
+2. (-0T2)b2 (+0T2)Kc3>>(-0T1)c2~ / (1T1)a2
+3. (1T2)e2 / (-0T2)axb2 (+0T2)d3 (1T2)Ba4
+4. (-0T3)cxb2 (+0T3)Bxd3 (1T3)Kd2 / (-0T3)e3 (+0T3)cxd3 (1T3)axb1=Q
+5. (-0T4)d3 (+0T4)exd3 (1T4)c2 {Prevents ... / (1T4)Qa2#} / (-0T4)exd2 {En passant} (+0T4)a3 (1T4)c3+
+6. (-0T5)a3 (+0T5)bxa3 (1T5)Ke1 / (-0T5)Na5>x(+0T5)a3 (1T5)Kc5>>(1T4)b5~
+7. (-1T5)c3 / (-1T5)Qxa1
+8. (-1T6)cxb4+ (-0T6)exd2 (+0T6)Rc1 (1T6)a2 / (-0T6)Bb5>x(-1T6)b4+ (1T6)Qb1>x(+0T6)c1
+9. (-1T7)Kd2>>(-1T6)e1~ / (2T6)Nb3+
+10. (-0T7)b3 (+0T7)d4 (1T7)a3 (2T7)Kc2 / (-0T7)c2 (+0T7)Qc1>(2T7)a3 (1T7)Pc3>>x(2T6)c3+~
+11. (+0T8)Be1>>(-1T6)e1~ / (3T6)Qxd1# {Attacks (3T6)Kd2, (2T6)Kd2, (2T6)Ke1, (2T7)Kc2, (2T7)Ke1; (-2T7)Qa1 attacks (+1T7)Ke1; (-2T7)Pc3 attacks (-2T7)Kd2} 0-1

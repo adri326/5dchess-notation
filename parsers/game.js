@@ -65,7 +65,7 @@ export const MOVE_KIND = {
 export const BOARDS = {
   "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "MISC - SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0", "5x5"],
-  "MISC - TIMELINE INVASION": ["nbkrb/ppppp/5/5/PPPPP ppppp/5/5/PPPPP/NBKRB", "0 1", "5x5"],
+  "MISC - TIMELINE INVASION": ["nbkrb/ppppp/5/5/PPPPP ppppp/5/5/PPPPP/NBKRB", "-0 +0", "5x5"],
   "SIMPLE - NO QUEEN": ["rnbknbr/ppppppp/7/7/7/PPPPPPP/RNBKNBR", "0", "7x7"],
   "SIMPLE - KNIGHTS VS. BISHOP": ["rbqkbr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
   "SIMPLE - NO BISHOPS": ["rnqknr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
@@ -76,9 +76,9 @@ export const BOARDS = {
   "MISC - SMALL OPEN": ["prnbk/3pp/5/PP3/KBNRP", "0", "5x5"],
   "MISC - VERY SMALL": ["krbn/pppp/PPPP/KRBN", "0", "4x4"],
   "MISC - VERY SMALL OPEN": ["nbrk/4p/P4/KRBN", "0", "4x4"],
-  "MISC - TIMELINE FORMATIONS": ["ppppp/5/5/5/2K2 2k2/5/5/5/PPPPP", "0 1", "5x5"],
-  "MISC - TIMELINE TACTITIAN": ["kbnr/pppp/4/4 4/4/PPPP/KBNR", "0 1", "4x4"],
-  "MISC - TIMELINE STRATEGOS": ["nbrur/ppppp/5/5/5 5/5/5/PPPPP/RUKBN", "0 1", "5x5"],
+  "MISC - TIMELINE FORMATIONS": ["ppppp/5/5/5/2K2 2k2/5/5/5/PPPPP", "-0 +0", "5x5"],
+  "MISC - TIMELINE TACTITIAN": ["kbnr/pppp/4/4 4/4/PPPP/KBNR", "-0 +0", "4x4"],
+  "MISC - TIMELINE STRATEGOS": ["nbrur/ppppp/5/5/5 5/5/5/PPPPP/RUKBN", "-0 +0", "5x5"],
   "MISC - TIMELINE BATTLEGROUNDS": ["rrkrr/bbqbb/ppppp/5/PPPPP nnnnn/ppppp/5/PPPPP/NNNNN ppppp/5/PPPPP/BBQBB/RRKRR", "-1 0 1", "5x5"],
   "MISC - EXCESSIVE": ["kruqdrk/rnbknbr/ppppppp/7/PPPPPPP/RNBKNBR/KRUQDRK", "0", "7x7"],
   "MISC - REFLECTED STANDARD": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR", "0", "8x8"],
@@ -247,6 +247,7 @@ export class Game {
         }
         break;
       case PIECES.B_PAWN:
+        if (this.is_en_passant(from, to, white)) return true;
         if (this.get_as(...to, white) != PIECES.BLANK) {
           return from[0] === to[0]
             && from[1] === to[1]
@@ -320,6 +321,16 @@ export class Game {
     }
   }
 
+  is_en_passant(from, to, white) {
+    if (from[0] === to[0] && from[1] === to[1] && (from[2] === to[2] + 1 || from[2] === to[2] - 1)) {
+      return this.get_as(...to, white) === PIECES.BLANK
+        && this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? -1 : 1), white) === PIECES.BLANK
+        && this.get_as(to[0], to[1], to[2], to[3] + (white ? -1 : 1), white) === PIECES.W_PAWN + PIECES.B_OFFSET * white
+        && this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? 1 : -1), white) === PIECES.W_PAWN + PIECES.B_OFFSET * white
+        && this.get_as(to[0], to[1], to[2], to[3] + (white ? 1 : -1), white) === PIECES.BLANK
+    }
+  }
+
   /**?
     Checks that the path from `from` to `to` is clear as `white`. Asserts that this path is an n-gonal.
   **/
@@ -339,18 +350,34 @@ export class Game {
     return true;
   }
 
+
+  /**?
+    Returns if parts of a move's source coordinates can be omitted
+  **/
+  can_omit(piece, from, to, white) {
+    let board = this.get_board_as(from[0], from[1], white);
+    if (!board) throw new Error("No board found matching " + from[0] + ":" + from[1]);
+    let candidates = [...board.entries()].filter(([i, p]) => p === piece);
+    let candidates_x = candidates.filter(([i]) => i % this.width === from[2]);
+    let candidates_y = candidates.filter(([i]) => ~~(i / this.width) === from[3]);
+    let filter = ([i, p]) => this.can_move(piece, [from[0], from[1], i % this.width, ~~(i / this.width)], to, white);
+    candidates_x = candidates_x.filter(filter);
+    candidates_y = candidates_y.filter(filter);
+    return [candidates_x.length === 1, candidates_y.length === 1];
+  }
+
   /**?
     Plays the move and returns information on the move done
   **/
-  play(piece, from, to, white) {
+  play(piece, from, to, white, promotion) {
     let source_board = this.get_board(from[0], from[1] * 2 + !white);
     let target_board = this.get_board(to[0], to[1] * 2 + !white);
     if (!source_board) {
-      console.log("Valid timelines are: " + this.timelines.map(t => `${t.index}(${t.states.length + t.begins_at})`).join(", "));
+      console.log("Valid timelines are: " + this.timelines.map(t => `${write_timeline(t.index)}(${t.states.length + t.begins_at})`).join(", "));
       throw new Error(`Invalid source board: ${from} (${from[0]}, ${from[1] * 2 + !white})`);
     }
     if (!target_board) {
-      console.log("Valid timelines are: " + this.timelines.map(t => `${t.index}(${t.states.length + t.begins_at})`).join(", "));
+      console.log("Valid timelines are: " + this.timelines.map(t => `${write_timeline(t.index)}(${t.states.length + t.begins_at})`).join(", "));
       throw new Error(`Invalid target board: ${to} (${to[0]}, ${to[1] * 2 + !white})`);
     }
 
@@ -385,7 +412,7 @@ export class Game {
           ).join(", ")
         );
       } else if (candidates.length === 0) {
-        throw new Error(`No piece candidate found! (${from[0]}T${from[1] + 1})${has_x ? index_to_letter(from[2]) : ""}${has_y ? from[3] + 1 : ""} to (${to[0]}T${to[1] + 1})${index_to_letter(to[2])}${to[3] + 1}; ${PIECE_CHAR[piece]}`);
+        throw new Error(`No piece candidate found! (${write_timeline(from[0])}T${from[1] + 1})${has_x ? index_to_letter(from[2]) : ""}${has_y ? from[3] + 1 : ""} to (${write_timeline(to[0])}T${to[1] + 1})${index_to_letter(to[2])}${to[3] + 1}; ${PIECE_CHAR[piece]}`);
       }
       from[2] = candidates[0][0] % this.width;
       from[3] = ~~(candidates[0][0] / this.width);
@@ -398,7 +425,14 @@ export class Game {
     if (source_board === target_board) {
       let new_board = [...source_board];
       new_board[from[2] + from[3] * this.width] = PIECES.BLANK;
-      new_board[to[2] + to[3] * this.width] = piece;
+      if (promotion) {
+        new_board[to[2] + to[3] * this.width] = promotion;
+      } else {
+        new_board[to[2] + to[3] * this.width] = piece;
+      }
+      if (this.is_en_passant(from, to, white)) {
+        new_board[to[2] + (to[3] + (white ? -1 : 1)) * this.width] = PIECES.BLANK;
+      }
       if (!this.push_board(from[0], new_board)) throw new Error("Couldn't push board");
 
       this.record_move(from[0], MOVE_KIND.MOVE, piece, from, to, white, piece_taken);
@@ -421,9 +455,9 @@ export class Game {
       this.record_move(from[0], MOVE_KIND.JUMP_OUT, piece, from, to, white, piece_taken);
 
       if (white) {
-        new_index = this.highest_timeline() + 1;
+        new_index = ~~this.highest_timeline() + 1;
       } else {
-        new_index = this.lowest_timeline() - 1;
+        new_index = ~~this.lowest_timeline() - 1;
       }
 
       let new_timeline = new Timeline(this.width, this.height, new_index, to[1] * 2 + !white + 1, to[0]);
@@ -618,4 +652,24 @@ export function letter_to_index(letter) {
 
 export function index_to_letter(index) {
   return "abcdefghijklmnopqrstuvw"[index];
+}
+
+export function parse_timeline(str) {
+  if (str === "-0") {
+    return -0.5;
+  } else if (str === "+0") {
+    return 0.5;
+  } else {
+    return +str;
+  }
+}
+
+export function write_timeline(str) {
+  if (str === -0.5) {
+    return "-0";
+  } else if (str === 0.5) {
+    return "+0";
+  } else {
+    return str.toString();
+  }
 }
