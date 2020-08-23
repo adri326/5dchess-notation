@@ -496,6 +496,8 @@ export class Game {
         ).join(", ")
         + ")"
       );
+    } else if (king_candidates.length === 0) {
+      throw new Error("No valid king found to castle!");
     }
 
     rook_candidates = rook_candidates.filter(([i]) => ~~(i / this.width) === ~~(king_candidates[0][0] / this.width));
@@ -509,6 +511,8 @@ export class Game {
       rook_candidates = rook_candidates.filter(([i]) => i % this.width > king_candidates[0][0] % this.width);
       rook_candidates = rook_candidates.slice(0, 1);
     }
+
+    if (!rook_candidates.length) throw new Error("No valid rooks found to castle!");
 
     let source_board = this.get_board_as(from[0], from[1], white);
     let new_source_board = [...source_board];
@@ -623,6 +627,98 @@ export class Game {
 
   bubble_up_as(l, t, fn, white) {
     this.bubble_up(l, t * 2 + !white, fn);
+  }
+
+  error_info(token, white, l = null) {
+    if (token.raw) console.log("Raw move: " + token.raw);
+    console.log("As: " + (white ? "white" : "black"));
+
+    if (token.from) {
+      process.stdout.write("From: ");
+
+      if (token.from[0] !== null && token.from[1] !== -1) {
+        process.stdout.write(`(L${write_timeline(token.from[0])} T${token.from[1] + 1})`);
+      } else if (token.from[0] !== null) {
+        process.stdout.write(`(L${write_timeline(token.from[0])}`);
+      } else if (token.from[1] !== -1) {
+        if (l === null) {
+          process.stdout.write(`(T${token.from[1] + 1})`);
+        } else {
+          process.stdout.write(`(L${write_timeline(l)}? T${token.from[1] + 1})`);
+        }
+      }
+
+      if (token.from.length > 2 && token.from[2]) {
+        process.stdout.write(index_to_letter(token.from[2]));
+      }
+      if (token.from.length > 3 && token.from[3]) {
+        process.stdout.write((token.from[3] + 1).toString());
+      }
+
+      process.stdout.write("\n");
+    }
+
+    if (token.to) {
+      process.stdout.write("To: ");
+
+      if (token.to[0] !== null && token.to[1] !== -1) {
+        process.stdout.write(`(L${write_timeline(token.to[0])} T${token.to[1] + 1})`);
+      } else if (token.to[0] !== null) {
+        process.stdout.write(`(L${write_timeline(token.to[0])}`);
+      } else if (token.to[1] !== -1) {
+        process.stdout.write(`(T${token.to[1] + 1})`);
+      }
+
+      if (token.to.length > 2 && token.to[2]) {
+        process.stdout.write(index_to_letter(token.to[2]));
+      }
+      if (token.to.length > 3 && token.to[3]) {
+        process.stdout.write((token.to[3] + 1).toString());
+      }
+
+      process.stdout.write("\n");
+    }
+
+    if (token.piece) {
+      console.log("Piece: '" + token.piece + "'");
+    } else if (token.piece_index) {
+      console.log("Piece: '" + PIECE_CHAR[token.piece_index] + "'");
+    }
+
+    if (!this.get_board_as(token.from && token.from[0], token.from[1], white)) {
+      // Couldn't find source board
+      console.log(`\nBoard (${token.from[0]}T${token.from[1] + 1}) does not exit (yet)!`);
+      if (this.get_timeline(token.from[0])) {
+        let tl = this.get_timeline(token.from[0]);
+        console.log(`Timeline ${token.from[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+      } else {
+        console.log(`Couldn't find timeline ${token.from[0]}: existing timelines are ${this.timelines.map(t => t.index).join(", ")}.`);
+      }
+    } else if (token.to && !this.get_board_as(token.to[0], token.to[1], white)) {
+      // Couldn't find target board
+      console.log(`\nBoard (${token.to[0]}T${token.to[1] + 1}) does not exit (yet)!`);
+      if (this.get_timeline(token.to[0])) {
+        let tl = this.get_timeline(token.to[0]);
+        console.log(`Timeline ${token.to[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+      } else {
+        console.log(`Couldn't find timeline ${token.to[0]}: existing timelines are ${this.timelines.map(t => t.index).join(", ")}.`);
+      }
+    } else if (token.from && (!token.to || (token.from[0] === token.to[0] && token.from[1] === token.to[1]))) {
+      // Show one marked & unmarked board
+      console.log("\nBoard / marked board:\n");
+
+      let board = [...this.get_board_as(token.from[0], token.from[1], white)];
+      if (token.to) board[token.to[2] + token.to[3] * this.width] = PIECES.MARKER;
+      this.print(this.get_board_as(token.from[0], token.from[1], white), board);
+    } else if (token.to) {
+      // Show the source board and the marked target board
+      console.log("Source board / marked target board:\n");
+
+      let target_board = [...this.get_board_as(token.to[0], token.to[1], white)];
+      target_board[token.to[2] + token.to[3] * this.width] = PIECES.MARKER;
+      this.print(game.get_board_as(token.from[0], token.from[1], white), target_board);
+    }
+    console.log("\n");
   }
 }
 

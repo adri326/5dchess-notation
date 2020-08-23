@@ -13,6 +13,11 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     describe: "the notation to convert into (5dpgn)"
   }).positional("file", {
     describe: "the file to read from"
+  }).option("v", {
+    alias: "v",
+    default: false,
+    type: "boolean",
+    describe: "more verbose parsing/writing"
   })
 }, (argv) => {
   let g;
@@ -22,7 +27,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   let to = argv.to.toLowerCase();
 
   if (from === "5dpgn") {
-    g = pgn.parse(raw);
+    g = pgn.parse(raw, argv.verbose || false);
   } else if (from === "json") {
     let deserialized = JSON.parse(raw);
     g = new game.Game(1, 1, [0]);

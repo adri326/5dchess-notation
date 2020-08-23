@@ -37,7 +37,7 @@ export const DEFAULT_TAGS = {
 /**?
   Parses 5D PGN (Shad's notation); returns a Game structure.
 **/
-export function parse(raw) {
+export function parse(raw, verbose = false) {
   let tokens = [];
   raw = raw.trimLeft();
 
@@ -132,41 +132,8 @@ export function parse(raw) {
         return res;
       } catch (err) {
         console.error(err.toString());
-        console.error("Raw move: " + token.raw);
-        if (!game.get_board_as(token.from[0], token.from[1], white)) {
-          // Couldn't find source board
-          console.log(`\nBoard (${token.from[0]}T${token.from[1] + 1}) does not exit (yet)!`);
-          if (game.get_timeline(token.from[0])) {
-            let tl = game.get_timeline(token.from[0]);
-            console.log(`Timeline ${token.from[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
-          } else {
-            console.log(`Couldn't find timeline ${token.from[0]}: existing timelines are ${game.timelines.map(t => t.index).join(", ")}.`);
-          }
-        } else if (!game.get_board_as(token.to[0], token.to[1], white)) {
-          // Couldn't find target board
-          console.log(`\nBoard (${token.to[0]}T${token.to[1] + 1}) does not exit (yet)!`);
-          if (game.get_timeline(token.to[0])) {
-            let tl = game.get_timeline(token.to[0]);
-            console.log(`Timeline ${token.to[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
-          } else {
-            console.log(`Couldn't find timeline ${token.to[0]}: existing timelines are ${game.timelines.map(t => t.index).join(", ")}.`);
-          }
-        } else if (token.from[0] === token.to[0] && token.from[1] === token.to[1]) {
-          // Show one marked & unmarked board
-          console.log("\nBoard / marked board:\n");
-
-          let board = [...game.get_board_as(token.from[0], token.from[1], white)];
-          board[token.to[2] + token.to[3] * game.width] = PIECES.MARKER;
-          game.print(game.get_board_as(token.from[0], token.from[1], white), board);
-        } else {
-          // Show the source board and the marked target board
-          console.log("Source board / marked target board:\n");
-
-          let target_board = [...game.get_board_as(token.to[0], token.to[1], white)];
-          target_board[token.to[2] + token.to[3] * game.width] = PIECES.MARKER;
-          game.print(game.get_board_as(token.from[0], token.from[1], white), target_board);
-        }
-        console.log("\n");
+        game.error_info(token, white);
+        if (verbose) console.error(err);
         process.exit(1);
       }
     } else if (token.type == "castle") {
@@ -195,23 +162,9 @@ export function parse(raw) {
         return res;
       } catch (err) {
         console.error(err.toString());
-        console.error("Raw move: " + token.raw);
-        if (!game.get_board_as(token.from[0], token.from[1], white)) {
-          // Couldn't find source board
-          console.log(`\nBoard (${token.from[0]}T${token.from[1] + 1}) does not exit (yet)!`);
-          if (game.get_timeline(token.from[0])) {
-            let tl = game.get_timeline(token.from[0]);
-            console.log(`Timeline ${token.from[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
-          } else {
-            console.log(`Couldn't find timeline ${token.from[0]}: existing timelines are ${game.timelines.map(t => t.index).join(", ")}.`);
-          }
-        } else {
-          // Show one marked & unmarked board
-          console.log("\nBoard / marked board:\n");
-
-          let board = [...game.get_board_as(token.from[0], token.from[1], white)];
-          game.print(game.get_board_as(token.from[0], token.from[1], white), board);
-        }
+        game.error_info(token, white);
+        if (verbose) console.error(err);
+        process.exit(1);
       }
     } else if (token.type == "player_separator") {
       white = false;
@@ -375,6 +328,7 @@ function parse_move(raw) {
       type: "castle",
       check,
       checkmate,
+      raw: raw.slice(0, ptr),
       from: sp1,
       long: !!match[1],
     }, raw.slice(ptr).trimLeft()];
