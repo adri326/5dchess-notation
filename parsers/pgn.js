@@ -184,7 +184,7 @@ export function parse(raw, verbose = false) {
 export function write(game) {
   let res = "";
   for (let tag in (game.tags || DEFAULT_TAGS)) {
-    res += `[${tag}: "${game.tags[tag]}"]\n`;
+    res += `[${tag} "${game.tags[tag]}"]\n`;
   }
   res += "\n";
 
@@ -382,16 +382,16 @@ function parse_move(raw) {
 
 function write_move(move, game) {
   if (move.type == "castle") {
-    return `(${write_timeline(move.from[0])}T${move.from[1]})O${"-O".repeat(move.long + 1)}`;
+    return `(${write_timeline(move.from[0])}T${move.from[1] + 1})O${"-O".repeat(move.long + 1)}`;
   }
-  let res = `(${write_timeline(move.from[0])}T${move.from[1]})`;
+  let res = `(${write_timeline(move.from[0])}T${move.from[1] + 1})`;
   if (move.from[0] !== move.to[0] || move.from[1] !== move.to[1]) {
     res += NUM_TO_PIECE[move.piece_index % PIECES.B_OFFSET];
     res += `${index_to_letter(move.from[2])}${move.from[3] + 1}`;
     if (move.branches) res += ">>";
     else res += ">";
     if (move.piece_taken !== 0) res += "x";
-    res += `(${write_timeline(move.to[0])}T${move.to[1]})`;
+    res += `(${write_timeline(move.to[0])}T${move.to[1] + 1})`;
     res += `${index_to_letter(move.to[2])}${move.to[3] + 1}`;
     if (move.check) res += "+";
     if (move.checkmate) res += "#";

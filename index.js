@@ -2,7 +2,7 @@
 
 import * as pgn from "./parsers/pgn.js";
 import * as game from "./parsers/game.js";
-// import * as axel from "./parsers/axel.js";
+import * as axel from "./parsers/axel.js";
 import * as fs from "fs";
 import * as yargs from "yargs";
 
@@ -44,8 +44,8 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
         g[key] = deserialized[key];
       }
     }
-  // } else if (argv.from.toLowerCase() === "4xel" || argv.from.toLowerCase() === "axel") {
-  //   game = axel.parse(raw);
+  } else if (argv.from.toLowerCase() === "4xel" || argv.from.toLowerCase() === "axel") {
+    g = axel.parse(raw, argv.verbose);
   }
 
   if (to === "5dpgn") {

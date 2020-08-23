@@ -28,3 +28,4 @@ To get help, run the same command with `--help`.
 The supported notations are:
 
 - `5dpgn`: the format described in [README.md](README.md)
+- `json`: the internal format of the parsers, parts of it may be different depending on the language that is being parsed from. No verification is done on import, use at your own risk!

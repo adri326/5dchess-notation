@@ -5,6 +5,7 @@ Other, proposed notations include:
 
 - [Axel's algebraic, a take on 5D chess notation](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view)
 - [Matrix Notation](https://drive.google.com/drive/folders/10332r6crq_pD-d4pG4VSynM8ziu1uT98)
+- [Hexicube's adaptation of Axel' AN](https://github.com/Hexicube/5D-Chess-Game-Viewer)
 
 This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
 

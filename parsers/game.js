@@ -361,9 +361,20 @@ export class Game {
     let candidates_x = candidates.filter(([i]) => i % this.width === from[2]);
     let candidates_y = candidates.filter(([i]) => ~~(i / this.width) === from[3]);
     let filter = ([i, p]) => this.can_move(piece, [from[0], from[1], i % this.width, ~~(i / this.width)], to, white);
+    candidates = candidates.filter(filter);
     candidates_x = candidates_x.filter(filter);
     candidates_y = candidates_y.filter(filter);
-    return [candidates_x.length === 1, candidates_y.length === 1];
+
+    if (candidates.length === 1) {
+      return [true, true];
+    } else {
+      if (candidates_x.length === 1) {
+        return [true, false];
+      } else if (candidates_y.length === 1) {
+        return [false, true];
+      }
+      return [false, false];
+    }
   }
 
   /**?
@@ -373,11 +384,9 @@ export class Game {
     let source_board = this.get_board(from[0], from[1] * 2 + !white);
     let target_board = this.get_board(to[0], to[1] * 2 + !white);
     if (!source_board) {
-      console.log("Valid timelines are: " + this.timelines.map(t => `${write_timeline(t.index)}(${t.states.length + t.begins_at})`).join(", "));
       throw new Error(`Invalid source board: ${from} (${from[0]}, ${from[1] * 2 + !white})`);
     }
     if (!target_board) {
-      console.log("Valid timelines are: " + this.timelines.map(t => `${write_timeline(t.index)}(${t.states.length + t.begins_at})`).join(", "));
       throw new Error(`Invalid target board: ${to} (${to[0]}, ${to[1] * 2 + !white})`);
     }
 
@@ -385,9 +394,9 @@ export class Game {
       let has_x = from[2] !== -1 && from.length > 2;
       let has_y = from[3] !== -1 && from.length > 3;
 
-      if (from[0] !== to[0] || from[1] !== to[1]) {
-        throw new Error("Super-physical move desambiguation is not supported!");
-      }
+      // if (from[0] !== to[0] || from[1] !== to[1]) {
+      //   throw new Error("Super-physical move desambiguation is not supported!");
+      // }
       // re-determine the origin position
       let candidates = [...source_board.entries()].filter(([i, p]) => p === piece);
       if (has_x) {
@@ -648,10 +657,10 @@ export class Game {
         }
       }
 
-      if (token.from.length > 2 && token.from[2]) {
+      if (token.from.length > 2 && token.from[2] !== -1) {
         process.stdout.write(index_to_letter(token.from[2]));
       }
-      if (token.from.length > 3 && token.from[3]) {
+      if (token.from.length > 3 && token.from[3] !== -1) {
         process.stdout.write((token.from[3] + 1).toString());
       }
 
@@ -716,7 +725,7 @@ export class Game {
 
       let target_board = [...this.get_board_as(token.to[0], token.to[1], white)];
       target_board[token.to[2] + token.to[3] * this.width] = PIECES.MARKER;
-      this.print(game.get_board_as(token.from[0], token.from[1], white), target_board);
+      this.print(this.get_board_as(token.from[0], token.from[1], white), target_board);
     }
     console.log("\n");
   }
