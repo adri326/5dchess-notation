@@ -24,7 +24,28 @@ const PIECE_CHAR = {
   [PIECES.MARKER]: "*",
 }
 
-export function preview(game) {
+const PIECE_CHAR_UNICODE = {
+  [PIECES.BLANK]: " ",
+  [PIECES.W_PAWN]: WHITE_FG + "♙" + "{/}",
+  [PIECES.W_KNIGHT]: WHITE_FG + "♘" + "{/}",
+  [PIECES.W_BISHOP]: WHITE_FG + "♗" + "{/}",
+  [PIECES.W_ROOK]: WHITE_FG + "♖" + "{/}",
+  [PIECES.W_QUEEN]: WHITE_FG + "♕" + "{/}",
+  [PIECES.W_KING]: WHITE_FG + "♔" + "{/}",
+  [PIECES.W_UNICORN]: WHITE_FG + "U" + "{/}",
+  [PIECES.W_DRAGON]: WHITE_FG + "D" + "{/}",
+  [PIECES.B_PAWN]: BLACK_FG + "♟︎" + "{/}",
+  [PIECES.B_KNIGHT]: BLACK_FG + "♞" + "{/}",
+  [PIECES.B_BISHOP]: BLACK_FG + "♝" + "{/}",
+  [PIECES.B_ROOK]: BLACK_FG + "♜" + "{/}",
+  [PIECES.B_QUEEN]: BLACK_FG + "♛" + "{/}",
+  [PIECES.B_KING]: BLACK_FG + "♚" + "{/}",
+  [PIECES.B_UNICORN]: BLACK_FG + "u" + "{/}",
+  [PIECES.B_DRAGON]: BLACK_FG + "d" + "{/}",
+  [PIECES.MARKER]: "*",
+};
+
+export function preview(game, use_unicode = false) {
   import("blessed").then((blessed) => {
     blessed = blessed.default;
     let screen = blessed.screen({
@@ -44,7 +65,7 @@ export function preview(game) {
       left: "center",
       width: game.width * 4 + 1,
       height: game.height * 2 + 1,
-      content: print_board(game.get_board(l, t), game),
+      content: print_board(game.get_board(l, t), game, use_unicode ? PIECE_CHAR_UNICODE : PIECE_CHAR),
       tags: true,
       style: {
         fg: "white",
@@ -211,7 +232,7 @@ export function preview(game) {
 
       let board = game.get_board(l, t);
       if (board) {
-        main_box.setContent(print_board(board, game, highlight_x, highlight_y));
+        main_box.setContent(print_board(board, game, use_unicode ? PIECE_CHAR_UNICODE : PIECE_CHAR, highlight_x, highlight_y));
       } else {
         main_box.setContent("\n".repeat(~~(main_box_dims[0] / 4)) + "{center}(No board){/center}");
       }
@@ -284,7 +305,7 @@ export function preview(game) {
   });
 }
 
-function print_board(board, game, highlight_x = -1, highlight_y = -1) {
+function print_board(board, game, set = PIECE_CHAR, highlight_x = -1, highlight_y = -1) {
   let res = "";
   res += "{gray-fg}┌───";
   res += "┬───".repeat(game.width - 1);
@@ -301,7 +322,7 @@ function print_board(board, game, highlight_x = -1, highlight_y = -1) {
       if (x === highlight_x && (game.height - y - 1) === highlight_y) {
         res += "{#504800-bg}";
       }
-      res += PIECE_CHAR[board[x + (game.height - y - 1) * game.width]] + "{/} {gray-fg}│";
+      res += set[board[x + (game.height - y - 1) * game.width]] + "{/} {gray-fg}│";
     }
 
     res += "\n";

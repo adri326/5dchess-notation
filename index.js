@@ -54,6 +54,10 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   }).option("board", {
     default: "Standard",
     describe: "The board that is played on (used for 4xel)",
+  }).option("unicode", {
+    default: false,
+    type: "boolean",
+    describe: "Use unicode values for chess pieces (U+2654 through U+265F, Unicorns and Dragons will still be displayed with latin letters)"
   })
 }, (argv) => {
   let g;
@@ -69,5 +73,5 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     g = axel.parse(raw, argv.verbose, argv.board);
   }
 
-  preview.preview(g);
+  preview.preview(g, argv.unicode);
 }).argv;
