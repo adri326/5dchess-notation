@@ -52,5 +52,5 @@ npm i blessed
 Then, you can preview your games with the `preview` sub-command:
 
 ```sh
-node . preview 4xel 5dpgn test/game-2.4xel
+node . preview 4xel test/game-2.4xel
 ```
