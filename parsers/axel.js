@@ -15,17 +15,30 @@ export const BRANCHING = /^\(\+\s*L\s*([+-]?\d*)\s*(?:(p)\s*)?\)/;
 export const CHECK = /^(?:\+|\*|\+\+|\*\+)/;
 export const CHECKMATE = /^#/;
 
-export function parse(raw, verbose = false) {
+export function parse(raw, verbose = false, board = "Standard") {
   raw = raw.replace(/\.\./g, ";..");
   let white = false;
-  let game = new Game(8, 8, [0]);
-  game.tags = {
-    Mode: "5D",
-    Board: "Standard",
-    Size: "8x8",
-  };
+  let game;
+  if (BOARDS[board.toUpperCase()]) {
+    let [width, height] = BOARDS[board.toUpperCase()][2].split("x").map(x => +x);
+    let initial_multiverses = BOARDS[board.toUpperCase()][1].split(" ").map(x => parse_timeline(x));
+    game = new Game(width, height, initial_multiverses);
+    game.tags = {
+      Mode: "5D",
+      Board: board,
+      Size: "8x8",
+    };
+    game.parse_fen(BOARDS[board.toUpperCase()][0]);
+  } else {
+    game = new Game(8, 8, [0]);
+    game.tags = {
+      Mode: "5D",
+      Board: board,
+      Size: "8x8",
+    };
+    game.parse_fen(BOARDS.STANDARD[0]);
+  }
 
-  game.parse_fen(BOARDS.STANDARD[0]);
   let turn = 0;
   let present = 0;
   let moves = [];
@@ -73,6 +86,7 @@ export function parse(raw, verbose = false) {
             white,
             turn: turn + 1,
             branches: !!parsed.branches_to,
+            comments: [],
             moves_present: parsed.branches_to && Math.abs(game.highest_timeline() + game.lowest_timeline()) < 2,
             ...res,
           });
@@ -86,6 +100,7 @@ export function parse(raw, verbose = false) {
           moves.push({
             ...parsed,
             white,
+            comments: [],
             turn: turn + 1,
           });
         }

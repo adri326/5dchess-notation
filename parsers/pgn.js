@@ -97,6 +97,8 @@ export function parse(raw, verbose = false) {
   let white = true;
   let turn = 0;
 
+  let last_move = null;
+
   tokens = tokens.map((token, i) => {
     if (token.type == "move") {
       try {
@@ -105,6 +107,7 @@ export function parse(raw, verbose = false) {
           white,
           turn,
           piece_index: PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
+          comments: [],
           ...(token.promotion ? {promotion_index: PIECE_TO_NUM[token.promotion] + (white ? 0 : PIECES.B_OFFSET)} : {}),
           ...game.play(
             PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
@@ -118,17 +121,18 @@ export function parse(raw, verbose = false) {
         // Debug informations
         if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
           console.log(res);
-          game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + 1, !white));
+          game.print(game.get_board_as(res.from[0], res.from[1], white), game.get_board_as(res.from[0], res.from[1] + (res.white ? 0 : 1), !white));
           console.log("");
           if (res.branches) {
-            game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.new_index, res.to[1] + 1, !white));
+            game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.new_index, res.to[1] + (res.white ? 0 : 1), !white));
           } else {
-            game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.to[0], res.to[1] + 1, !white));
+            game.print(game.get_board_as(res.to[0], res.to[1], white), game.get_board_as(res.to[0], res.to[1] + (res.white ? 0 : 1), !white));
           }
           console.log("");
           console.log("");
         }
 
+        last_move = res;
         return res;
       } catch (err) {
         console.error(err.toString());
@@ -142,6 +146,7 @@ export function parse(raw, verbose = false) {
           ...token,
           white,
           turn,
+          comments: [],
           piece_index: PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
           ...game.castle(
             PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
@@ -159,6 +164,7 @@ export function parse(raw, verbose = false) {
           console.log("");
         }
 
+        last_move = res;
         return res;
       } catch (err) {
         console.error(err.toString());
@@ -171,6 +177,14 @@ export function parse(raw, verbose = false) {
     } else if (token.type == "turn_index") {
       white = true;
       turn = token.value;
+    } else if (token.type == "comment") {
+      if (last_move) {
+        last_move.comments.push(token.value);
+      }
+    } else if (token.type == "result") {
+      if (last_move) {
+        last_move.comments.push(token.value);
+      }
     }
     return token;
   });
@@ -200,6 +214,15 @@ export function write(game) {
       white = false;
     }
     res += ` ${write_move(move, game)}`;
+    if (Array.isArray(move.comments) && move.comments.length) {
+      for (let comment of move.comments) {
+        if (/^(?:0-1|1-0|1\/2-1\/2)/.exec(comment)) {
+          res += " " + comment;
+        } else {
+          res += ` {${comment.replace(/}/g, "\}")}}`;
+        }
+      }
+    }
   }
 
   return res;

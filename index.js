@@ -18,6 +18,9 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     default: false,
     type: "boolean",
     describe: "more verbose parsing/writing"
+  }).option("board", {
+    default: "Standard",
+    describe: "The board that is played on (used for 4xel)",
   })
 }, (argv) => {
   let g;
@@ -45,7 +48,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
       }
     }
   } else if (from === "4xel" || from === "axel") {
-    g = axel.parse(raw, argv.verbose);
+    g = axel.parse(raw, argv.verbose, argv.board);
   }
 
   if (to === "5dpgn") {

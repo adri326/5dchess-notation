@@ -66,7 +66,7 @@ export const BOARDS = {
   "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "MISC - SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0", "5x5"],
   "MISC - TIMELINE INVASION": ["nbkrb/ppppp/5/5/PPPPP ppppp/5/5/PPPPP/NBKRB", "-0 +0", "5x5"],
-  "SIMPLE - NO QUEEN": ["rnbknbr/ppppppp/7/7/7/PPPPPPP/RNBKNBR", "0", "7x7"],
+  "SIMPLE - NO QUEENS": ["rnbknbr/ppppppp/7/7/7/PPPPPPP/RNBKNBR", "0", "7x7"],
   "SIMPLE - KNIGHTS VS. BISHOP": ["rbqkbr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
   "SIMPLE - NO BISHOPS": ["rnqknr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
   "SIMPLE - NO KNIGHTS": ["rbqkbr/pppppp/6/6/PPPPPP/RBQKBR", "0", "6x6"],
@@ -608,7 +608,9 @@ export class Game {
     for (let y = this.height - 1; y >= 0; y--) {
       for (let board of boards) {
         for (let x = 0; x < this.width; x++) {
-          process.stdout.write(PIECE_CHAR[board[x + y * this.width]]);
+          process.stdout.write(PIECE_CHAR[
+            board[x + y * this.width]
+          ]);
         }
         process.stdout.write("  ");
       }
@@ -676,10 +678,10 @@ export class Game {
         process.stdout.write(`(T${token.to[1] + 1})`);
       }
 
-      if (token.to.length > 2 && token.to[2]) {
+      if (token.to.length > 2 && token.to[2] !== -1) {
         process.stdout.write(index_to_letter(token.to[2]));
       }
-      if (token.to.length > 3 && token.to[3]) {
+      if (token.to.length > 3 && token.to[3] !== -1) {
         process.stdout.write((token.to[3] + 1).toString());
       }
 
