@@ -73,6 +73,7 @@ export function parse(raw, verbose = false) {
             white,
             turn: turn + 1,
             branches: !!parsed.branches_to,
+            moves_present: Math.abs(game.highest_timeline() - game.lowest_timeline()) < 2,
             ...res,
           });
         } else if (parsed.type === "castle") {
@@ -271,7 +272,7 @@ export function parse_move(raw, game, white, turn, present) {
     tokens.slice(piece_index).forEach(({type, value}) => {
       if (type === "timeline") {
         to[0] = value;
-        to[1] = game.get_last_turn_in(to[0]);
+        to[1] = from[1];
       } else if (type === "time") {
         to[1] = value;
       }

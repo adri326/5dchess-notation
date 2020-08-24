@@ -6,33 +6,33 @@ w1T1. c4 .. g6.
 6. h3? .. Qf4!.
 7. e3?? .. L0T7 Qf4 x L0T4 c4 (+L-1).
 8. Ba3; hxg4 .. L-1 Bh6.
-9. L-1 e3 .. L-1 Qxf1+.
-10. L-1 Kxf1 .. L-1 O-O.
-11. L-1T8 Qd1 L-1T5 a4 (+L1) .. Qxa4.
+9. e3 .. L-1 Qxf1+.
+10. Kxf1 .. L-1 O-O.
+11. L-1T8 Qd1 L-1T5 a4 (+L+1) .. Qxa4.
 12. Qxa4 .. Nc6.
 13. Bb2 .. Bh6.
-14. Nb5 .. L-1 b6; L0 a6; L1 Bxd2+.
+14. Nb5 .. Bxd2+; a6; L-1 b6.
 
-w15. cxb6; L0 Qd1 x L1T9 d2.
-b15. L0 Pa6 L1 a6; Ba6+.
+w15. cxb6; L0 Qd1 x L+1T9 d2.
+b15. L0 Pa6 L+1 a6; Ba6+.
 
-w16. Nce2; L1 Nb5 x L0 b7.
+w16. Nce2; L+1 Nb5 x L0 b7.
 b16. O-O; Bxb7; Qxb6.
 
 w17. Rb1; O-O-O; Rb1.
 b17. b5; Ra3; Qc6.
 
-w18. Bxe7; L1 Qa4 x L0 a3.
+w18. Bxe7; L+1 Qa4 x L0 a3.
 b18. Ne4; Ke8 L-1T12 e7.
 
-w19. L0 Qa5; L1 Qd2 x L-1 d4.
+w19. L0 Qa5; L+1 Qd2 x L-1 d4.
 b19. Nxf2; Nc6; Bxe2+.
 
 w20. Nxe2; Qb5; Kxf2.
 b20. e5; Nd4; Qd6.
 
 w21. Qxd6+; Qxd7+; Bd4.
-b21. L1T15 Qd8 L-1T13 b6 (+L-2).
+b21. L+1T15 Qd8 L-1T13 b6 (+L-2).
 
 22. L-2 Rxb6 .. L-2T14 Qc6 x L-1T15d6.
 23. L-2Qd6#.
