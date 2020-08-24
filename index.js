@@ -44,7 +44,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
         g[key] = deserialized[key];
       }
     }
-  } else if (argv.from.toLowerCase() === "4xel" || argv.from.toLowerCase() === "axel") {
+  } else if (from === "4xel" || from === "axel") {
     g = axel.parse(raw, argv.verbose);
   }
 
@@ -52,5 +52,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     console.log(pgn.write(g));
   } else if (to === "json") {
     console.log(JSON.stringify(g));
+  } else if (to === "4xel" || from === "axel") {
+    console.log(axel.write(g));
   }
 }).argv;

@@ -73,7 +73,7 @@ export function parse(raw, verbose = false) {
             white,
             turn: turn + 1,
             branches: !!parsed.branches_to,
-            moves_present: Math.abs(game.highest_timeline() - game.lowest_timeline()) < 2,
+            moves_present: parsed.branches_to && Math.abs(game.highest_timeline() + game.lowest_timeline()) < 2,
             ...res,
           });
         } else if (parsed.type === "castle") {
@@ -103,6 +103,70 @@ export function parse(raw, verbose = false) {
 
   game.moves = moves;
   return game;
+}
+
+/**?
+  Exports to 4xel RAN
+**/
+export function write(game) {
+  let was_white = false;
+  let present = 0;
+  let turn = 0;
+  let res = "";
+
+  for (let move of game.moves) {
+    if (move.white != was_white) {
+      was_white = move.white;
+      if (move.white) {
+        turn++;
+        present++;
+      }
+      if (!move.white || turn > 1) {
+        res += ".\n";
+      }
+      res += `${move.white ? "w" : "b"}${turn}T${present}. `;
+    } else {
+      res += "; ";
+    }
+
+    res += write_move(move);
+
+    if (move.moves_present) {
+      present = move.to[1] + 1; // unsure
+    }
+  }
+
+  res += ".";
+
+  return res;
+}
+
+export function write_move(move) {
+  let res = "";
+  res += `L${write_timeline(move.from[0], true)}`;
+  res += `T${move.from[1] + 1}`;
+  if (move.type === "castle") {
+    res += " O-O";
+    if (move.long) res += "-O";
+  } else {
+    res += " ";
+    res += NUM_TO_PIECE[move.piece_index % PIECES.B_OFFSET];
+    res += index_to_letter(move.from[2]);
+    res += move.from[3] + 1;
+    if (move.takes) res += " x ";
+    else res += " ";
+    res += `L${write_timeline(move.to[0], true)}`;
+    res += `T${move.to[1] + 1}`;
+    res += " ";
+    res += index_to_letter(move.to[2]);
+    res += move.to[3] + 1;
+    if (move.check) res += "+";
+    if (move.checkmate) res += "#";
+    if (move.branches) {
+      res += ` (+L${write_timeline(move.new_index, true)})`;
+    }
+  }
+  return res;
 }
 
 export function parse_move(raw, game, white, turn, present) {

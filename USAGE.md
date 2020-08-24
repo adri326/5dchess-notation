@@ -29,3 +29,4 @@ The supported notations are:
 
 - `5dpgn`: the format described in [README.md](README.md)
 - `json`: the internal format of the parsers, parts of it may be different depending on the language that is being parsed from. No verification is done on import, use at your own risk!
+- `4xel`: [Axel's RAN](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view). Supports reading from Axel's AN too.

@@ -394,9 +394,6 @@ export class Game {
       let has_x = from[2] !== -1 && from.length > 2;
       let has_y = from[3] !== -1 && from.length > 3;
 
-      // if (from[0] !== to[0] || from[1] !== to[1]) {
-      //   throw new Error("Super-physical move desambiguation is not supported!");
-      // }
       // re-determine the origin position
       let candidates = [...source_board.entries()].filter(([i, p]) => p === piece);
       if (has_x) {
@@ -482,6 +479,7 @@ export class Game {
       to,
       ...(new_index !== null ? {new_index} : {}),
       piece_taken,
+      takes: piece_taken !== PIECES.BLANK,
     };
   }
 
@@ -769,12 +767,15 @@ export function parse_timeline(str) {
   }
 }
 
-export function write_timeline(str) {
-  if (str === -0.5) {
+export function write_timeline(num, plus = false) {
+  if (num === -0.5) {
     return "-0";
-  } else if (str === 0.5) {
+  } else if (num === 0.5) {
     return "+0";
   } else {
-    return str.toString();
+    if (plus && num > 0) {
+      return "+" + num.toString();
+    }
+    return num.toString();
   }
 }

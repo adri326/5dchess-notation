@@ -1,0 +1,17 @@
+[Mode "5D"]
+[Date "2020.08.24"]
+[White "Shad Amethyst"]
+[Black "CPU"]
+[Event "5D CPU Chess game"]
+[Result "1-0"]
+[Board "Standard"]
+[Size "8x8"]
+
+1. (0T1)e3 / (0T1)d5
+2. (0T2)c3 / (0T2)Bd7
+3. (0T3)b3 / (0T3)a5
+4. (0T4)Qh5 / (0T4)Bd7>>(0T3)d6~
+5. (0T5)Qh5>>x(0T3)f7+~ / (1T3)Kxf7
+6. (-1T4)Qh5 (1T4)Qh5+ / (-1T4)Bg4 (1T4)Kf6
+7. (-1T5)Bb5+ (1T5)Qf7# {softmate} / (0T5)Ng8>>(0T4)g6~ {Black escapes to the past}
+8. (-2T5)Bd3 1-0 {(0T6)Qh5 attacks (1T4)Kf7; (0T6)Bb5 attacks (0T6)Ke8; (1T6)Qf7 attacks (0T6)Ke8, (0T5)Ke8, (1T6)Kf6, (1T5)Kf6, (1T4)Kf7}
