@@ -31,5 +31,8 @@
     "assert": "^2.0.0",
     "mocha": "^8.1.1",
     "yargs": "^15.4.1"
+  },
+  "optionalDependencies": {
+    "blessed": "^0.1.81"
   }
 }

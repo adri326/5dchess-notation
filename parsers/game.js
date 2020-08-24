@@ -115,6 +115,7 @@ export class Game {
     this.width = width;
     this.height = height;
     this.board_indices = board_indices;
+    this.initial_board_indices = [...board_indices];
     this.timelines = new Array(board_indices.length).fill(null).map((_, i) => new Timeline(width, height, board_indices[i]));
     this.moves = [];
   }
