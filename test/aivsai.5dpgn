@@ -1,0 +1,36 @@
+[Mode "5D"]
+[Board "Standard"]
+[Size "8x8"]
+[White "CPU"]
+[Black "CPU"]
+[Result "0-1"]
+[Date "2020.08.25"]
+[Event "Game analysis: AI vs AI"]
+
+1. (0T1)h3 / (0T1)Nf6
+2. (0T2)b4 / (0T2)b5
+3. (0T3)d4 / (0T3)Nf6>>(0T2)h6~
+4. (-1T3)Ba3 / (-1T3)Nd5
+5. (-1T4)e4 (0T4)Na3 / (-1T4)b6? (0T4)f5?
+6. (-1T5)exd5 (0T5)Rh2 / (-1T5)f5 (0T5)h5
+7. (-1T6)Ne2 (0T6)Nb5 / (-1T6)e5 (0T6)Kf7
+8. (-1T7)Nb1>>(-1T6)b3 / (1T6)a6
+9. (0T7)Nxc7 (1T7)Qg4?? / (-1T7)Bxb4? (0T7)Kg6? (1T7)d6??
+10. (-1T8)Bxb4 (0T8)Qd2 (1T8)Qxf5?? / (-1T8)Bb7 (0T8)Qxc7 (1T8)Nxf5
+11. (-1T9)a4 (0T9)Qh6+?? (1T9)Bxa6?? / (-1T9)f4 (0T9)gxh6 (1T9)Rxa6
+12. (-1T10)Nxf4? (0T10)Bxh6+?? (1T10)c3 / (-1T10)d6?? (0T10)Bxh6 (1T10)g5
+13. (-1T11)Bxd6?? (0T11)e3 (1T11)f4? / (-1T11)exf4 (0T11)Qd6 (1T11)gxf4
+14. (-1T12)Bf4 (0T12)d5 (1T12)g4 / (-1T12)Bxd5 (0T12)Qxd5 (1T12)Kf7??
+15. (-1T13)Bxc7?? (0T13)Nf3 (1T13)gxf5 / (-1T13)Bxg2?? (0T13)Qxa2?? (1T13)Bxf5
+16. (-1T14)Bxd8+ (0T14)Rxa2 (1T14)Ne2 / (-1T14)Kxd8 (0T14)Bf4?? (1T14)Rxa3?
+17. (-1T15)Rh2?? (0T15)Bb5? (1T15)Nxf4 / (-1T15)Bxh3? (0T15)Bxh2 (1T15)Bxb1+
+18. (-1T16)Bxh3 (0T16)Ra6+? (1T16)Rxb1 / (-1T16)Na6 (0T16)e6 (1T16)Rxb3
+19. (-1T17)Qg4?? (0T17)Nxh2 (1T17)Rxb3 / (-1T17)Ke7?? (0T17)Rh6 (1T17)b5
+20. (-1T18)Qxg7+ (0T18)Rxa7? (1T18)d4 / (1T18)Kf7>>(1T17)g7~
+21. (-2T18)Rb2 / (-2T18)Kg7>x(-1T18)g7 (0T18)Rxa7
+22. (-2T19)b5 (-1T19)Kd1? (0T19)Bxd7? (1T19)Kf1? / (-2T19)c6 (-1T19)b5 (0T19)Nxd7 (1T19)c5
+23. (-2T20)dxc6 (-1T20)axb5 (0T20)g4? (1T20)bxc5 / (-2T20)Qc7 (-1T20)Rhf8 (0T20)hxg4 (1T20)Bh6
+24. (-2T21)Rb4 (-1T21)bxa6 (0T21)hxg4 (1T21)Rxb5 / (-2T21)Qxc6?? (-1T21)Rfd8? (0T21)fxg4 (1T21)Bxf4#
+25. (-1T22)Bh3>>(-1T20)h5~ / (2T20)Kgf6?
+25. (2T21)f4 / (2T21)Rhg8
+26. (2T22)Kd1>>(1T21)e2~? / (3T21)Bxf4 0-1
