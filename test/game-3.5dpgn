@@ -1,0 +1,18 @@
+[Mode "5D"]
+[Board "Standard"]
+[Size "8x8"]
+[White "Erin Mulkey"]
+[Black "Shad Amethyst"]
+[Result "0-1"]
+[Event "Online 5D Chess game"]
+[Date "2020.08.26"]
+
+1. (0T1)g3 / (0T1)g6
+2. (0T2)Bg2 / (0T2)Bg7
+3. (0T3)Nf3 / (0T3)c5
+4. (0T4)O-O / (0T4)Bf6
+5. (0T5)b3 / (0T5)Bf6>>x(0T1)f2+~
+6. (-1T2)Kxf2 / (-1T2)Nh6
+7. (-1T3)Nc3? {Should have done Nf3} / (-1T3)Ng4+! {Prevents (-1T4)d4}
+8. (-1T4)Ke1 / (-1T4)e6
+9. (-1T5)e3 / (-1T5)Qf6+ {Attacks (-1T2)Kf2, softmate} 0-1 {White loses connection}

@@ -1,0 +1,22 @@
+[Mode "5D"]
+[Board "Standard"]
+[Size "8x8"]
+[Event "Online 5D chess game"]
+[Result "1-0"]
+[White "Shad Amethyst"]
+[Black "Anon"]
+[Date "2020.08.26"]
+
+1. (0T1)g3 / (0T1)c6
+2. (0T2)Bg2 / (0T2)b5
+3. (0T3)b4 / (0T3)a5
+4. (0T4)Bf3 {Preparing for the bishop sacrifice} / (0T4)axb4
+5. (0T5)Bf3>>x(0T1)f7+~ / (1T1)Kxf7
+6. (1T2)Nh3 {Prevents black from defending their king} / (1T2)Ke8
+7. (1T3)Nc3 {Buying time} / (1T3)Nf6
+8. (1T4)e3 / (1T4)g6
+9. (1T5)Qf3+ {Attacks (1T2)Kf7} / (0T5)Qd8>>(0T2)a5~
+10. (-1T3)b3 / (-1T3)d6
+11. (-1T4)Bb2 / (-1T4)Bf5 {Attacks (1T5)Qf3}
+12. (-1T5)Bxc6+ {Sacrifice to prevent (-1T5)Bf5>x(1T5)f3} / (-1T5)Ke8>>(-1T4)d7~
+13. (-2T5)Bxc6+ 1-0
