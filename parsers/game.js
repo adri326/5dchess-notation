@@ -224,6 +224,7 @@ export class Game {
     if (from[0] === to[0] && from[1] === to[1] && from[2] === to[2] && from[3] === to[3]) return false;
     switch (piece) {
       case PIECES.W_PAWN:
+        if (this.is_en_passant(from, to, white)) return true;
         if (this.get_as(...to, white) != PIECES.BLANK) {
           return from[0] === to[0]
             && from[1] === to[1]
