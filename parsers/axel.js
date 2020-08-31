@@ -51,6 +51,7 @@ export function parse(raw, verbose = false, board = "Standard") {
 
       if (match[1]) white = match[1].toLowerCase() === "w";
       else white = !white;
+      game.active_player = white;
 
       if (match[2]) turn = +match[2] - 1;
       else if (white) turn++;
@@ -62,6 +63,7 @@ export function parse(raw, verbose = false, board = "Standard") {
         throw new Error("Cannot switch player: already black");
       }
       white = false;
+      game.active_player = white;
       raw = raw.slice(2);
     } else if (match = /^-\s*;/.exec(raw)) {
       raw = raw.slice(match[0].length);

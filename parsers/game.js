@@ -118,6 +118,7 @@ export class Game {
     this.initial_board_indices = [...board_indices];
     this.timelines = new Array(board_indices.length).fill(null).map((_, i) => new Timeline(width, height, board_indices[i]));
     this.moves = [];
+    this.active_player = true;
   }
 
   /**?

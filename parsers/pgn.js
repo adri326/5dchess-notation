@@ -83,7 +83,7 @@ export function parse(raw, verbose = false) {
   let tags = {};
   tokens.filter(t => t.type == "tag").forEach(t => tags[t.name] = t.value);
 
-  let [width, height] = (tags["Size"] || "8x8").split("x");
+  let [width, height] = (tags["Size"] || "8x8").split("x").map(x => +x);
   let board_indices = (tags["InitialMultiverses"] || "0").split(" ").map(n => parse_timeline(n));
   let game = new Game(width, height, board_indices);
 
@@ -133,6 +133,7 @@ export function parse(raw, verbose = false) {
         }
 
         last_move = res;
+        game.active_player = white;
         return res;
       } catch (err) {
         console.error(err.toString());
@@ -173,9 +174,9 @@ export function parse(raw, verbose = false) {
         process.exit(1);
       }
     } else if (token.type == "player_separator") {
-      white = false;
+      game.active_player = white = false;
     } else if (token.type == "turn_index") {
-      white = true;
+      game.active_player = white = true;
       turn = token.value;
     } else if (token.type == "comment") {
       if (last_move) {
