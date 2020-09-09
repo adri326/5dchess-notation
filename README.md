@@ -24,6 +24,9 @@ This repository includes a converter and previewer. For information on how to ru
 - A **step** is the unit of time between board states. It is made up of two **sub-steps**, each being a board in time.
 - **Physical** coordinates and moves are coordinates and moves within a single board.
 - **Super-physical** coordinates and moves are those that span across boards. Both time- and multiverse travels are super-physical moves or jumps.
+- **Check** is a state of the game where one or more pieces directly attack one or more of the opponent's kings *and* the opponent can make one or more moves to get out of this situation.
+- **Checkmate** is the state of the game where one or more pieces directly attack one or more of the opponent's kings *and* the opponent has no legal move.
+- **Softmate** is the state of the game where one or more pieces directly attack one or more of the opponent's kings *and* the opponent may only travel back in time.
 
 ## Coordinates
 
@@ -44,9 +47,18 @@ Super-physical coordinates are written before the physical coordinates: `(-1T6)e
 
 ## Moves
 
-Physical moves are written the same as traditional chess [standard algebraic notation](https://en.wikipedia.org/wiki/Algebraic_notation_%28chess%29), except that they are preceded by their board's coordinate.
+Physical moves are written the same as traditional chess [standard algebraic notation](https://en.wikipedia.org/wiki/Algebraic_notation_%28chess%29).
+
+They *must* be preceded by their board's coordinates if there is more than one timeline at the currently described state of the game.
+If there is only one timeline up to this point, then physical moves may be written without their corresponding board's coordinate.
 
 Piece letters are the same as standard algebraic notation, with `D` for the dragon, `U` for the unicorn and `P` for pawn.
+
+The following informations about checks can be appended to the move:
+
+- `+` if the move checks the opponent's king
+- `*` if the move softmates the opponent's king (if it is a sequence of moves that achieve this, then the last one should have the softmate indicator)
+- `#` if the move checkmates the opponent's king
 
 ### Jumps
 
@@ -59,7 +71,7 @@ Jumps use the following syntax:
 - `x` if a piece is being taken
 - The super-physical coordinate of the target board
 - The physical coordinate of the target square
-- `+` or `#` if the moves checks or checkmates the adversary
+- `+`, `*` or `#` if the moves checks, softmates or checkmates the adversary
 - `~` if the jump is branching and the present is being moved to the new branch
 
 All put together, it looks like this: `(-1T4)Nc3>>x(0T2)c3+~` ("The knight from board -1L, T4, c3 jumps and takes on L, T2, c3, creating a new timeline (-2L) and moving the present").
@@ -71,6 +83,25 @@ A non-branching jump may look like this: `(0T6)Pd5>(1T6)d5`.
 As of right now, underpromotion is not allowed/implemented yet.
 
 Promotions can only occur in physical moves and are denoted by adding the `=` symbol at the end of the move (before `+` or `#`), optionally with the piece the pawn is promoted into (`Q`).
+
+### Inactive timeline reactivation
+
+Should a past, inactive timeline be reactivated, the following token may be put after a move:
+
+`(~Tx)`, with `x` being replaced by the corresponding turn.
+
+There is no need to precise which sub-turn it is, as the corresponding player will have to play on the now-activated board, unless another branching move is made.
+
+### Complex scenarios
+
+In complex scenarios, especially with inactive timelines being reactivated or created, it may become hard for humans to keep track of which timelines were created.
+To aid this, one may put the following token after a move:
+
+`(>Lx)`, with `x` being replaced by the new timeline's index.
+
+A fully-detailled, complex move may thus look like this: `(-1T4)Nc3>>x(0T2)c3+ (>L2) (~T1)`
+
+Both present movement and created timeline tokens are purely for better human comprehension and should match with what can be induced from the described state of the game (if the piece of notation needs to be parsed).
 
 ## Turns
 

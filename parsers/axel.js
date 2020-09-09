@@ -12,8 +12,9 @@ export const TIME_REGEX = /^T\s*([+-]?\d+)/;
 export const PIECES_REGEXP = /^[PKNRQDUB]/;
 export const BRANCHING = /^\(\+\s*L\s*([+-]?\d*)\s*(?:(p)\s*)?\)/;
 
-export const CHECK = /^(?:\+|\*|\+\+|\*\+)/;
+export const CHECK = /^(?:\+|\*|\*\+)/;
 export const CHECKMATE = /^#/;
+export const SOFTMATE = /^\+\+/;
 
 export function parse(raw, verbose = false, board = "Standard") {
   raw = raw.replace(/\.\./g, ";..");
@@ -81,7 +82,8 @@ export function parse(raw, verbose = false, board = "Standard") {
             parsed.from.map(x => x === null ? -1 : x),
             parsed.to.map(x => x === null ? -1 : x),
             white,
-            parsed.promotion
+            parsed.promotion,
+            parsed,
           );
           moves.push({
             ...parsed,
@@ -97,7 +99,8 @@ export function parse(raw, verbose = false, board = "Standard") {
             parsed.piece_index,
             parsed.from.map(x => x === null ? -1 : x),
             parsed.long,
-            white
+            white,
+            parsed,
           );
           moves.push({
             ...parsed,
@@ -196,6 +199,7 @@ export function parse_move(raw, game, white, turn, present) {
   let tokens = [];
   let check = false;
   let checkmate = false;
+  let softmate = false;
   let takes = false;
   let annotations = "";
   let branches_to = null;
@@ -239,6 +243,9 @@ export function parse_move(raw, game, white, turn, present) {
         type: "position",
         value: [-1, +match[0] - 1],
       });
+      raw = raw.slice(match[0].length);
+    } else if (match = SOFTMATE.exec(raw)) {
+      softmate = true;
       raw = raw.slice(match[0].length);
     } else if (match = CHECK.exec(raw)) {
       check = true;
@@ -296,6 +303,7 @@ export function parse_move(raw, game, white, turn, present) {
       piece: PIECES.W_KING + PIECES.B_OFFSET * !white,
       check,
       checkmate,
+      softmate,
       annotations,
     };
   }
@@ -368,6 +376,7 @@ export function parse_move(raw, game, white, turn, present) {
     piece_index: piece,
     check,
     checkmate,
+    softmate,
     annotations,
     branches_to,
     promotion,

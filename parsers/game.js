@@ -207,7 +207,7 @@ export class Game {
     return true;
   }
 
-  record_move(l, kind, piece, from, to, white, piece_taken) {
+  record_move(l, kind, piece, from, to, white, piece_taken, {check, checkmate, softmate} = {}) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return false;
     timeline.moves.push({
@@ -217,6 +217,9 @@ export class Game {
       to,
       white,
       piece_taken,
+      check: !!check,
+      checkmate: !!checkmate,
+      softmate: !!softmate,
     });
     return true;
   }
@@ -383,7 +386,7 @@ export class Game {
   /**?
     Plays the move and returns information on the move done
   **/
-  play(piece, from, to, white, promotion) {
+  play(piece, from, to, white, promotion, {check, checkmate, softmate} = {}) {
     let source_board = this.get_board(from[0], from[1] * 2 + !white);
     let target_board = this.get_board(to[0], to[1] * 2 + !white);
     if (!source_board) {
@@ -444,7 +447,7 @@ export class Game {
       }
       if (!this.push_board(from[0], new_board)) throw new Error("Couldn't push board");
 
-      this.record_move(from[0], MOVE_KIND.MOVE, piece, from, to, white, piece_taken);
+      this.record_move(from[0], MOVE_KIND.MOVE, piece, from, to, white, piece_taken, {check, checkmate, softmate});
     } else if (this.is_present(to[0], to[1] * 2 + !white)) {
       let new_source_board = [...source_board];
       let new_target_board = [...target_board];
@@ -453,15 +456,15 @@ export class Game {
       if (!this.push_board(from[0], new_source_board)) throw new Error("Couldn't push board");
       if (!this.push_board(to[0], new_target_board)) throw new Error("Couldn't push board");
 
-      this.record_move(from[0], MOVE_KIND.JUMP_OUT, piece, from, to, white, piece_taken);
-      this.record_move(to[0], MOVE_KIND.JUMP_IN, piece, from, to, white, piece_taken);
+      this.record_move(from[0], MOVE_KIND.JUMP_OUT, piece, from, to, white, piece_taken, {check, checkmate, softmate});
+      this.record_move(to[0], MOVE_KIND.JUMP_IN, piece, from, to, white, piece_taken, {check, checkmate, softmate});
     } else {
       let new_source_board = [...source_board];
       let new_target_board = [...target_board];
       new_source_board[from[2] + from[3] * this.width] = PIECES.BLANK;
       new_target_board[to[2] + to[3] * this.width] = piece;
       if (!this.push_board(from[0], new_source_board)) throw new Error("Couldn't push board");
-      this.record_move(from[0], MOVE_KIND.JUMP_OUT, piece, from, to, white, piece_taken);
+      this.record_move(from[0], MOVE_KIND.JUMP_OUT, piece, from, to, white, piece_taken, {check, checkmate, softmate});
 
       if (white) {
         new_index = ~~this.highest_timeline() + 1;
@@ -474,7 +477,7 @@ export class Game {
       new_timeline.states = [new_target_board];
       this.timelines.push(new_timeline);
       this.board_indices.push(new_index);
-      this.record_move(new_index, MOVE_KIND.JUMP_IN, piece, from, to, white, piece_taken);
+      this.record_move(new_index, MOVE_KIND.JUMP_IN, piece, from, to, white, piece_taken, {check, checkmate, softmate});
     }
 
     return {
@@ -486,7 +489,7 @@ export class Game {
     };
   }
 
-  castle(piece, from, long, white) {
+  castle(piece, from, long, white, {check, checkmate, softmate} = {}) {
     let king_candidates = [...this.get_board_as(from[0], from[1], white).entries()].filter(([i, p]) =>
       p === PIECES.W_KING + !white * PIECES.B_OFFSET
     );
@@ -553,6 +556,7 @@ export class Game {
       ],
       white,
       PIECES.BLANK,
+      {check, checkmate, softmate},
     );
   }
 

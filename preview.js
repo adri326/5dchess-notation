@@ -361,23 +361,34 @@ function timeline_below(n, game) {
 }
 
 function write_move(move) {
+  let res;
   if (move.kind === MOVE_KIND.JUMP_OUT) {
-    return `${PIECE_CHAR[move.piece]}${index_to_letter(move.from[2])}${move.from[3] + 1} {yellow-fg}→{/} (${write_timeline(move.to[0])}T${move.to[1] + 1})`;
+    res = `${PIECE_CHAR[move.piece]}${index_to_letter(move.from[2])}${move.from[3] + 1} {yellow-fg}→{/} (${write_timeline(move.to[0])}T${move.to[1] + 1})`;
   } else if (move.kind === MOVE_KIND.JUMP_IN) {
-    return `(${write_timeline(move.to[0])}T${move.to[1] + 1})${index_to_letter(move.to[2])}${move.to[3] + 1} {yellow-fg}←{/} (${write_timeline(move.from[0])}T${move.from[1] + 1})${PIECE_CHAR[move.piece]}`
+    res = `(${write_timeline(move.to[0])}T${move.to[1] + 1})${index_to_letter(move.to[2])}${move.to[3] + 1} {yellow-fg}←{/} (${write_timeline(move.from[0])}T${move.from[1] + 1})${PIECE_CHAR[move.piece]}`
   } else if (move.kind === MOVE_KIND.CASTLE_SHORT) {
-    return "O-O";
+    res = "O-O";
   } else if (move.kind === MOVE_KIND.CASTLE_LONG) {
-    return "O-O-O";
+    res = "O-O-O";
+  } else {
+    if (move.piece % PIECES.B_OFFSET === PIECES.W_PAWN) {
+      if (move.piece_taken !== PIECES.BLANK) {
+        res = `${move.white ? WHITE_FG : BLACK_FG}${index_to_letter(move.from[2])}{/}x${index_to_letter(move.to[2])}${move.to[3] + 1}`
+      } else {
+        res = `${move.white ? WHITE_FG : BLACK_FG}${index_to_letter(move.to[2])}${move.to[3] + 1}{/}`
+      }
+    } else {
+      res = `${PIECE_CHAR[move.piece]}${index_to_letter(move.from[2])}${move.from[3] + 1}${move.piece_taken !== PIECES.BLANK ? " x " : " "}${index_to_letter(move.to[2])}${move.to[3] + 1}`;
+    }
   }
 
-  if (move.piece % PIECES.B_OFFSET === PIECES.W_PAWN) {
-    if (move.piece_taken !== PIECES.BLANK) {
-      return `${move.white ? WHITE_FG : BLACK_FG}${index_to_letter(move.from[2])}{/}x${index_to_letter(move.to[2])}${move.to[3] + 1}`
-    } else {
-      return `${move.white ? WHITE_FG : BLACK_FG}${index_to_letter(move.to[2])}${move.to[3] + 1}{/}`
-    }
-  } else {
-    return `${PIECE_CHAR[move.piece]}${index_to_letter(move.from[2])}${move.from[3] + 1}${move.piece_taken !== PIECES.BLANK ? " x " : " "}${index_to_letter(move.to[2])}${move.to[3] + 1}`;
+  if (move.checkmate) {
+    res += "{yellow-fg}#{/}";
+  } else if (move.check) {
+    res += "{yellow-fg}+{/}";
+  } else if (move.softmate) {
+    res += "{yellow-fg}*{/}";
   }
+
+  return res;
 }
