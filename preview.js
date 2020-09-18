@@ -1,5 +1,7 @@
 import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game.js";
 
+// TODO: allow scrolling in the negative time
+
 const WHITE_FG = "{#20d0f0-fg}{bold}";
 const BLACK_FG = "{#d05036-fg}{bold}";
 
@@ -13,6 +15,7 @@ const PIECE_CHAR = {
   [PIECES.W_KING]: WHITE_FG + "K" + "{/}",
   [PIECES.W_UNICORN]: WHITE_FG + "U" + "{/}",
   [PIECES.W_DRAGON]: WHITE_FG + "D" + "{/}",
+  [PIECES.W_PRINCESS]: WHITE_FG + "S" + "{/}",
   [PIECES.B_PAWN]: BLACK_FG + "p" + "{/}",
   [PIECES.B_KNIGHT]: BLACK_FG + "n" + "{/}",
   [PIECES.B_BISHOP]: BLACK_FG + "b" + "{/}",
@@ -21,6 +24,7 @@ const PIECE_CHAR = {
   [PIECES.B_KING]: BLACK_FG + "k" + "{/}",
   [PIECES.B_UNICORN]: BLACK_FG + "u" + "{/}",
   [PIECES.B_DRAGON]: BLACK_FG + "d" + "{/}",
+  [PIECES.B_PRINCESS]: BLACK_FG + "s" + "{/}",
   [PIECES.MARKER]: "*",
 }
 
@@ -34,6 +38,7 @@ const PIECE_CHAR_UNICODE = {
   [PIECES.W_KING]: WHITE_FG + "♔" + "{/}",
   [PIECES.W_UNICORN]: WHITE_FG + "U" + "{/}",
   [PIECES.W_DRAGON]: WHITE_FG + "D" + "{/}",
+  [PIECES.W_PRINCESS]: WHITE_FG + "S" + "{/}",
   [PIECES.B_PAWN]: BLACK_FG + "♟︎" + "{/}",
   [PIECES.B_KNIGHT]: BLACK_FG + "♞" + "{/}",
   [PIECES.B_BISHOP]: BLACK_FG + "♝" + "{/}",
@@ -42,6 +47,7 @@ const PIECE_CHAR_UNICODE = {
   [PIECES.B_KING]: BLACK_FG + "♚" + "{/}",
   [PIECES.B_UNICORN]: BLACK_FG + "u" + "{/}",
   [PIECES.B_DRAGON]: BLACK_FG + "d" + "{/}",
+  [PIECES.B_PRINCESS]: BLACK_FG + "s" + "{/}",
   [PIECES.MARKER]: "*",
 };
 
@@ -216,7 +222,7 @@ export function preview(game, use_unicode = false) {
         let tl = game.get_timeline(l);
         if (tl) {
           let move = tl.moves[t - tl.begins_at - (tl.synthetic ? 0 : 1)];
-          if (move) {
+          if (move && move.kind !== MOVE_KIND.NONE) {
             move_box.setContent("{center}" + write_move(move) + "{/center}");
             if (move.to && (move.kind === MOVE_KIND.MOVE || move.kind === MOVE_KIND.JUMP_IN)) {
               highlight_x = move.to[2];

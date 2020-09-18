@@ -60,10 +60,15 @@ export const MOVE_KIND = {
   JUMP_IN: 2,
   CASTLE_SHORT: 3,
   CASTLE_LONG: 4,
+  NONE: 99,
 };
 
 export const BOARDS = {
   "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
+  "STANDARD - TURN ZERO": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR|rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0:-1", "8x8"],
+  "STANDARD - PRINCESS": ["rnbskbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBSKBNR", "0", "8x8"],
+  "STANDARD - TWO TIMELINES": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "-0 +0", "8x8"],
+  "STANDARD - DEFENDED PAWN": ["rqbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/RQBNKBNR", "0", "8x8"],
   "MISC - SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0", "5x5"],
   "MISC - TIMELINE INVASION": ["nbkrb/ppppp/5/5/PPPPP ppppp/5/5/PPPPP/NBKRB", "-0 +0", "5x5"],
   "SIMPLE - NO QUEENS": ["rnbknbr/ppppppp/7/7/7/PPPPPPP/RNBKNBR", "0", "7x7"],
@@ -82,6 +87,7 @@ export const BOARDS = {
   "MISC - TIMELINE BATTLEGROUNDS": ["rrkrr/bbqbb/ppppp/5/PPPPP nnnnn/ppppp/5/PPPPP/NNNNN ppppp/5/PPPPP/BBQBB/RRKRR", "-1 0 1", "5x5"],
   "MISC - EXCESSIVE": ["kruqdrk/rnbknbr/ppppppp/7/PPPPPPP/RNBKNBR/KRUQDRK", "0", "7x7"],
   "MISC - REFLECTED STANDARD": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
+  "STANDARD - HALF REFLECTED": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "MISC - GLOBAL WARMING": ["1", "0", "1x1"],
   "FOCUSED - JUST KNIGHTS": ["n1kn1/5/5/5/1NK1N", "0", "5x5"],
   "FOCUSED - JUST BISHOPS": ["1bbk1/5/5/5/1KBB1", "0", "5x5"],
@@ -114,8 +120,8 @@ export class Game {
   constructor(width, height, board_indices = [0]) {
     this.width = width;
     this.height = height;
-    this.board_indices = board_indices;
-    this.initial_board_indices = [...board_indices];
+    this.board_indices = board_indices.map(x => Array.isArray(x) ? x[0] : x);
+    this.initial_board_indices = board_indices.map(x => Array.isArray(x) ? x[0] : x);
     this.timelines = new Array(board_indices.length).fill(null).map((_, i) => new Timeline(width, height, board_indices[i]));
     this.moves = [];
     this.active_player = true;
@@ -127,42 +133,52 @@ export class Game {
   parse_fen(fen) {
     let boards = fen.split(" ");
     for (let n = 0; n < this.board_indices.length; n++) {
-      let board = this.timelines[n].states[0] = [];
-      let rows = boards[n].split("/");
-      rows.reverse();
+      let sub_boards = boards[n].split("|");
+      for (let o = 0; o < sub_boards.length; o++) {
+        if (o > 0) {
+          this.timelines[n].moves.push({
+            kind: MOVE_KIND.NONE,
+          });
+        }
+        let board = this.timelines[n].states[o] = [];
+        let rows = sub_boards[o].split("/");
+        rows.reverse();
 
-      if (rows.length != this.height) {
-        throw new Error("Invalid FEN: expected " + this.height + " rows!");
-      }
+        if (rows.length != this.height) {
+          throw new Error("Invalid FEN: expected " + this.height + " rows!");
+        }
 
-      for (let row in rows) {
-        let chars = rows[row].split("");
+        for (let row in rows) {
+          let chars = rows[row].split("");
 
-        for (let n = 0, o = 0; n < this.width; n++, o++) {
-          switch (chars[o]) {
-            case "p": board.push(PIECES.B_PAWN); break;
-            case "n": board.push(PIECES.B_KNIGHT); break;
-            case "b": board.push(PIECES.B_BISHOP); break;
-            case "r": board.push(PIECES.B_ROOK); break;
-            case "q": board.push(PIECES.B_QUEEN); break;
-            case "k": board.push(PIECES.B_KING); break;
-            case "u": board.push(PIECES.B_UNICORN); break;
-            case "d": board.push(PIECES.B_DRAGON); break;
-            case "P": board.push(PIECES.W_PAWN); break;
-            case "N": board.push(PIECES.W_KNIGHT); break;
-            case "B": board.push(PIECES.W_BISHOP); break;
-            case "R": board.push(PIECES.W_ROOK); break;
-            case "Q": board.push(PIECES.W_QUEEN); break;
-            case "K": board.push(PIECES.W_KING); break;
-            case "U": board.push(PIECES.W_UNICORN); break;
-            case "D": board.push(PIECES.W_DRAGON); break;
-            default:
-              if (/^\d$/.exec(chars[o])) {
-                for (let p = 0; p < +chars[o]; p++) {
-                  board.push(PIECES.BLANK);
-                }
-                n += +chars[o] - 1;
-              } else throw new Error("Unexpected character in FEN: " + chars[o]);
+          for (let n = 0, o = 0; n < this.width; n++, o++) {
+            switch (chars[o]) {
+              case "p": board.push(PIECES.B_PAWN); break;
+              case "n": board.push(PIECES.B_KNIGHT); break;
+              case "b": board.push(PIECES.B_BISHOP); break;
+              case "r": board.push(PIECES.B_ROOK); break;
+              case "q": board.push(PIECES.B_QUEEN); break;
+              case "k": board.push(PIECES.B_KING); break;
+              case "u": board.push(PIECES.B_UNICORN); break;
+              case "d": board.push(PIECES.B_DRAGON); break;
+              case "s": board.push(PIECES.B_PRINCESS); break;
+              case "P": board.push(PIECES.W_PAWN); break;
+              case "N": board.push(PIECES.W_KNIGHT); break;
+              case "B": board.push(PIECES.W_BISHOP); break;
+              case "R": board.push(PIECES.W_ROOK); break;
+              case "Q": board.push(PIECES.W_QUEEN); break;
+              case "K": board.push(PIECES.W_KING); break;
+              case "U": board.push(PIECES.W_UNICORN); break;
+              case "D": board.push(PIECES.W_DRAGON); break;
+              case "S": board.push(PIECES.W_PRINCESS); break;
+              default:
+                if (/^\d$/.exec(chars[o])) {
+                  for (let p = 0; p < +chars[o]; p++) {
+                    board.push(PIECES.BLANK);
+                  }
+                  n += +chars[o] - 1;
+                } else throw new Error("Unexpected character in FEN: " + chars[o]);
+            }
           }
         }
       }
@@ -741,10 +757,15 @@ export class Game {
 export class Timeline {
   constructor(width, height, index, begins_at = 0, emerges_from = null) {
     this.states = [new Array(width * height).fill(PIECES.BLANK)];
-    this.index = index;
+    if (Array.isArray(index)) {
+      this.index = index[0];
+      this.begins_at = index[1];
+    } else {
+      this.index = index;
+      this.begins_at = begins_at;
+    }
     this.width = width;
     this.height = height;
-    this.begins_at = begins_at;
     this.emerges_from = emerges_from;
     this.moves = [];
     this.synthetic = begins_at != 0;
@@ -767,12 +788,17 @@ export function index_to_letter(index) {
 }
 
 export function parse_timeline(str) {
-  if (str === "-0") {
-    return -0.5;
-  } else if (str === "+0") {
-    return 0.5;
+  let split = str.split(":");
+  if (split.length == 1) {
+    if (split[0] === "-0") {
+      return -0.5;
+    } else if (split[0] === "+0") {
+      return 0.5;
+    } else {
+      return +split[0];
+    }
   } else {
-    return +str;
+    return [parse_timeline(split[0]), +split[1]];
   }
 }
 
