@@ -2,6 +2,12 @@ import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game
 
 const WHITE_FG = "{#20d0f0-fg}{bold}";
 const BLACK_FG = "{#d05036-fg}{bold}";
+const WHITE_BG = "{#333-bg}";
+const BLACK_BG = "{black-bg}";
+const MOVE_BG = "{#660-bg}";
+const JUMP_BG = "{#66a-bg}";
+const SELECTION_HILITE = "gray";
+const JUMP_HILITE = "#66a";
 
 const PIECE_CHAR = {
   [PIECES.BLANK]: " ",
@@ -46,6 +52,8 @@ const PIECE_CHAR_UNICODE = {
 };
 
 export function preview(game, use_unicode = false) {
+  Board.game = game;
+  Board.piece_set = use_unicode ? PIECE_CHAR_UNICODE : PIECE_CHAR;
   import("blessed").then((blessed) => {
     blessed = blessed.default;
     let screen = blessed.screen({
@@ -53,8 +61,7 @@ export function preview(game, use_unicode = false) {
     });
     screen.title = "5D Chess game previewer";
 
-    let main_box_dims = [game.width * 4 + 1, game.height * 2 + 1];
-
+    let main_box_dims = [screen.width - 10, screen.height - 12];
     let l = 0;
     let t = 0;
 
@@ -63,9 +70,9 @@ export function preview(game, use_unicode = false) {
     let main_box = blessed.box({
       top: "center",
       left: "center",
-      width: game.width * 4 + 1,
-      height: game.height * 2 + 1,
-      content: print_board(game.get_board(l, t), game, use_unicode ? PIECE_CHAR_UNICODE : PIECE_CHAR),
+      width: main_box_dims[0],
+      height: main_box_dims[1],
+      content: "",
       tags: true,
       style: {
         fg: "white",
@@ -76,8 +83,8 @@ export function preview(game, use_unicode = false) {
     });
 
     let left_box = blessed.box({
-      top: "center",
-      left: "50%-" + ~~(main_box_dims[0] / 2 + 6),
+      top: "50%-5",
+      left: "0",
       width: 5,
       height: 5,
       tags: true,
@@ -97,8 +104,8 @@ export function preview(game, use_unicode = false) {
     });
 
     let right_box = blessed.box({
-      top: "center",
-      left: "50%+" + ~~(main_box_dims[0] / 2 + 2),
+      top: "50%-5",
+      left: "100%-5",
       width: 5,
       height: 5,
       tags: true,
@@ -118,7 +125,7 @@ export function preview(game, use_unicode = false) {
     });
 
     let top_box = blessed.box({
-      top: "50%-" + ~~(main_box_dims[1] / 2 + 3),
+      top: "0",
       left: "center",
       width: 7,
       height: 3,
@@ -139,7 +146,7 @@ export function preview(game, use_unicode = false) {
     });
 
     let bottom_box = blessed.box({
-      top: "50%+" + ~~(main_box_dims[1] / 2 + 1),
+      top: "100%-6",
       left: "center",
       width: 7,
       height: 3,
@@ -160,9 +167,9 @@ export function preview(game, use_unicode = false) {
     });
 
     let move_box = blessed.box({
-      top: "50%+" + ~~(main_box_dims[1] / 2 + 4),
+      top: "100%-3",
       left: "center",
-      width: Math.max(main_box_dims[0], 15),
+      width: 15,
       height: 3,
       tags: true,
       content: "{center}(Starting pos.){/center}",
@@ -178,12 +185,30 @@ export function preview(game, use_unicode = false) {
     });
 
     let turn_box = blessed.box({
-      top: "50%+" + ~~(main_box_dims[1] / 2 + 4),
-      left: "50%-" + (~~(Math.max(main_box_dims[0], 15) / 2) + 14),
+      top: "100%-3",
+      left: 0,
       width: 14,
       height: 3,
       tags: true,
       content: `{center}(${write_timeline(l)}T${~~(t / 2) + 1}); ${t % 2 ? "b" : "w"}{/center}`,
+      border: {
+        type: "line"
+      },
+      style: {
+        fg: "white",
+        border: {
+          fg: "#606060",
+        }
+      }
+    });
+
+    let toggle_box = blessed.box({
+      top: "100%-3",
+      left: "100%-14",
+      width: 14,
+      height: 3,
+      tags: true,
+      content: "{center}showing: all{/center}",
       border: {
         type: "line"
       },
@@ -202,14 +227,15 @@ export function preview(game, use_unicode = false) {
     screen.append(main_box);
     screen.append(move_box);
     screen.append(turn_box);
+    screen.append(toggle_box);
 
     screen.key(['escape', 'C-c'], function(ch, key) {
       return process.exit(0);
     });
 
+    let boards = [];
+
     function update() {
-      let highlight_x = -1;
-      let highlight_y = -1;
       if (t === 0 && game.initial_board_indices.findIndex(x => x === l) !== -1) {
         move_box.setContent("{center}(Starting pos.){/center}");
       } else {
@@ -218,10 +244,6 @@ export function preview(game, use_unicode = false) {
           let move = tl.moves[t - tl.begins_at - (tl.synthetic ? 0 : 1)];
           if (move) {
             move_box.setContent("{center}" + write_move(move) + "{/center}");
-            if (move.to && (move.kind === MOVE_KIND.MOVE || move.kind === MOVE_KIND.JUMP_IN)) {
-              highlight_x = move.to[2];
-              highlight_y = move.to[3];
-            }
           } else {
             move_box.setContent("");
           }
@@ -230,12 +252,7 @@ export function preview(game, use_unicode = false) {
         }
       }
 
-      let board = game.get_board(l, t);
-      if (board) {
-        main_box.setContent(print_board(board, game, use_unicode ? PIECE_CHAR_UNICODE : PIECE_CHAR, highlight_x, highlight_y));
-      } else {
-        main_box.setContent("\n".repeat(~~(main_box_dims[0] / 4)) + "{center}(No board){/center}");
-      }
+      boards.forEach(board => board.update(l, t));
 
       if (game.get_board(l, t - 1)) {
         left_box.setContent("\n{center}{bold}←{/bold}{/center}");
@@ -267,12 +284,14 @@ export function preview(game, use_unicode = false) {
     }
 
     function move_left() {
-      if (t > 0) t--;
+      let amt = Board.one_color_mode ? 2 : 1;
+      if (t >= amt) t -= amt;
       update();
     }
 
     function move_right() {
-      t++;
+      let amt = Board.one_color_mode ? 2 : 1;
+      t += amt;
       update();
     }
 
@@ -283,6 +302,14 @@ export function preview(game, use_unicode = false) {
 
     function move_up() {
       l = timeline_below(l, game);
+      update();
+    }
+
+    function toggle_one_color_mode() {
+      Board.one_color_mode = !Board.one_color_mode;
+      let showing = Board.one_color_mode ? (t % 2 ? "black only" : "white only") : "showing: all";
+      toggle_box.style.border.fg = Board.one_color_mode ? (t % 2 ? "black" : "white") : "gray";
+      toggle_box.setContent(`{center}${showing}{/center}`)
       update();
     }
 
@@ -298,6 +325,38 @@ export function preview(game, use_unicode = false) {
     screen.key(['up', 'w', 'z'], move_up);
     top_box.on("click", move_up);
 
+    screen.key(['t', 'tab', 'space'], toggle_one_color_mode);
+    toggle_box.on("click", toggle_one_color_mode);
+
+    let handle_resize = () => {
+      boards.forEach(board => main_box.remove(board.box));
+      boards.forEach(board => board.box.destroy());
+      boards = [];
+
+      [main_box.width, main_box.height] = main_box_dims = [screen.width - 10, screen.height - 12];
+      let nx = Board.num_boards_x = Math.max(1, Math.floor(main_box_dims[0] / (game.width + 2)));
+      let ny = Board.num_boards_y = Math.max(1, Math.floor(main_box_dims[1] / (game.height + 2)));
+      move_box.width = toggle_box.width = Math.max(main_box_dims[0] - 18, 15);
+
+      for (let dl = Math.ceil((1-ny) / 2); dl <= Math.floor(ny / 2); dl++) {
+        for (let dt = Math.ceil((1-nx) / 2); dt <= Math.floor(nx / 2); dt++) {
+          boards.push(new Board(blessed, dl, dt));
+        }
+      }
+      boards.forEach(board => main_box.append(board.box));
+      boards.forEach(board => board.box.on("click", () => {
+        if (board.dt == 0 && board.dl == 0) toggle_one_color_mode();
+        t += board.dt;
+        l = shift_timeline(l, board.dl, game);
+        update();
+      }));
+      update();
+    }
+
+    screen.on('resize', handle_resize);
+
+    handle_resize();
+
     screen.render();
   }).catch((err) => {
     console.log("Couldn't load module 'blessed': did you install it with `npm i blessed`?");
@@ -305,39 +364,137 @@ export function preview(game, use_unicode = false) {
   });
 }
 
-function print_board(board, game, set = PIECE_CHAR, highlight_x = -1, highlight_y = -1) {
-  let res = "";
-  res += "{gray-fg}┌───";
-  res += "┬───".repeat(game.width - 1);
-  res += "┐\n";
+class Board {
+  static one_color_mode = false;
+  static num_boards_x = 1;
+  static num_boards_y = 1;
+  static game = null;
+  static piece_set = null;
+  constructor(blessed, dl, dt) {
+    this.dl = dl; // x
+    this.dt = dt; // y
+    this.box = this.setup_box(blessed);
+  }
+  get dt() { return Board.one_color_mode ? 2 * this._dt : this._dt; }
+  set dt(dt) { this._dt = dt; }
 
-  for (let y = 0; y < game.height; y++) {
-    res += "{gray-fg}│";
-
-    for (let x = 0; x < game.width; x++) {
-      res += "{white-fg} ";
-      if ((x + y) % 2) {
-        res += "{black-bg}";
+  setup_box(blessed) {
+    let x_correction = Board.num_boards_x % 2 ? -0.5 : -1;
+    let y_correction = Board.num_boards_y % 2 ? -0.5 : -1;
+    let x_offset = Math.ceil((Board.game.width + 2) * (this.dt + x_correction));
+    let y_offset = Math.ceil((Board.game.height + 2) * (this.dl + y_correction)) - 3;
+    return blessed.box({
+      top: "50%" + (y_offset >= 0 ? "+" : "") + y_offset,
+      left: "50%" + (x_offset >= 0 ? "+" : "") + x_offset,
+      width: Board.game.width + 2,
+      height: Board.game.height + 2,
+      content: "",
+      tags: true,
+      border: 'line',
+      style: {
+        fg: "white",
+        border: {
+          fg: "#f0f0f0"
+        }
       }
-      if (x === highlight_x && (game.height - y - 1) === highlight_y) {
-        res += "{#504800-bg}";
-      }
-      res += set[board[x + (game.height - y - 1) * game.width]] + "{/} {gray-fg}│";
-    }
-
-    res += "\n";
-
-    if (y !== game.height - 1) {
-      res += "{gray-fg}├───";
-      res += "┼───".repeat(game.width - 1);
-      res += "┤\n";
-    }
+    });
   }
 
-  res += "{gray-fg}└───";
-  res += "┴───".repeat(game.width - 1);
-  res += "┘\n";
-  return res;
+  // generate box content for an empty board at (l, t)
+  empty_content(l, t) {
+    let is_center = (this.dl == 0) && (this.dt == 0);
+    let color = is_center ? "{white-fg}" : "{gray-fg}"
+    let text_l = write_timeline(l);
+    let text_t = String(~~(t / 2) + 1);
+    let left_padding = " ".repeat(text_l.length);
+    let bw = t % 2 ? "b" : "w";
+    let right_padding = " ".repeat(text_t.length);
+    return "\n".repeat(Math.floor((Board.game.height-1)/2))
+         + `{center}${color}${text_l}T${text_t}{/center}\n`
+         + `{center}${color}${left_padding}${bw}${right_padding}{/center}\n`;
+         // + `(${this.dl}, ${this.dt})\n[${l}, ${t}]\n`; // debug
+  }
+
+  // generate box content representing the board at (l, t)
+  board_content(l, t, board) {
+    let [from_x, from_y, to_x, to_y] = [-1,-1,-1,-1];
+    let highlight_color = MOVE_BG;
+    if (t === 0 && Board.game.initial_board_indices.findIndex(x => x === l) !== -1) {
+    } else {
+      let tl = Board.game.get_timeline(l);
+      if (tl) {
+        let move = tl.moves[t - tl.begins_at - (tl.synthetic ? 0 : 1)];
+        if (move) {
+          if (move.from && move.kind === MOVE_KIND.MOVE || move.kind === MOVE_KIND.JUMP_OUT) {
+            [from_x, from_y] = [move.from[2], move.from[3]];
+          }
+          if (move.to && move.kind === MOVE_KIND.MOVE || move.kind === MOVE_KIND.JUMP_IN) {
+            [to_x, to_y] = [move.to[2], move.to[3]];
+          }
+          if ((move.kind === MOVE_KIND.JUMP_OUT) || (move.kind === MOVE_KIND.JUMP_IN)) {
+            highlight_color = JUMP_BG;
+          }
+        }
+      }
+    }
+
+    let content = "";
+    for (let y = Board.game.height - 1; y >= 0; y--) {
+      for (let x = 0; x < Board.game.width; x++) {
+        content += ((x + y) % 2) ? WHITE_BG : BLACK_BG;
+        if ((x === from_x && y === from_y) || (x === to_x && y === to_y)) content += highlight_color;
+        content += Board.piece_set[board[x + y * Board.game.width]] + "{/}";
+      }
+    }
+    return content;
+  }
+
+  static cache = {};
+  draw_content(l, t, board) {
+    let key = l + "," + t;
+    return Board.cache[key] = Board.cache[key] ? Board.cache[key] : 
+      board ? this.board_content(l, t, board) : this.empty_content(l, t);
+  }
+
+  // setup box for the board (l, t), highlighting jumps if needed
+  update(l_curr, t_curr) {
+    let l = shift_timeline(l_curr, this.dl, Board.game);
+    let t = t_curr + this.dt;
+    let board = t >= 0 ? Board.game.get_board(l, t) : null;
+    let is_center = (this.dl == 0) && (this.dt == 0);
+    if (!board) {
+      this.box.border.type = 'bg';
+      this.box.style.bg = is_center ? SELECTION_HILITE : "black";
+      this.box.style.border.bg = is_center ? SELECTION_HILITE : "black";
+      this.box.setContent(this.draw_content(l, t));
+    } else {
+      let is_jump = false;
+      // if the move for the current board (l_curr, t_curr) is a jump,
+      // highlight the board we're jumping from/to
+      if (t >= 0) {
+        let tl = Board.game.get_timeline(l_curr);
+        if (tl) {
+          let move = tl.moves[t_curr - tl.begins_at - (tl.synthetic ? 0 : 1)];
+          if (move) {
+            let jump_l, jump_t;
+            if (move.kind === MOVE_KIND.JUMP_OUT) {
+              let turn_correction = t_curr % 2 ? 1 : (move.to[0] == l_curr ? 0 : 2);
+              [jump_l, jump_t] = [move.to[0], 2 * move.to[1] + turn_correction];
+            } else if (move.kind === MOVE_KIND.JUMP_IN) {
+              let turn_correction = t_curr % 2 ? 1 : (move.from[0] == l_curr ? 0 : 2);
+              [jump_l, jump_t] = [move.from[0], 2 * move.from[1] + turn_correction];
+            }
+            is_jump = (jump_l == l) && (jump_t == t);
+          }
+        }
+      }
+      this.box.style.border.fg = t % 2 ? "gray" : "white";
+      this.box.style.bg = is_center ? SELECTION_HILITE : (is_jump ? JUMP_HILITE : "black");
+      this.box.style.border.bg = is_center ? SELECTION_HILITE : (is_jump ? JUMP_HILITE : "black");
+      this.box.border.type = 'line';
+      this.box.setContent(this.draw_content(l, t, board));
+    }
+  }
 }
 
 function timeline_above(n, game) {
@@ -358,6 +515,12 @@ function timeline_below(n, game) {
   } else {
     return n - 1;
   }
+}
+
+function shift_timeline(l, dl, game) {
+  if (dl > 0) while (dl-- > 0) l = timeline_above(l, game);
+  else if (dl < 0) while (dl++ < 0) l = timeline_below(l, game);
+  return l;
 }
 
 function write_move(move) {
