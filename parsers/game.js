@@ -19,6 +19,7 @@ export const PIECES = {
   W_KING: 6,
   W_UNICORN: 7,
   W_DRAGON: 8,
+  W_PRINCESS: 9,
   B_PAWN: 11,
   B_KNIGHT: 12,
   B_BISHOP: 13,
@@ -27,6 +28,7 @@ export const PIECES = {
   B_KING: 16,
   B_UNICORN: 17,
   B_DRAGON: 18,
+  B_PRINCESS: 19,
 
   MARKER: 99,
 
@@ -43,6 +45,7 @@ export const PIECE_CHAR = {
   [PIECES.W_KING]: "K",
   [PIECES.W_UNICORN]: "U",
   [PIECES.W_DRAGON]: "D",
+  [PIECES.W_PRINCESS]: "S",
   [PIECES.B_PAWN]: "p",
   [PIECES.B_KNIGHT]: "n",
   [PIECES.B_BISHOP]: "b",
@@ -51,6 +54,7 @@ export const PIECE_CHAR = {
   [PIECES.B_KING]: "k",
   [PIECES.B_UNICORN]: "u",
   [PIECES.B_DRAGON]: "d",
+  [PIECES.B_PRINCESS]: "s",
   [PIECES.MARKER]: "*",
 };
 
