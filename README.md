@@ -52,7 +52,7 @@ Physical moves are written the same as traditional chess [standard algebraic not
 They *must* be preceded by their board's coordinates if there is more than one timeline at the currently described state of the game.
 If there is only one timeline up to this point, then physical moves may be written without their corresponding board's coordinate.
 
-Piece letters are the same as standard algebraic notation, with `D` for the dragon, `U` for the unicorn and `P` for pawn.
+Piece letters are the same as standard algebraic notation, with `D` for the dragon, `U` for the unicorn, `S` for the princess and `P` for the pawn.
 
 The following informations about checks can be appended to the move:
 
@@ -244,3 +244,7 @@ In those cases, this piece can be considered pinned and may be left out of the e
 Because checks in 5D chess aren't as trivial as in traditional chess (sometimes requiring a specific move order between boards), the source square's coordinates should still be specified.
 
 Omission of super-physical coordinates is being considered.
+
+### Turn zero
+
+Turn zero boards have recently been introduced. They can be referenced with `T0`.
