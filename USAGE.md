@@ -54,3 +54,9 @@ Then, you can preview your games with the `preview` sub-command:
 ```sh
 node . preview 4xel test/game-2.4xel
 ```
+
+Be sure to check out the available options that the previewer supports by running:
+
+```sh
+node . preview --help
+```
