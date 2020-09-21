@@ -58,6 +58,14 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     default: false,
     type: "boolean",
     describe: "Use unicode values for chess pieces (U+2654 through U+265F, Unicorns and Dragons will still be displayed with latin letters)"
+  }).option("multi", {
+    default: false,
+    type: "boolean",
+    describe: "Enable multi-board preview"
+  }).option("black-bg", {
+    default: false,
+    type: "boolean",
+    describe: "Puts a black background behind each board (multi)"
   })
 }, (argv) => {
   let g;
@@ -73,5 +81,5 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     g = axel.parse(raw, argv.verbose, argv.board);
   }
 
-  preview.preview(g, argv.unicode);
+  preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);
 }).argv;
