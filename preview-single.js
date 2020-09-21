@@ -1,8 +1,6 @@
 import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game.js";
 import * as preview from "./preview.js";
 
-// TODO: allow scrolling in the negative time
-
 export function run(game, piece_set, black_bg, blessed) {
   let screen = blessed.screen({
     smartCSR: true

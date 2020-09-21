@@ -1,5 +1,7 @@
 import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game.js";
 
+// TODO: handle negative time!
+
 export const WHITE_FG = "{#20d0f0-fg}{bold}";
 export const BLACK_FG = "{#f06036-fg}{bold}";
 export const WHITE_BG = "{#333-bg}";
