@@ -84,7 +84,7 @@ export const BOARDS = {
   "MISC - SMALL CENTERED": ["rnkqr/ppppp/5/PPPPP/RQKNR", "0", "5x5"],
   "MISC - SMALL OPEN": ["prnbk/3pp/5/PP3/KBNRP", "0", "5x5"],
   "MISC - VERY SMALL": ["krbn/pppp/PPPP/KRBN", "0", "4x4"],
-  "MISC - VERY SMALL OPEN": ["nbrk/4p/P4/KRBN", "0", "4x4"],
+  "MISC - VERY SMALL OPEN": ["nbrk/3p/P3/KRBN", "0", "4x4"],
   "MISC - TIMELINE FORMATIONS": ["ppppp/5/5/5/2K2 2k2/5/5/5/PPPPP", "-0 +0", "5x5"],
   "MISC - TIMELINE TACTITIAN": ["kbnr/pppp/4/4 4/4/PPPP/KBNR", "-0 +0", "4x4"],
   "MISC - TIMELINE STRATEGOS": ["nbkur/ppppp/5/5/5 5/5/5/PPPPP/RUKBN", "-0 +0", "5x5"],
@@ -468,6 +468,15 @@ export class Game {
       if (!this.push_board(from[0], new_board)) throw new Error("Couldn't push board");
 
       this.record_move(from[0], MOVE_KIND.MOVE, piece, from, to, white, piece_taken, {check, checkmate, softmate});
+
+      if (piece % PIECES.B_OFFSET == PIECES.W_PAWN) {
+        if (to[3] == 0 || to[3] == this.height - 1) {
+          if (!promotion) {
+            throw new Error("Pawn reaches the end of the board without promoting!");
+          }
+        }
+      }
+
     } else if (this.is_present(to[0], to[1] * 2 + !white)) {
       let new_source_board = [...source_board];
       let new_target_board = [...target_board];
