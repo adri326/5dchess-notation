@@ -18,6 +18,7 @@ export const PIECE_TO_NUM = {
   K: PIECES.W_KING,
   U: PIECES.W_UNICORN,
   D: PIECES.W_DRAGON,
+  S: PIECES.W_PRINCESS,
 };
 export const NUM_TO_PIECE = {
   [PIECES.W_PAWN]: "P",
@@ -28,6 +29,7 @@ export const NUM_TO_PIECE = {
   [PIECES.W_KING]: "K",
   [PIECES.W_UNICORN]: "U",
   [PIECES.W_DRAGON]: "D",
+  [PIECES.W_PRINCESS]: "S",
 }
 export const DEFAULT_TAGS = {
   Mode: "5D",
@@ -126,22 +128,16 @@ export function parse(raw, verbose = false) {
         }
       }
       try {
-        let res = {
-          ...token,
+        let res = game.play(
+          PIECE_TO_NUM[token.src_piece_raw] + (white ? 0 : PIECES.B_OFFSET),
+          token.from,
+          token.to,
           white,
-          turn,
-          piece_index: PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
-          comments: [],
-          ...(token.promotion ? {promotion_index: PIECE_TO_NUM[token.promotion] + (white ? 0 : PIECES.B_OFFSET)} : {}),
-          ...game.play(
-            PIECE_TO_NUM[token.piece] + (white ? 0 : PIECES.B_OFFSET),
-            token.from,
-            token.to,
-            white,
-            PIECE_TO_NUM[token.promotion || "."] + (white ? 0 : PIECES.B_OFFSET),
-            token,
-          ),
-        };
+          PIECE_TO_NUM[token.promotion || "."] + (white ? 0 : PIECES.B_OFFSET),
+          token,
+        );
+
+        if (token.moves_present) res.moves_present = true;
 
         // Debug informations
         if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
@@ -181,7 +177,7 @@ export function parse(raw, verbose = false) {
           white,
           turn,
           comments: [],
-          piece_index: PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
+          src_piece: PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
           ...game.castle(
             PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
             token.from,
@@ -227,7 +223,6 @@ export function parse(raw, verbose = false) {
     return token;
   });
 
-  game.moves = tokens.filter(token => token.type == "move" || token.type == "castle");
   game.tags = tags;
 
   return game;
@@ -240,11 +235,11 @@ export function write(game) {
   }
 
   let white = true;
-  let turn = 0;
+  let turn = -1;
   for (let move of game.moves) {
     if (move.turn > turn) {
       turn = move.turn;
-      res += `\n${turn}.`;
+      res += `\n${turn + 1}.`;
       white = true;
     } else if (!move.white && white) {
       res += ` /`;
@@ -444,7 +439,7 @@ function parse_move(raw) {
     type: "move",
     from: [...sp1, ...p1],
     to: [...sp2, ...p2],
-    piece,
+    src_piece_raw: piece,
     takes,
     jumps,
     check,
@@ -458,8 +453,8 @@ function parse_move(raw) {
 }
 
 function write_move(move, game) {
-  if (move.type == "castle") {
-    let res = `(${write_timeline(move.from[0])}T${move.from[1] + 1})O${"-O".repeat(move.long + 1)}`;
+  if (move.type == "castle" || move.castle) {
+    let res = `(${write_timeline(move.from[0])}T${move.from[1] + 1})O${"-O".repeat((move.long || move.castle_long) + 1)}`;
     if (move.check) res += "+";
     if (move.checkmate) res += "#";
     if (move.softmate) res += "*";
@@ -467,11 +462,11 @@ function write_move(move, game) {
   }
   let res = `(${write_timeline(move.from[0])}T${move.from[1] + 1})`;
   if (move.from[0] !== move.to[0] || move.from[1] !== move.to[1]) {
-    res += NUM_TO_PIECE[move.piece_index % PIECES.B_OFFSET];
+    res += NUM_TO_PIECE[move.src_piece % PIECES.B_OFFSET];
     res += `${index_to_letter(move.from[2])}${move.from[3] + 1}`;
     if (move.branches) res += ">>";
     else res += ">";
-    if (move.piece_taken !== 0) res += "x";
+    if (move.src_piece_taken_raw !== 0) res += "x";
     res += `(${write_timeline(move.to[0])}T${move.to[1] + 1})`;
     res += `${index_to_letter(move.to[2])}${move.to[3] + 1}`;
     if (move.check) res += "+";
@@ -482,25 +477,25 @@ function write_move(move, game) {
     let omit_x = false;
     let omit_y = false;
 
-    if (move.piece_index % PIECES.B_OFFSET !== PIECES.W_PAWN) {
-      res += NUM_TO_PIECE[move.piece_index % PIECES.B_OFFSET];
+    if (move.src_piece % PIECES.B_OFFSET !== PIECES.W_PAWN) {
+      res += NUM_TO_PIECE[move.src_piece % PIECES.B_OFFSET];
     }
-    if (move.piece_index % PIECES.B_OFFSET === PIECES.W_PAWN) {
+    if (move.src_piece % PIECES.B_OFFSET === PIECES.W_PAWN) {
       omit_y = true;
       if (move.from[2] == move.to[2]) omit_x = true;
     } else {
       let board = game.get_board(move.from[0], move.from[1] * 2 + !move.white);
       if (!board) throw new Error("Couldn't find board!");
-      if (board.filter(p => p === move.piece_index).length == 1) {
+      if (board.filter(p => p === move.src_piece).length == 1) {
         omit_x = true;
         omit_y = true;
       } else {
-        [omit_x, omit_y] = game.can_omit(move.piece_index, move.from, move.to, move.white);
+        [omit_x, omit_y] = game.can_omit(move.src_piece, move.from, move.to, move.white);
       }
     }
 
     res += `${omit_x ? "" : index_to_letter(move.from[2])}${omit_y ? "" : move.from[3] + 1}`;
-    if (move.piece_taken !== 0) res += "x";
+    if (move.src_piece_taken_raw !== 0) res += "x";
     res += `${index_to_letter(move.to[2])}${move.to[3] + 1}`;
     if (move.check) res += "+";
     if (move.checkmate) res += "#";

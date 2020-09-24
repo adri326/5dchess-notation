@@ -77,37 +77,22 @@ export function parse(raw, verbose = false, board = "Standard") {
       let parsed = parse_move(raw.slice(0, match.index), game, white, turn, present);
       try {
         if (parsed.type === "move") {
-          let res = game.play(
-            parsed.piece_index,
+          game.play(
+            parsed.src_piece,
             parsed.from.map(x => x === null ? -1 : x),
             parsed.to.map(x => x === null ? -1 : x),
             white,
             parsed.promotion,
             parsed,
           );
-          moves.push({
-            ...parsed,
-            white,
-            turn: turn + 1,
-            branches: !!parsed.branches_to,
-            comments: [],
-            moves_present: parsed.branches_to && Math.abs(game.highest_timeline() + game.lowest_timeline()) < 2,
-            ...res,
-          });
         } else if (parsed.type === "castle") {
           game.castle(
-            parsed.piece_index,
+            parsed.src_piece,
             parsed.from.map(x => x === null ? -1 : x),
             parsed.long,
             white,
             parsed,
           );
-          moves.push({
-            ...parsed,
-            white,
-            comments: [],
-            turn: turn + 1,
-          });
         }
       } catch (err) {
         console.error(err.toString());
@@ -121,7 +106,6 @@ export function parse(raw, verbose = false, board = "Standard") {
     }
   }
 
-  game.moves = moves;
   return game;
 }
 
@@ -165,12 +149,12 @@ export function write_move(move) {
   let res = "";
   res += `L${write_timeline(move.from[0], true)}`;
   res += `T${move.from[1] + 1}`;
-  if (move.type === "castle") {
+  if (move.type === "castle" || move.castle) {
     res += " O-O";
-    if (move.long) res += "-O";
+    if (move.long || move.castle_long) res += "-O";
   } else {
     res += " ";
-    res += NUM_TO_PIECE[move.piece_index % PIECES.B_OFFSET];
+    res += NUM_TO_PIECE[move.src_piece % PIECES.B_OFFSET];
     res += index_to_letter(move.from[2]);
     res += move.from[3] + 1;
     if (move.takes) res += " x ";
@@ -328,8 +312,8 @@ export function parse_move(raw, game, white, turn, present) {
     throw new Error("Too many coordinates in a single move! Expected 1 or 2, got " + positions.length);
   }
 
-  let piece_index = tokens.findIndex(({type}) => type === "piece");
-  if (piece_index === -1) {
+  let src_piece = tokens.findIndex(({type}) => type === "piece");
+  if (src_piece === -1) {
     // pawn move
     tokens.forEach(({type, value}) => {
       if (type === "timeline") {
@@ -346,8 +330,8 @@ export function parse_move(raw, game, white, turn, present) {
     });
   } else {
     // non-pawn move
-    piece = tokens[piece_index].value;
-    tokens.slice(0, piece_index).forEach(({type, value}) => {
+    piece = tokens[src_piece].value;
+    tokens.slice(0, src_piece).forEach(({type, value}) => {
       if (type === "timeline") {
         from[0] = value;
         from[1] = game.get_last_turn_in(from[0]);
@@ -358,7 +342,7 @@ export function parse_move(raw, game, white, turn, present) {
         to[1] = value;
       }
     });
-    tokens.slice(piece_index).forEach(({type, value}) => {
+    tokens.slice(src_piece).forEach(({type, value}) => {
       if (type === "timeline") {
         to[0] = value;
         to[1] = from[1];
@@ -373,7 +357,7 @@ export function parse_move(raw, game, white, turn, present) {
     raw: res_raw,
     from,
     to,
-    piece_index: piece,
+    src_piece: piece,
     check,
     checkmate,
     softmate,

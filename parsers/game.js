@@ -129,6 +129,8 @@ export class Game {
     this.timelines = new Array(board_indices.length).fill(null).map((_, i) => new Timeline(width, height, board_indices[i]));
     this.moves = [];
     this.active_player = true;
+    this.turn = 0;
+    this.last_white = true;
   }
 
   /**?
@@ -405,8 +407,18 @@ export class Game {
 
   /**?
     Plays the move and returns information on the move done
+    @param piece - The piece moved
+    @param from - The origin square (partial)
+    @param to - The target square (full)
+    @param white - Which player is making the move
+    @param {check, checkmate, softmate} - Check, checkmate and softmate information
   **/
   play(piece, from, to, white, promotion, {check, checkmate, softmate} = {}) {
+    if (white && !this.last_white) {
+      this.turn++;
+    }
+    this.last_white = white;
+
     let source_board = this.get_board(from[0], from[1] * 2 + !white);
     let target_board = this.get_board(to[0], to[1] * 2 + !white);
     if (!source_board) {
@@ -509,16 +521,41 @@ export class Game {
       this.record_move(new_index, MOVE_KIND.JUMP_IN, piece, from, to, white, piece_taken, {check, checkmate, softmate});
     }
 
-    return {
+    let res = new Move(
       from,
       to,
-      ...(new_index !== null ? {new_index} : {}),
+      piece,
       piece_taken,
-      takes: piece_taken !== PIECES.BLANK,
-    };
+      this.turn,
+      white,
+      {
+        promotion,
+        check,
+        checkmate,
+        softmate,
+        new_index,
+        moves_present: new_index !== null && Math.abs(this.highest_timeline() + this.lowest_timeline()) < 2
+      }
+    );
+
+    this.moves.push(res);
+
+    return res;
   }
 
+  /** Commit a castling move
+    @param piece - W_KING or B_KING
+    @param from - The position of that king (partial)
+    @param long - True if the player castles queen-side
+    @param white - Which player is castling
+    @param {check, checkmate, softmate} - Check, checkmate and softmate information
+  **/
   castle(piece, from, long, white, {check, checkmate, softmate} = {}) {
+    if (white && !this.last_white) {
+      this.turn++;
+    }
+    this.last_white = white;
+
     let king_candidates = [...this.get_board_as(from[0], from[1], white).entries()].filter(([i, p]) =>
       p === PIECES.W_KING + !white * PIECES.B_OFFSET
     );
@@ -587,6 +624,30 @@ export class Game {
       PIECES.BLANK,
       {check, checkmate, softmate},
     );
+
+    let res = new Move(
+      [
+        from[0],
+        from[1],
+        king_candidates[0][0] % this.width,
+        y
+      ],
+      [
+        from[0],
+        from[1],
+        long ? 2 : this.width - 1,
+        y
+      ],
+      PIECES.W_KING + !white * PIECES.B_OFFSET,
+      PIECES.BLANK,
+      this.turn,
+      white,
+      {check, checkmate, softmate, castle: true, castle_long: long,},
+    );
+
+    this.moves.push(res);
+
+    return res;
   }
 
   lowest_active_timeline(white = null) {
@@ -788,6 +849,43 @@ export class Timeline {
   active_player() {
     return this.turn;
     return !!((this.states.length + this.begins_at) % 2) != this.synthetic;
+  }
+}
+
+// Common move format; each of its fields are supposed to contain the necessary information, should they be available
+export class Move {
+  constructor(from, to, src_piece, dst_piece, turn, white, {
+    promotion = null,
+    softmate = false,
+    check = false,
+    checkmate = false,
+    castle = false,
+    castle_long = null,
+    new_index = null,
+    moves_present = false,
+  } = {}) {
+    // Granted pieces of information
+    this.type = "move";
+    this.from = from;
+    this.to = to;
+    this.src_piece = src_piece;
+    this.dst_piece = dst_piece;
+    this.takes = dst_piece !== PIECES.BLANK;
+    this.turn = turn;
+    this.white = white;
+
+    this.castle = castle;
+    this.castle_long = castle_long;
+
+    this.comments = [];
+    this.new_index = new_index;
+    this.branches = this.new_index !== null;
+    this.promotion = promotion;
+    this.softmate = softmate;
+    this.check = check;
+    this.checkmate = checkmate;
+
+    this.moves_present = moves_present;
   }
 }
 

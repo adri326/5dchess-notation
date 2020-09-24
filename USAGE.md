@@ -60,3 +60,16 @@ Be sure to check out the available options that the previewer supports by runnin
 ```sh
 node . preview --help
 ```
+
+## Implementing your own notation
+
+> First of all, please pardon the poor code quality, I am currently working on making this thing prettier.
+
+Each implemented notation resides in the `parsers/` directory (might be moved later to `notation/`). The scripts in this repo are using ES6 modules.
+You will need to create your notation's parser's file in that directory. This file should export a `parse` and a `write` function.
+Next up:
+
+- Hook both the `parse` and `write` functions in the `index.js` file (might make this step optional)
+- Write the parser in the `parse` function; it should create a `Game` structure, do the stuff on it and return that structure
+- Make the parser parse moves; parsed moves should result in a call to `Game::play(...)` and parsed castlings should result in a call to `Game::castle(...)`
+- Write the stringifier in the `write` function; it should return a string. The necessary pieces of information can be found in `Game` and `Move`
