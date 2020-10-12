@@ -6,7 +6,7 @@ import {Game, BOARDS, PIECES, letter_to_index, index_to_letter, parse_timeline, 
 
 export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*([+-]?\d+)\s*T\s*(\d+)\s*\)/;
 export const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
-export const PIECES_REGEXP = /^[PKNRQDUB]/;
+export const PIECES_REGEXP = /^(?:BR|CK|RQ|[PKNRQDUB])/;
 export const PRESENT_REGEXP = /^\(~T(\d+)\)/;
 export const TIMELINE_REGEXP = /^\(>L([+\-]?\d+)\)/;
 export const PIECE_TO_NUM = {
@@ -19,6 +19,9 @@ export const PIECE_TO_NUM = {
   U: PIECES.W_UNICORN,
   D: PIECES.W_DRAGON,
   S: PIECES.W_PRINCESS,
+  BR: PIECES.W_BRAWN,
+  CK: PIECES.W_CKING,
+  RQ: PIECES.W_RQUEEN,
 };
 export const NUM_TO_PIECE = {
   [PIECES.W_PAWN]: "P",
@@ -30,6 +33,9 @@ export const NUM_TO_PIECE = {
   [PIECES.W_UNICORN]: "U",
   [PIECES.W_DRAGON]: "D",
   [PIECES.W_PRINCESS]: "S",
+  [PIECES.W_BRAWN]: "BR",
+  [PIECES.W_CKING]: "CK",
+  [PIECES.W_RQUEEN]: "RQ",
 }
 export const DEFAULT_TAGS = {
   Mode: "5D",
@@ -172,19 +178,12 @@ export function parse(raw, verbose = false) {
         }
       }
       try {
-        let res = {
-          ...token,
+        let res = game.castle(
+          PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
+          token.from,
+          token.long,
           white,
-          turn,
-          comments: [],
-          src_piece: PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
-          ...game.castle(
-            PIECES.W_KING + (white ? 0 : PIECES.B_OFFSET),
-            token.from,
-            token.long,
-            white,
-          ),
-        };
+        );
 
         // Debug informations
         if (tokens[i + 1] && tokens[i + 1].type === "comment" && tokens[i + 1].value === "@") {
@@ -324,8 +323,8 @@ function parse_move(raw) {
 
   let match;
 
-  if (PIECES_REGEXP.exec(raw.slice(ptr))) { // Normal move
-    piece = raw.slice(ptr, ++ptr);
+  if (match = PIECES_REGEXP.exec(raw.slice(ptr))) { // Normal move
+    piece = raw.slice(ptr, ptr += match[0].length);
     if (match = /^([a-w])(\d+)(>>?)(x)?/.exec(raw.slice(ptr))) {
       // Jump/time travel
       ptr += match[0].length;
@@ -415,8 +414,8 @@ function parse_move(raw) {
       takes = true;
     } else throw new Error("Invalid move: invalid pawn move or missing/wrong piece name: " + raw.slice(ptr, 10) + "...");
 
-    if (match = /^=([QRBNDU])/.exec(raw.slice(ptr))) {
-      promotion = match[1];
+    if (match = /^=([QRBNDU])?/.exec(raw.slice(ptr))) {
+      promotion = match[1] || "Q";
       ptr += match[0].length;
     }
 

@@ -10,9 +10,9 @@ import * as yargs from "yargs";
 
 yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>", (y) => {
   y.positional("from", {
-    describe: "the notation to convert from (5dpgn)"
+    describe: "the notation to convert from (shad, json, axel)"
   }).positional("to", {
-    describe: "the notation to convert into (5dpgn)"
+    describe: "the notation to convert into (shad, json, axel)"
   }).positional("file", {
     describe: "the file to read from"
   }).option("v", {
@@ -31,7 +31,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   let from = argv.from.toLowerCase();
   let to = argv.to.toLowerCase();
 
-  if (from === "5dpgn") {
+  if (from === "shad") {
     g = pgn.parse(raw, argv.verbose || false);
   } else if (from === "json") {
     g = json.parse(raw);
@@ -39,7 +39,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     g = axel.parse(raw, argv.verbose, argv.board);
   }
 
-  if (to === "5dpgn") {
+  if (to === "shad") {
     console.log(pgn.write(g));
   } else if (to === "json") {
     console.log(JSON.stringify(g));
@@ -53,7 +53,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     describe: "The file to read from"
   }).option("board", {
     default: "Standard",
-    describe: "The board that is played on (used for 4xel)",
+    describe: "The board that is played on (used for axel's notation)",
   }).option("unicode", {
     default: false,
     type: "boolean",
@@ -73,7 +73,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
 
   let format = argv.format.toLowerCase();
 
-  if (format === "5dpgn") {
+  if (format === "shad") {
     g = pgn.parse(raw, argv.verbose || false);
   } else if (format === "json") {
     g = json.parse(raw);

@@ -20,19 +20,26 @@ export const PIECES = {
   W_UNICORN: 7,
   W_DRAGON: 8,
   W_PRINCESS: 9,
-  B_PAWN: 11,
-  B_KNIGHT: 12,
-  B_BISHOP: 13,
-  B_ROOK: 14,
-  B_QUEEN: 15,
-  B_KING: 16,
-  B_UNICORN: 17,
-  B_DRAGON: 18,
-  B_PRINCESS: 19,
+  W_BRAWN: 10,
+  W_CKING: 11,
+  W_RQUEEN: 12,
+
+  B_PAWN: 33,
+  B_KNIGHT: 34,
+  B_BISHOP: 35,
+  B_ROOK: 36,
+  B_QUEEN: 37,
+  B_KING: 38,
+  B_UNICORN: 39,
+  B_DRAGON: 40,
+  B_PRINCESS: 41,
+  B_BRAWN: 42,
+  B_CKING: 43,
+  B_RQUEEN: 44,
 
   MARKER: 99,
 
-  B_OFFSET: 10,
+  B_OFFSET: 32,
 };
 
 export const PIECE_CHAR = {
@@ -46,6 +53,9 @@ export const PIECE_CHAR = {
   [PIECES.W_UNICORN]: "U",
   [PIECES.W_DRAGON]: "D",
   [PIECES.W_PRINCESS]: "S",
+  [PIECES.W_BRAWN]: "Β",
+  [PIECES.W_RQUEEN]: "Ρ",
+  [PIECES.W_CKING]: "Κ",
   [PIECES.B_PAWN]: "p",
   [PIECES.B_KNIGHT]: "n",
   [PIECES.B_BISHOP]: "b",
@@ -55,6 +65,9 @@ export const PIECE_CHAR = {
   [PIECES.B_UNICORN]: "u",
   [PIECES.B_DRAGON]: "d",
   [PIECES.B_PRINCESS]: "s",
+  [PIECES.B_BRAWN]: "β",
+  [PIECES.B_RQUEEN]: "ρ",
+  [PIECES.B_CKING]: "κ",
   [PIECES.MARKER]: "*",
 };
 
@@ -73,24 +86,30 @@ export const BOARDS = {
   "STANDARD - PRINCESS": ["rnbskbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBSKBNR", "0", "8x8"],
   "STANDARD - TWO TIMELINES": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "-0 +0", "8x8"],
   "STANDARD - DEFENDED PAWN": ["rqbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/RQBNKBNR", "0", "8x8"],
-  "MISC - SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0", "5x5"],
+  "STANDARD - REVERSED ROYALTY": ["rnbρκbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBΡΚBNR", "0", "8x8"],
+  "SMALL": ["kqbnr/ppppp/5/PPPPP/KQBNR", "0", "5x5"],
   "MISC - TIMELINE INVASION": ["nbkrb/ppppp/5/5/PPPPP ppppp/5/5/PPPPP/NBKRB", "-0 +0", "5x5"],
   "SIMPLE - NO QUEENS": ["rnbknbr/ppppppp/7/7/7/PPPPPPP/RNBKNBR", "0", "7x7"],
   "SIMPLE - KNIGHTS VS. BISHOP": ["rbqkbr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
   "SIMPLE - NO BISHOPS": ["rnqknr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
   "SIMPLE - NO KNIGHTS": ["rbqkbr/pppppp/6/6/PPPPPP/RBQKBR", "0", "6x6"],
   "SIMPLE - NO ROOKS": ["nbqkbn/pppppp/6/6/PPPPPP/NBQKBN", "0", "6x6"],
-  "MISC - SMALL FLIPPED": ["nbrqk/ppppp/5/PPPPP/KQRBN", "0", "5x5"],
-  "MISC - SMALL CENTERED": ["rnkqr/ppppp/5/PPPPP/RQKNR", "0", "5x5"],
-  "MISC - SMALL OPEN": ["prnbk/3pp/5/PP3/KBNRP", "0", "5x5"],
-  "MISC - VERY SMALL": ["krbn/pppp/PPPP/KRBN", "0", "4x4"],
-  "MISC - VERY SMALL OPEN": ["nbrk/3p/P3/KRBN", "0", "4x4"],
+  "SIMPLE - SIMPLE SET": ["rqnbqkr/pppppp/6/6/PPPPPP/RKQBNR", "0", "6x6"],
+  "SMALL - FLIPPED": ["nbrqk/ppppp/5/PPPPP/KQRBN", "0", "5x5"],
+  "SMALL - CENTERED": ["rnkqr/ppppp/5/PPPPP/RQKNR", "0", "5x5"],
+  "SMALL - OPEN": ["prnbk/3pp/5/PP3/KBNRP", "0", "5x5"],
+  "VERY SMALL": ["nbrk/pppp/PPPP/KRBN", "0", "4x4"],
+  "VERY SMALL - OPEN": ["nbrk/3p/P3/KRBN", "0", "4x4"],
   "MISC - TIMELINE FORMATIONS": ["ppppp/5/5/5/2K2 2k2/5/5/5/PPPPP", "-0 +0", "5x5"],
   "MISC - TIMELINE TACTITIAN": ["kbnr/pppp/4/4 4/4/PPPP/KBNR", "-0 +0", "4x4"],
   "MISC - TIMELINE STRATEGOS": ["nbkur/ppppp/5/5/5 5/5/5/PPPPP/RUKBN", "-0 +0", "5x5"],
   "MISC - TIMELINE BATTLEGROUNDS": ["rrkrr/bbqbb/ppppp/5/PPPPP nnnnn/ppppp/5/PPPPP/NNNNN ppppp/5/PPPPP/BBQBB/RRKRR", "-1 0 1", "5x5"],
+  "MISC - TIMELINE SKIRMISH": ["3rk/3pp/5/BB3/NN3 3nn/3bb/5/PP3/KR3", "-0 +0", "5x5"],
+  "MISC - TIMELINE FRAGMENTS": ["kppp/4/4/NBRU nbru/4/4/KPPP", "-0:1 +0", "4x4"],
+  "MISC - TIMELINE MARAUDERS": ["βrkrβ/1βββ1/5/5/5 β1β1β/5/5/5/Β1Β1Β 5/5/5/1ΒΒΒ1/ΒRKRΒ", "-1 0 1", "5x5"],
+  "MISC - KING OF KINGS": ["κκkκκ/5/5/5/ΚΚKΚΚ", "0", "5x5"],
+  "MISC - ROYAL QUEEN SHOWDOWN": ["4ρ1/6/6/6/6/1Ρ4", "0", "6x6"],
   "MISC - EXCESSIVE": ["kruqdrk/rnbknbr/ppppppp/7/PPPPPPP/RNBKNBR/KRUQDRK", "0", "7x7"],
-  "MISC - REFLECTED STANDARD": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "STANDARD - HALF REFLECTED": ["rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "MISC - GLOBAL WARMING": ["1", "0", "1x1"],
   "FOCUSED - JUST KNIGHTS": ["n1kn1/5/5/5/1NK1N", "0", "5x5"],
@@ -101,6 +120,7 @@ export const BOARDS = {
   "FOCUSED - JUST KINGS": ["2k/3/k2", "0", "3x3"],
   "FOCUSED - JUST UNICORNS": ["1u1uk/5/5/5/KU1U1", "0", "5x5"],
   "FOCUSED - JUST DRAGONS": ["2ddk/5/5/5/KDD2", "0", "5x5"],
+  "FOCUSED - JUST BRAWNS": ["ββββk/5/5/5/KΒΒΒΒ", "0", "5x5"],
   "CHECKMATE PRACTICE - KNIGHT": ["5n/6/6/6/6/K5", "0", "6x6"],
   "CHECKMATE PRACTICE - BISHOP": ["4b1/6/6/6/6/K5", "0", "6x6"],
   "CHECKMATE PRACTICE - ROOK": ["5r/6/6/6/6/K5", "0", "6x6"],
@@ -168,6 +188,9 @@ export class Game {
               case "u": board.push(PIECES.B_UNICORN); break;
               case "d": board.push(PIECES.B_DRAGON); break;
               case "s": board.push(PIECES.B_PRINCESS); break;
+              case "β": board.push(PIECES.B_BRAWN); break;
+              case "ρ": board.push(PIECES.B_RQUEEN); break;
+              case "κ": board.push(PIECES.B_CKING); break;
               case "P": board.push(PIECES.W_PAWN); break;
               case "N": board.push(PIECES.W_KNIGHT); break;
               case "B": board.push(PIECES.W_BISHOP); break;
@@ -177,6 +200,9 @@ export class Game {
               case "U": board.push(PIECES.W_UNICORN); break;
               case "D": board.push(PIECES.W_DRAGON); break;
               case "S": board.push(PIECES.W_PRINCESS); break;
+              case "Β": board.push(PIECES.W_BRAWN); break;
+              case "Ρ": board.push(PIECES.W_RQUEEN); break;
+              case "Κ": board.push(PIECES.W_CKING); break;
               default:
                 if (/^\d$/.exec(chars[o])) {
                   for (let p = 0; p < +chars[o]; p++) {
@@ -191,36 +217,68 @@ export class Game {
     }
   }
 
+  /**
+    Get board (l, t)
+    @param l The timeline coordinate
+    @param t The time as stored internally
+  **/
   get_board(l, t) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return null;
     return timeline.states[t - timeline.begins_at];
   }
 
+  /**
+    Get the board (l, t) as `white`
+    @param l The timeline coordinate
+    @param t The time coordinate as displayed in-game, minus one (T1 becomes 0, T2 becomes 1, ...)
+    @param white Which player owns the board
+  **/
   get_board_as(l, t, white) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return null;
     return timeline.states[t * 2 + !white - timeline.begins_at];
   }
 
+  /**
+    Get tile (l, t, x, y)
+    @param l The timeline coordinate
+    @param t The time as stored internally
+    @param x The tile's X coordinate (starts at 0)
+    @param y The tile's Y coordinate (starts at 0)
+  **/
   get(l, t, x, y) {
     let board = this.get_board(l, t);
     if (!board) return null;
     return board[x + y * this.width];
   }
 
+  /**
+    Get tile (l, t, x, y) as `white`
+    @param l The timeline coordinate
+    @param t The time coordinate as displayed in-game, minus one (T1 becomes 0, T2 becomes 1, ...)
+    @param x The tile's X coordinate (starts at 0)
+    @param y The tile's Y coordinate (starts at 0)
+    @param white Which player owns the board
+  **/
   get_as(l, t, x, y, white) {
     let board = this.get_board_as(l, t, white);
     if (!board) return null;
     return board[x + y * this.width];
   }
 
-  is_present(l, t) {
+  /**
+    Returns whether or not the timeline `l`'s last board is at `t`
+  **/
+  is_at_present(l, t) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return null;
     return timeline.states.length - 1 === t - timeline.begins_at;
   }
 
+  /**
+    Push `board` to timeline `l`
+  **/
   push_board(l, board) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return false;
@@ -229,6 +287,9 @@ export class Game {
     return true;
   }
 
+  /**
+    Internal; used to record a move made on a timeline (be it a jump in or out)
+  **/
   record_move(l, kind, piece, from, to, white, piece_taken, {check, checkmate, softmate} = {}) {
     let timeline = this.timelines.find(board => board.index === l);
     if (timeline == null) return false;
@@ -249,6 +310,14 @@ export class Game {
   can_move(piece, from, to, white) {
     if (from[0] === to[0] && from[1] === to[1] && from[2] === to[2] && from[3] === to[3]) return false;
     switch (piece) {
+      case PIECES.W_BRAWN: { // brawn's generalized moves
+          let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+          a = a.map(x => Math.abs(x)).sort().reverse();
+          if (a[0] === 1 && a[1] === 1 && a[2] === 0 && a[3] === 0 && this.get_as(to[0], to[1], to[2], to[3] - 1, white) !== PIECES.BLANK) {
+            return true; // We shall be permissive
+          }
+        }
+        // fallthrough
       case PIECES.W_PAWN:
         if (this.is_en_passant(from, to, white)) return true;
         if (this.get_as(...to, white) != PIECES.BLANK) {
@@ -274,6 +343,14 @@ export class Game {
             && from[3] === to[3]
         }
         break;
+      case PIECES.B_BRAWN: { // brawn's generalized moves
+          let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+          a = a.map(x => Math.abs(x)).sort().reverse();
+          if (a[0] === 1 && a[1] === 1 && a[2] === 0 && a[3] === 0 && this.get_as(to[0], to[1], to[2], to[3] - 1, white) !== PIECES.BLANK) {
+            return true; // We shall be permissive
+          }
+        }
+        // fallthrough
       case PIECES.B_PAWN:
         if (this.is_en_passant(from, to, white)) return true;
         if (this.get_as(...to, white) != PIECES.BLANK) {
@@ -329,6 +406,8 @@ export class Game {
         a = a.map(x => Math.abs(x)).sort().reverse();
         return a[0] === a[1] && a[1] === a[2] && a[2] === a[3] && this.path_clear(from, to, white);
       }
+      case PIECES.W_RQUEEN:
+      case PIECES.B_RQUEEN:
       case PIECES.W_QUEEN:
       case PIECES.B_QUEEN: {
         let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
@@ -340,6 +419,8 @@ export class Game {
             || a[0] === a[1] && a[1] === a[2] && a[2] === a[3] // quadragonal
           ) && this.path_clear(from, to, white);
       }
+      case PIECES.W_CKING:
+      case PIECES.B_CKING:
       case PIECES.W_KING:
       case PIECES.B_KING: {
         let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
@@ -350,11 +431,12 @@ export class Game {
   }
 
   is_en_passant(from, to, white) {
+    // Here
     if (from[0] === to[0] && from[1] === to[1] && (from[2] === to[2] + 1 || from[2] === to[2] - 1)) {
       return this.get_as(...to, white) === PIECES.BLANK
         && this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? -1 : 1), white) === PIECES.BLANK
-        && this.get_as(to[0], to[1], to[2], to[3] + (white ? -1 : 1), white) === PIECES.W_PAWN + PIECES.B_OFFSET * white
-        && this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? 1 : -1), white) === PIECES.W_PAWN + PIECES.B_OFFSET * white
+        && is_opponent_pawnlike(this.get_as(to[0], to[1], to[2], to[3] + (white ? -1 : 1), white), white)
+        && is_opponent_pawnlike(this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? 1 : -1), white), white)
         && this.get_as(to[0], to[1], to[2], to[3] + (white ? 1 : -1), white) === PIECES.BLANK
     }
   }
@@ -489,7 +571,7 @@ export class Game {
         }
       }
 
-    } else if (this.is_present(to[0], to[1] * 2 + !white)) {
+    } else if (this.is_at_present(to[0], to[1] * 2 + !white)) {
       let new_source_board = [...source_board];
       let new_target_board = [...target_board];
       new_source_board[from[2] + from[3] * this.width] = PIECES.BLANK;
@@ -924,4 +1006,10 @@ export function write_timeline(num, plus = false) {
     }
     return num.toString();
   }
+}
+
+export function is_opponent_pawnlike(piece, white) {
+  if ((piece <= PIECES.W_OFFSET) === white) return false;
+  piece = piece % PIECES.W_OFFSET;
+  return piece === PIECES.W_PAWN || piece === PIECES.W_BRAWN;
 }

@@ -24,6 +24,9 @@ export const PIECE_CHAR = {
   [PIECES.W_UNICORN]: WHITE_FG + "U" + "{/}",
   [PIECES.W_DRAGON]: WHITE_FG + "D" + "{/}",
   [PIECES.W_PRINCESS]: WHITE_FG + "S" + "{/}",
+  [PIECES.W_BRAWN]: WHITE_FG + "Β" + "{/}",
+  [PIECES.W_CKING]: WHITE_FG + "Κ" + "{/}",
+  [PIECES.W_RQUEEN]: WHITE_FG + "Ρ" + "{/}",
   [PIECES.B_PAWN]: BLACK_FG + "p" + "{/}",
   [PIECES.B_KNIGHT]: BLACK_FG + "n" + "{/}",
   [PIECES.B_BISHOP]: BLACK_FG + "b" + "{/}",
@@ -33,6 +36,9 @@ export const PIECE_CHAR = {
   [PIECES.B_UNICORN]: BLACK_FG + "u" + "{/}",
   [PIECES.B_DRAGON]: BLACK_FG + "d" + "{/}",
   [PIECES.B_PRINCESS]: BLACK_FG + "s" + "{/}",
+  [PIECES.B_BRAWN]: BLACK_FG + "β" + "{/}",
+  [PIECES.B_CKING]: BLACK_FG + "κ" + "{/}",
+  [PIECES.B_RQUEEN]: BLACK_FG + "ρ" + "{/}",
   [PIECES.MARKER]: "*",
 }
 
@@ -47,6 +53,9 @@ export const PIECE_CHAR_UNICODE = {
   [PIECES.W_UNICORN]: WHITE_FG + "U" + "{/}",
   [PIECES.W_DRAGON]: WHITE_FG + "D" + "{/}",
   [PIECES.W_PRINCESS]: WHITE_FG + "S" + "{/}",
+  [PIECES.W_BRAWN]: WHITE_FG + "Β" + "{/}",
+  [PIECES.W_CKING]: WHITE_FG + "Κ" + "{/}",
+  [PIECES.W_RQUEEN]: WHITE_FG + "Ρ" + "{/}",
   [PIECES.B_PAWN]: BLACK_FG + "♟︎" + "{/}",
   [PIECES.B_KNIGHT]: BLACK_FG + "♞" + "{/}",
   [PIECES.B_BISHOP]: BLACK_FG + "♝" + "{/}",
@@ -56,6 +65,9 @@ export const PIECE_CHAR_UNICODE = {
   [PIECES.B_UNICORN]: BLACK_FG + "u" + "{/}",
   [PIECES.B_DRAGON]: BLACK_FG + "d" + "{/}",
   [PIECES.B_PRINCESS]: BLACK_FG + "s" + "{/}",
+  [PIECES.B_BRAWN]: BLACK_FG + "β" + "{/}",
+  [PIECES.B_CKING]: BLACK_FG + "κ" + "{/}",
+  [PIECES.B_RQUEEN]: BLACK_FG + "ρ" + "{/}",
   [PIECES.MARKER]: "*",
 };
 

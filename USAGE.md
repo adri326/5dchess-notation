@@ -29,7 +29,7 @@ The supported notations are:
 
 - `5dpgn`: the format described in [README.md](README.md)
 - `json`: the internal format of the parsers, parts of it may be different depending on the language that is being parsed from. No verification is done on import, use at your own risk!
-- `4xel`: [Axel's RAN](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view). Supports reading from Axel's AN too.
+- `axel`: [Axel's RAN](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view). Supports reading from Axel's AN too.
 
 ### Axel's notation
 
@@ -37,7 +37,7 @@ Axel's notation does not support (as of writing this) a way of specifying boards
 Therefore, if the board that the source file plays on isn't the standard board, is should be specified so using the `--board` parameter:
 
 ```sh
-node . convert 4xel 5dpgn test/game-2.4xel --board "Standard"
+node . convert axel 5dpgn test/game-2.4xel --board "Standard"
 ```
 
 ## Preview
@@ -52,7 +52,7 @@ npm i blessed
 Then, you can preview your games with the `preview` sub-command:
 
 ```sh
-node . preview 4xel test/game-2.4xel
+node . preview axel test/game-2.4xel
 ```
 
 Be sure to check out the available options that the previewer supports by running:

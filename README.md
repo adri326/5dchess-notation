@@ -7,8 +7,21 @@ Other, proposed notations include:
 - [Matrix Notation](https://drive.google.com/drive/folders/10332r6crq_pD-d4pG4VSynM8ziu1uT98)
 - [Hexicube's adaptation of Axel' AN](https://github.com/Hexicube/5D-Chess-Game-Viewer)
 - [nidlatam's notation](https://github.com/nidlatam/my-5d-chess-notation)
+- [Internal notation of 5d-chess-js](https://gitlab.com/alexbay218/5d-chess-js)
+- [AverageHuman's Simplified 5D Algebraic notation](https://pastebin.com/raw/EwVSTFbj)
+- [AquaBaby's analysis of several notations and proposal for a modern notation](https://docs.google.com/document/d/1-SnsdYIzrGao0ToyGXSaoEd_0tYKxYePO1C-Bp5ziXA/view)
 
 This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
+It does not claim to be a standardized way of writing down games nor should it be the go-to choice to communicate moves and lines to other humans.
+
+The priorities of this notation, as of right now, are:
+
+- Accurate transcription of games (any state of the game should be able to be transcribed)
+- Ease of writing by a human
+- Ease of reading for a computer (no need to hold the state of the game while initially parsing the moves)
+- Ease of reading for a human
+- Ability to convert from/to other notations
+- Ease of writing by a computer
 
 ## Included converter
 
@@ -52,7 +65,19 @@ Physical moves are written the same as traditional chess [standard algebraic not
 They *must* be preceded by their board's coordinates if there is more than one timeline at the currently described state of the game.
 If there is only one timeline up to this point, then physical moves may be written without their corresponding board's coordinate.
 
-Piece letters are the same as standard algebraic notation, with `D` for the dragon, `U` for the unicorn, `S` for the princess and `P` for the pawn.
+Piece letters are the same as standard algebraic notation, with additional letters used for fairy pieces:
+
+- `P` for **p**awn
+- `BR` for **br**awn
+- `K` for **r**ook
+- `CK` for **c**ommon **k**ing (non-royal king)
+- `Q` for **q**ueen
+- `RQ` for **r**oyal **q**ueen
+- `S` for princes**s**
+- `B` for **b**ishop
+- `N` for k**n**ight
+- `D` for **d**ragon
+- `U` for **u**nicorn
 
 The following informations about checks can be appended to the move:
 
@@ -248,3 +273,15 @@ Omission of super-physical coordinates is being considered.
 ### Turn zero
 
 Turn zero boards have recently been introduced. They can be referenced with `T0`.
+
+### FEN
+
+The included parser proposes a FEN format that is extended to 5D Chess.
+Numerous starting boards are simply separated by a space.
+Two-character piece names have been substituted with the following greek letters:
+
+- `BR` (brawn) becomes `β`
+- `CK` (common king) becomes `κ`
+- `RQ` (royal queen) becomes `ρ`
+
+Examples can be found in `parsers/game.js`.
