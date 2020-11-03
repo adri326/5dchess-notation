@@ -413,10 +413,19 @@ export class Game {
         let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
         a = a.map(x => Math.abs(x)).sort().reverse();
         return (
-            a[1] === 0 && a[2] === 0 && a[3] === 0
+            a[1] === 0 && a[2] === 0 && a[3] === 0 // orthogonal
             || a[0] === a[1] && a[2] === 0 && a[3] === 0 // diagonal
             || a[0] === a[1] && a[1] === a[2] && a[3] === 0 // trigonal
             || a[0] === a[1] && a[1] === a[2] && a[2] === a[3] // quadragonal
+          ) && this.path_clear(from, to, white);
+      }
+      case PIECES.W_PRINCESS:
+      case PIECES.B_PRINCESS: {
+        let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
+        a = a.map(x => Math.abs(x)).sort().reverse();
+        return (
+            a[1] === 0 && a[2] === 0 && a[3] === 0 // orthogonal
+            || a[0] === a[1] && a[2] === 0 && a[3] === 0 // diagonal
           ) && this.path_clear(from, to, white);
       }
       case PIECES.W_CKING:

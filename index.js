@@ -77,7 +77,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     g = pgn.parse(raw, argv.verbose || false);
   } else if (format === "json") {
     g = json.parse(raw);
-  } else if (format === "4xel" || from === "axel") {
+  } else if (format === "4xel" || format === "axel") {
     g = axel.parse(raw, argv.verbose, argv.board);
   }
 
