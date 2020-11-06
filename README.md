@@ -107,15 +107,15 @@ A non-branching jump may look like this: `(0T6)Pd5>(1T6)d5`.
 
 As of right now, underpromotion is not allowed/implemented yet.
 
-Promotions can only occur in physical moves and are denoted by adding the `=` symbol at the end of the move (before `+` or `#`), optionally with the piece the pawn is promoted into (`Q`).
+Promotions can only occur in physical moves and are denoted by adding the `=` symbol at the end of the move (before `+` or `#`), followed by the piece the pawn is promoted into (currently, only `Q` is possible).
 
 ### Inactive timeline reactivation
 
-Should a past, inactive timeline be reactivated, the following token may be put after a move:
+Should a past, inactive timeline be reactivated, the following token may be put after a move to clarify where the present gets put back:
 
 `(~Tx)`, with `x` being replaced by the corresponding turn.
 
-There is no need to precise which sub-turn it is, as the corresponding player will have to play on the now-activated board, unless another branching move is made.
+There is no need to precise which sub-turn it is, as the current player will have to play on any now-activated board that they may play on (leaving the present to the opponent's sub-turn after these moves), unless another branching move is made to bring the present even further back.
 
 ### Complex scenarios
 
