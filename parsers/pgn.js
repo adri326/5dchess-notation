@@ -174,6 +174,7 @@ export function parse(raw, verbose = false) {
         if (game.timelines.length > 1) {
           throw new Error("Expected super-physical coordinates!");
         } else {
+          token.to = [];
           token.to[0] = token.from[0] = game.timelines[0].index;
           token.to[1] = token.from[1] = ~~((game.timelines[0].states.length + game.timelines[0].begins_at - 1) / 2);
         }
