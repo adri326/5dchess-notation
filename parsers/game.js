@@ -497,6 +497,17 @@ export class Game {
   }
 
   /**?
+    Plays a Move instance; returns a filled-in version of the Move object
+  **/
+  play_move(move) {
+    if (move.castle) {
+      return this.castle(move.src_piece, move.from, move.castle_long, move.white, {...move});
+    } else {
+      return this.play(move.src_piece, move.from, move.to, move.white, move.promotion, {...move});
+    }
+  }
+
+  /**?
     Plays the move and returns information on the move done
     @param piece - The piece moved
     @param from - The origin square (partial)
@@ -556,6 +567,7 @@ export class Game {
 
     let piece_taken = target_board[to[2] + to[3] * this.width];
     let new_index = null;
+    let en_passant = false;
 
     if (source_board === target_board) {
       let new_board = [...source_board];
@@ -565,7 +577,8 @@ export class Game {
       } else {
         new_board[to[2] + to[3] * this.width] = piece;
       }
-      if (this.is_en_passant(from, to, white)) {
+      en_passant = this.is_en_passant(from, to, white);
+      if (en_passant) {
         new_board[to[2] + (to[3] + (white ? -1 : 1)) * this.width] = PIECES.BLANK;
       }
       if (!this.push_board(from[0], new_board)) throw new Error("Couldn't push board");
@@ -625,7 +638,8 @@ export class Game {
         checkmate,
         softmate,
         new_index,
-        moves_present: new_index !== null && Math.abs(this.highest_timeline() + this.lowest_timeline()) < 2
+        moves_present: new_index !== null && Math.abs(this.highest_timeline() + this.lowest_timeline()) < 2,
+        en_passant,
       }
     );
 
@@ -888,6 +902,7 @@ export class Game {
       if (this.get_timeline(token.from[0])) {
         let tl = this.get_timeline(token.from[0]);
         console.log(`Timeline ${token.from[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+        console.log(`Existing timelines are ${this.timelines.map(t => t.index).join(", ")}.`);
       } else {
         console.log(`Couldn't find timeline ${token.from[0]}: existing timelines are ${this.timelines.map(t => t.index).join(", ")}.`);
       }
@@ -897,6 +912,7 @@ export class Game {
       if (this.get_timeline(token.to[0])) {
         let tl = this.get_timeline(token.to[0]);
         console.log(`Timeline ${token.to[0]} has an history up to ${~~((tl.states.length + tl.begins_at) / 2) + 1} ${(tl.states.length + tl.begins_at) % 2 ? "white" : "black"} (raw ${tl.states.length + tl.begins_at} / ${tl.states.length}+${tl.begins_at})`);
+        console.log(`Existing timelines are ${this.timelines.map(t => t.index).join(", ")}.`);
       } else {
         console.log(`Couldn't find timeline ${token.to[0]}: existing timelines are ${this.timelines.map(t => t.index).join(", ")}.`);
       }
@@ -950,10 +966,12 @@ export class Move {
     softmate = false,
     check = false,
     checkmate = false,
+    stalemate = false,
     castle = false,
     castle_long = null,
     new_index = null,
     moves_present = false,
+    en_passant = false,
   } = {}) {
     // Granted pieces of information
     this.type = "move";
@@ -975,8 +993,10 @@ export class Move {
     this.softmate = softmate;
     this.check = check;
     this.checkmate = checkmate;
+    this.stalemate = stalemate;
 
     this.moves_present = moves_present;
+    this.en_passant = false;
   }
 }
 

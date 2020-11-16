@@ -4,6 +4,7 @@ import * as pgn from "./parsers/pgn.js";
 import * as game from "./parsers/game.js";
 import * as axel from "./parsers/axel.js";
 import * as json from "./parsers/json.js";
+import * as alexbay from "./parsers/alexbay.js";
 import * as preview from "./preview.js";
 import * as fs from "fs";
 import * as yargs from "yargs";
@@ -23,6 +24,11 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   }).option("board", {
     default: "Standard",
     describe: "The board that is played on (used for 4xel)",
+  }).option("princess-to-queen", {
+    alias: "q",
+    default: false,
+    type: "boolean",
+    describe: "Turn princesses into queens (used for alexbay; tries to convert back when parsing alexbay's notation, but cannot revert the information loss)"
   })
 }, (argv) => {
   let g;
@@ -37,6 +43,10 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     g = json.parse(raw);
   } else if (from === "4xel" || from === "axel") {
     g = axel.parse(raw, argv.verbose, argv.board);
+  } else if (from === "alexbay") {
+    g = alexbay.parse(raw, argv.verbose, argv.princessToQueen);
+  } else {
+    throw new Error("No notation named " + from + " found!");
   }
 
   if (to === "shad") {
@@ -45,6 +55,8 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     console.log(JSON.stringify(g));
   } else if (to === "4xel" || from === "axel") {
     console.log(axel.write(g));
+  } else if (to === "alexbay") {
+    console.log(alexbay.write(g, argv.verbose, argv.princessToQueen));
   }
 }).command("preview <format> <file>", "Previews the given game", (y) => {
   y.positional("format", {
@@ -66,6 +78,11 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     default: false,
     type: "boolean",
     describe: "Puts a black background behind each board (multi)"
+  }).option("princess-to-queen", {
+    alias: "q",
+    default: false,
+    type: "boolean",
+    describe: "Turn princesses into queens (used for alexbay; tries to convert back when parsing alexbay's notation, but cannot revert the information loss)"
   })
 }, (argv) => {
   let g;
@@ -79,6 +96,10 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     g = json.parse(raw);
   } else if (format === "4xel" || format === "axel") {
     g = axel.parse(raw, argv.verbose, argv.board);
+  } else if (format === "alexbay") {
+    g = alexbay.parse(raw, argv.verbose, argv.princessToQueen);
+  } else {
+    throw new Error("No notation named " + format + " found!");
   }
 
   preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);

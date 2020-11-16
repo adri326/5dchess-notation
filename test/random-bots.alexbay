@@ -1,0 +1,18 @@
+[Event "Random Bot Test"]
+[Site "Internet"]
+[Date "2020.10.20"]
+[Round "1"]
+[White "Random Bot"]
+[Black "Random Bot"]
+[Result "1-0"]
+[Variant "standard"]
+
+1w. 1:e2:e3
+1b. 1:f7:f6
+2w. 2:Nb1<>1:b3
+2b. 1+1:a7:a6
+3w. 2+1:c2:c3
+3b. 2:Nb8:c6
+3b. 2+1:Nb8:c6
+4w. 3:Qd1:h5
+4w. 3+1:Qd1:c2#

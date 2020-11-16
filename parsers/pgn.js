@@ -261,7 +261,7 @@ export function write(game) {
   return res;
 }
 
-function parse_tag(raw) {
+export function parse_tag(raw) {
   let token_raw = raw[0];
   let ptr = 1;
 
@@ -287,7 +287,7 @@ function parse_tag(raw) {
   }, raw.slice(ptr).trimLeft()]
 }
 
-function parse_turn_index(raw) {
+export function parse_turn_index(raw) {
   let match = /^(\d+)\s*\./.exec(raw);
   if (!match) throw new Error("Invalid turn index!");
   return [{
@@ -301,7 +301,7 @@ function parse_turn_index(raw) {
   Parses a single move, be it a jump, a time travel, a castle or a regular, physical move.
   Does not fill in the missing details.
 **/
-function parse_move(raw) {
+export function parse_move(raw) {
   let ptr = 0;
 
   let sp1 = SUPERPHYSICAL_REGEXP.exec(raw);
@@ -467,7 +467,7 @@ function write_move(move, game) {
     res += `${index_to_letter(move.from[2])}${move.from[3] + 1}`;
     if (move.branches) res += ">>";
     else res += ">";
-    if (move.src_piece_taken_raw !== 0) res += "x";
+    if (move.takes) res += "x";
     res += `(${write_timeline(move.to[0])}T${move.to[1] + 1})`;
     res += `${index_to_letter(move.to[2])}${move.to[3] + 1}`;
     if (move.check) res += "+";
@@ -496,7 +496,7 @@ function write_move(move, game) {
     }
 
     res += `${omit_x ? "" : index_to_letter(move.from[2])}${omit_y ? "" : move.from[3] + 1}`;
-    if (move.src_piece_taken_raw !== 0) res += "x";
+    if (move.takes) res += "x";
     res += `${index_to_letter(move.to[2])}${move.to[3] + 1}`;
     if (move.check) res += "+";
     if (move.checkmate) res += "#";
@@ -505,7 +505,7 @@ function write_move(move, game) {
   return res;
 }
 
-function parse_comment(raw) {
+export function parse_comment(raw) {
   let to = raw.split("").findIndex(e => e == "}");
   return [{
     type: "comment",
