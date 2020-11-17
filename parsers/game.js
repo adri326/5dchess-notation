@@ -455,7 +455,7 @@ export class Game {
   **/
   path_clear(from, to, white) {
     let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
-    let length = Math.abs([...a].sort()[0]);
+    let length = a.map(x => Math.abs(x)).sort()[3];
     let inc = a.map(x => x / length);
     for (let n = 1; n < length; n++) {
       if (this.get_as(

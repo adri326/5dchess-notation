@@ -1,7 +1,7 @@
 "use strict";
 
 import {Game, BOARDS, PIECES, index_to_letter, letter_to_index, Move} from "./game.js";
-import {PIECE_TO_NUM, NUM_TO_PIECE, PIECES_REGEXP, parse_tag} from "./pgn.js";
+import {PIECE_TO_NUM, PIECES_REGEXP, parse_tag} from "./pgn.js";
 
 export const TURN_PREFIX = /^(\d+)([bwBW])\s*\./;
 export const FIRST_PART = /^(\d+)\s*([+\-]\d+)?$/;
@@ -16,6 +16,15 @@ export const KNOWN_BOARDS = {
   "STANDARD - HALF REFLECTED": "half_reflected",
   "STANDARD - TURN ZERO": "turn_zero",
 };
+
+export const NUM_TO_PIECE = {
+  [PIECES.W_KING]: "K",
+  [PIECES.W_QUEEN]: "Q",
+  [PIECES.W_ROOK]: "R",
+  [PIECES.W_BISHOP]: "B",
+  [PIECES.W_KNIGHT]: "N",
+  [PIECES.W_PRINCESS]: "P",
+}
 
 export function parse(raw, verbose = false, princess_to_queen = false) {
   let white = true;
