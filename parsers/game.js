@@ -94,7 +94,7 @@ export const BOARDS = {
   "SIMPLE - NO BISHOPS": ["rnqknr/pppppp/6/6/PPPPPP/RNQKNR", "0", "6x6"],
   "SIMPLE - NO KNIGHTS": ["rbqkbr/pppppp/6/6/PPPPPP/RBQKBR", "0", "6x6"],
   "SIMPLE - NO ROOKS": ["nbqkbn/pppppp/6/6/PPPPPP/NBQKBN", "0", "6x6"],
-  "SIMPLE - SIMPLE SET": ["rqnbqkr/pppppp/6/6/PPPPPP/RKQBNR", "0", "6x6"],
+  "SIMPLE - SIMPLE SET": ["rnbqkr/pppppp/6/6/PPPPPP/RKQBNR", "0", "6x6"],
   "SMALL - FLIPPED": ["nbrqk/ppppp/5/PPPPP/KQRBN", "0", "5x5"],
   "SMALL - CENTERED": ["rnkqr/ppppp/5/PPPPP/RQKNR", "0", "5x5"],
   "SMALL - OPEN": ["prnbk/3pp/5/PP3/KBNRP", "0", "5x5"],
