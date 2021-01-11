@@ -7,11 +7,11 @@ describe("Testing the FEN parsing", () => {
     for (let index in PIECE_CHAR) {
       let g = new Game(1, 1, [0]);
       if (index == PIECES.BLANK) {
-        g.parse_fen("1");
+        g.parse_legacy_fen("1");
       } else if (index == PIECES.MARKER) {
         continue;
       } else {
-        g.parse_fen(PIECE_CHAR[index]);
+        g.parse_legacy_fen(PIECE_CHAR[index]);
       }
       assert.deepEqual(g.timelines[0].states[0], [index]);
     }
@@ -19,7 +19,7 @@ describe("Testing the FEN parsing", () => {
 
   it("Checks that spaces are handled properly", () => {
     let g = new Game(3, 3, [0]);
-    g.parse_fen("1k1/3/2b");
+    g.parse_legacy_fen("1k1/3/2b");
     assert.deepEqual(g.timelines[0].states[0], [
       PIECES.BLANK,
       PIECES.BLANK,
@@ -35,7 +35,7 @@ describe("Testing the FEN parsing", () => {
 
   it("Checks that multiple multiverses are parsed accordingly", () => {
     let g = new Game(1, 2, [0, 1]);
-    g.parse_fen("k/p P/K");
+    g.parse_legacy_fen("k/p P/K");
     assert.deepEqual(g.get_timeline(0).states[0], [
       PIECES.B_PAWN,
       PIECES.B_KING,
@@ -48,7 +48,7 @@ describe("Testing the FEN parsing", () => {
 
   it("Checks that the standard board is parsed well", () => {
     let g = new Game(8, 8, [0]);
-    g.parse_fen(game.BOARDS.STANDARD[0]);
+    g.parse_legacy_fen(game.BOARDS.STANDARD[0]);
     assert.deepEqual(g.timelines[0].states[0], [
       PIECES.W_ROOK,
       PIECES.W_KNIGHT,
@@ -124,7 +124,7 @@ describe("Testing the FEN parsing", () => {
         let [width, height] = board[2].split("x").map(Number);
         let timelines = board[1].split(" ").map(Number);
         let g = new Game(width, height, timelines);
-        g.parse_fen(board[0]);
+        g.parse_legacy_fen(board[0]);
       });
     }
   });

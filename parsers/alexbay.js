@@ -15,6 +15,7 @@ export const KNOWN_BOARDS = {
   "STANDARD - DEFENDED PAWN": "defended_pawn",
   "STANDARD - HALF REFLECTED": "half_reflected",
   "STANDARD - TURN ZERO": "turn_zero",
+  "CUSTOM": "custom",
 };
 
 export const NUM_TO_PIECE = {
@@ -32,30 +33,45 @@ export function parse(raw, verbose = false, princess_to_queen = false) {
 
   // Fetch the tags
   let tags = {};
+  let fen = [];
   for (let line of raw.split("\n")) {
     line = line.trimLeft();
     if (!line) continue;
     if (line.startsWith("[")) {
-      let [token] = parse_tag(line);
-      tags[token.name] = token.value;
+      if (/\s/.exec(line.trim())) {
+        let [token] = parse_tag(line);
+        tags[token.name.toLowerCase()] = token.value;
+      } else {
+        fen.push(line);
+      }
     }
   }
 
-  let board = find_board(tags["Variant"] || "standard") || "STANDARD";
-  tags["Board"] = board;
-  tags["Mode"] = "5D";
-  let [width, height] = BOARDS[board][2].split("x").map(x => +x);
-  let initial_multiverses = BOARDS[board][1].split(" ").map(x => parse_timeline(x));
+  let board = find_board(tags["variant"] || "standard") || "STANDARD";
+  tags["board"] = board;
+  tags["mode"] = "5D";
+  let game;
+  if (BOARDS[board]) {
+    let [width, height] = BOARDS[board][2].split("x").map(x => +x);
+    let initial_multiverses = BOARDS[board][1].split(" ").map(x => parse_timeline(x));
 
-  let game = new Game(width, height, initial_multiverses);
-  game.tags = tags;
-  game.parse_fen(BOARDS[board][0]);
+    game = new Game(width, height, initial_multiverses);
+    game.tags = tags;
+    game.parse_legacy_fen(BOARDS[board][0]);
+  } else if (board.toLowerCase() == "custom") {
+    let [width, height] = (tags["size"] || "8x8").split("x").map(x => +x);
+    game = new Game(width, height, []);
+    game.tags = tags;
+    for (let f of fen) {
+      game.parse_5dfen(f);
+    }
+  }
 
   for (let line of raw.split("\n")) {
     line = line.trimLeft();
     if (line && !line.startsWith("[")) {
       let move = parse_move(game, line);
-      if (princess_to_queen && tags["Variant"] === "princess") {
+      if (princess_to_queen && tags["variant"] === "princess") {
         if (move.src_piece % PIECES.B_OFFSET === PIECES.W_QUEEN) {
           move.src_piece = PIECES.W_PRINCESS + PIECES.B_OFFSET * !move.white;
         }
@@ -79,12 +95,17 @@ export function parse(raw, verbose = false, princess_to_queen = false) {
 
 export function write(game, verbose, princess_to_queen) {
   game.tags = game.tags || DEFAULT_TAGS;
-  if (!game.tags["Variant"]) {
-    game.tags["Variant"] = KNOWN_BOARDS[game.tags["Board"].toUpperCase()];
+  if (!game.tags["variant"]) {
+    game.tags["variant"] = KNOWN_BOARDS[game.tags["board"].toUpperCase()];
   }
   let res = "";
   for (let tag in game.tags) {
     res += `[${tag} "${game.tags[tag]}"]\n`;
+  }
+
+  if ((game.tags.board || game.tags.variant || "").toLowerCase() === "custom") {
+    res += game.export_5dfen();
+    res += "\n";
   }
 
   for (let move of game.moves) {

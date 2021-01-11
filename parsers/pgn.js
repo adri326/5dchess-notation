@@ -106,17 +106,20 @@ export function parse(raw, verbose = false) {
   }
 
   let tags = {};
-  tokens.filter(t => t.type == "tag").forEach(t => tags[t.name] = t.value);
+  tokens.filter(t => t.type == "tag").forEach(t => tags[t.name.toLowerCase()] = t.value);
 
-  let [width, height] = (tags["Size"] || (tags["Size"] = "8x8")).split("x").map(x => +x);
-  let board_indices = (tags["InitialMultiverses"] || "0").split(" ").map(n => parse_timeline(n));
+  let [width, height] = (tags["size"] || (tags["size"] = "8x8")).split("x").map(x => +x);
+  let board_indices = (tags["initialmultiverses"] || "0").split(" ").map(n => parse_timeline(n));
   let game = new Game(width, height, board_indices);
 
-  let board_name = tags["Board"] || "Standard";
+  let board_name = tags["board"] || tags["variant"] || "Standard";
   if (BOARDS[board_name.toUpperCase()]) {
     board_indices = BOARDS[board_name.toUpperCase()][1].split(" ").map(x => parse_timeline(x));
     game = new Game(width, height, board_indices);
-    game.parse_fen(BOARDS[board_name.toUpperCase()][0]);
+    game.parse_legacy_fen(BOARDS[board_name.toUpperCase()][0]);
+  } else if (board_name.toLowerCase() === "custom") {
+    game = new Game(width, height, []);
+    tokens.filter(t => t.type == "fen").forEach(t => game.parse_5dfen(t.value));
   }
 
   let white = true;
@@ -235,6 +238,11 @@ export function write(game) {
     res += `[${tag} "${game.tags[tag]}"]\n`;
   }
 
+  if ((game.tags.board || game.tags.variant || "").toLowerCase() === "custom") {
+    res += game.export_5dfen();
+    res += "\n";
+  }
+
   let white = true;
   let turn = -1;
   for (let move of game.moves) {
@@ -262,6 +270,13 @@ export function write(game) {
 }
 
 export function parse_tag(raw) {
+  let fen;
+  if (fen = /^[^\s]+\]/.exec(raw)) {
+    return [{
+      type: "fen",
+      value: fen[0]
+    }, raw.slice(fen[0].length).trim()];
+  }
   let token_raw = raw[0];
   let ptr = 1;
 

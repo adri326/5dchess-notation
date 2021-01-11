@@ -4,7 +4,7 @@ const {PIECES, PIECE_CHAR, Game} = game;
 
 describe("Testing the move-related mechanics in Game", () => {
   let g = new Game(6, 6, [0]);
-  g.parse_fen("NNBBR1/4DU/6/2p3/P2P2/k4K");
+  g.parse_legacy_fen("NNBBR1/4DU/6/2p3/P2P2/k4K");
   // g.print(g.get_board(0, 0));
 
   it("Checks if Nb4 is only possible as Na6b4", () => {

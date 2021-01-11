@@ -137,6 +137,60 @@ export const OMIT = {
   BOTH: 3,
 };
 
+export const FEN_TO_PIECE = {
+  "p": PIECES.B_PAWN,
+  "P": PIECES.W_PAWN,
+  "b": PIECES.B_BISHOP,
+  "B": PIECES.W_BISHOP,
+  "n": PIECES.B_KNIGHT,
+  "N": PIECES.W_KNIGHT,
+  "r": PIECES.B_ROOK,
+  "R": PIECES.W_ROOK,
+  "q": PIECES.B_QUEEN,
+  "Q": PIECES.W_QUEEN,
+  "k": PIECES.B_KING,
+  "K": PIECES.W_KING,
+  "s": PIECES.B_PRINCESS,
+  "S": PIECES.W_PRINCESS,
+  "w": PIECES.B_BRAWN,
+  "W": PIECES.W_BRAWN,
+  "u": PIECES.B_UNICORN,
+  "U": PIECES.W_UNICORN,
+  "d": PIECES.B_DRAGON,
+  "D": PIECES.W_DRAGON,
+  "c": PIECES.B_CKING,
+  "C": PIECES.W_CKING,
+  "q+": PIECES.B_RQUEEN,
+  "Q+": PIECES.W_RQUEEN,
+};
+
+export const PIECE_TO_FEN = {
+  [PIECES.B_PAWN]: "p",
+  [PIECES.W_PAWN]: "P",
+  [PIECES.B_BISHOP]: "b",
+  [PIECES.W_BISHOP]: "B",
+  [PIECES.B_KNIGHT]: "n",
+  [PIECES.W_KNIGHT]: "N",
+  [PIECES.B_ROOK]: "r",
+  [PIECES.W_ROOK]: "R",
+  [PIECES.B_QUEEN]: "q",
+  [PIECES.W_QUEEN]: "Q",
+  [PIECES.B_KING]: "k",
+  [PIECES.W_KING]: "K",
+  [PIECES.B_PRINCESS]: "s",
+  [PIECES.W_PRINCESS]: "S",
+  [PIECES.B_BRAWN]: "w",
+  [PIECES.W_BRAWN]: "W",
+  [PIECES.B_UNICORN]: "u",
+  [PIECES.W_UNICORN]: "U",
+  [PIECES.B_DRAGON]: "d",
+  [PIECES.W_DRAGON]: "D",
+  [PIECES.B_CKING]: "c",
+  [PIECES.W_CKING]: "C",
+  [PIECES.B_RQUEEN]: "q+",
+  [PIECES.W_RQUEEN]: "Q+",
+};
+
 export class Game {
   /**?
     Constructs a new boardset, with `board_indices.length` initial boards
@@ -154,9 +208,9 @@ export class Game {
   }
 
   /**?
-    Parses a FEN-formatted board (or boards, separated by spaces). Overwrites the first board.
+    Parses a legacy FEN-formatted board (or boards, separated by spaces). Overwrites the first board.
   **/
-  parse_fen(fen) {
+  parse_legacy_fen(fen) {
     let boards = fen.split(" ");
     for (let n = 0; n < this.board_indices.length; n++) {
       let sub_boards = boards[n].split("|");
@@ -217,15 +271,171 @@ export class Game {
     }
   }
 
+  parse_5dfen(fen) {
+    if (fen.startsWith('[') && fen.endsWith(']')) {
+      fen = fen.slice(1, -1);
+    }
+    let split = fen.split(':');
+    if (split.length !== 4) {
+      throw new Error("SyntaxError: raw 5DFEN board string doesn't have 4 fields.");
+    }
+
+    let rows = split[0].split('/');
+    rows.reverse();
+    if (rows.length !== this.height) {
+      throw new Error("SyntaxError: the amount of rows isn't equal to the height of the board, did you forget a slash (/) or to set the `size` header?");
+    }
+
+    let board = [];
+    for (let raw_row of rows) {
+      let row = [];
+      while (raw_row.length) {
+        let match;
+        if (match = /^\d+/.exec(raw_row)) {
+          raw_row = raw_row.slice(match[0].length);
+          for (let n = 0; n < +match[0]; n++) {
+            row.push(PIECES.BLANK);
+          }
+        } else if (match = /^([a-zA-Z]\+?)(\*?)/.exec(raw_row)) {
+          raw_row = raw_row.slice(match[0].length);
+          let piece = FEN_TO_PIECE[match[1]];
+          if (!piece) {
+            throw new Error(`SyntaxError: invalid piece '${match[1]}'`);
+          }
+          // The internal structure of this converter doesn't make use of unmoved pieces; should support that later though!
+          // row.push(match[2] ? -piece : piece);
+          row.push(piece);
+        } else {
+          throw new Error(`SyntaxError: unexpected character: '${raw_row[0]}'`)
+        }
+      }
+      if (row.length !== this.width) {
+        throw new Error("SyntaxError: row doesn't have the right width, did you forget a slash (/) or to set the `size` header?");
+      }
+      board = board.concat(row);
+    }
+
+    let l = 0;
+    if (split[1] === '-0') l = -0.5;
+    if (split[1] === '+0') l = +0.5;
+    else l = Math.round(+l);
+
+    if (isNaN(l)) {
+      throw new Error("Invalid 5DFEN timeline: " + split[1]);
+    }
+
+    let t = +split[2] * 2;
+
+    if (isNaN(t)) {
+        throw new Error("Invalid 5DFEN turn: " + split[2]);
+    }
+
+    if (split[3] === 'w') {
+        t -= 2;
+    } else if (split[3] === 'b') {
+        t -= 1;
+    } else {
+        throw new Error("Invalid 5DFEN color: " + split[3]);
+    }
+
+    this.set_board(l, t, board, true);
+  }
+
+  /**
+    Exports the "initial" boards for 5DFEN
+  **/
+  export_5dfen() {
+    let res = "";
+    for (let tl of this.timelines) {
+      for (let dt = 0; dt < tl.states.length; dt++) {
+        if (dt == 0 || tl.moves[dt - 1].kind == MOVE_KIND.NONE) {
+          res += "[";
+          let blanks = 0;
+          for (let y = this.height - 1; y >= 0; y--) {
+            for (let x = 0; x < this.width; x++) {
+              let piece = tl.states[dt][x + y * this.width];
+              if (piece == PIECES.BLANK) {
+                blanks++;
+              } else if (blanks > 0) {
+                res += blanks.toString(10);
+                blanks = 0;
+              }
+
+              if (piece != PIECES.BLANK) {
+                // TODO: support unmoved pieces
+                res += PIECE_TO_FEN[piece];
+              }
+            }
+
+            if (blanks > 0) {
+              res += blanks.toString(10);
+              blanks = 0;
+            }
+            res += "/";
+          }
+          res = res.slice(0, -1);
+          res += ":";
+          if (tl.index == -0.5) {
+            res += "-0";
+          } else if (tl.index == +0.5) {
+            res += "0";
+          } else {
+            res += Math.round(tl.index);
+          }
+          res += ":";
+          res += Math.floor((tl.begins_at + dt + 2) / 2);
+          res += ":";
+          res += (tl.begins_at + dt) % 2 ? "b" : "w";
+          res += "]\n";
+        }
+      }
+    }
+
+    return res.slice(0, -1);
+  }
+
   /**
     Get board (l, t)
     @param l The timeline coordinate
     @param t The time as stored internally
   **/
   get_board(l, t) {
-    let timeline = this.timelines.find(board => board.index === l);
+    let timeline = this.timelines.find(tl => tl.index === l);
     if (timeline == null) return null;
     return timeline.states[t - timeline.begins_at];
+  }
+
+  /**
+    Get board (l, t)
+    @param l The timeline coordinate
+    @param t The time as stored internally
+  **/
+  set_board(l, t, board, indices = false) {
+    let timeline = this.timelines.find(tl => tl.index === l);
+    if (timeline == null) {
+      timeline = new Timeline(this.width, this.height, l, t);
+      this.timelines.push(timeline);
+      if (indices) {
+        this.initial_board_indices.push(l);
+      }
+    }
+
+    if (t < timeline.begins_at) {
+      let new_states = [board];
+      if (timeline.begins_at - t > 1) {
+        new_states.fill(undefined, 1, timeline.begins_at - t - 1);
+      }
+      timeline.states = new_states.concat(timeline.states);
+      for (let n = 0; n < timeline.begins_at - t; n++) {
+        timeline.moves.unshift({kind: MOVE_KIND.NONE});
+      }
+      timeline.begins_at = t;
+    } else if (t == timeline.begins_at + 1) {
+      timeline.moves.push({kind: MOVE_KIND.NONE});
+      timeline.states[t - timeline.begins_at] = board;
+    } else {
+      timeline.states[t - timeline.begins_at] = board;
+    }
   }
 
   /**
@@ -235,7 +445,7 @@ export class Game {
     @param white Which player owns the board
   **/
   get_board_as(l, t, white) {
-    let timeline = this.timelines.find(board => board.index === l);
+    let timeline = this.timelines.find(tl => tl.index === l);
     if (timeline == null) return null;
     return timeline.states[t * 2 + !white - timeline.begins_at];
   }

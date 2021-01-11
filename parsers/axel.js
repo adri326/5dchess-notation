@@ -25,19 +25,19 @@ export function parse(raw, verbose = false, board = "Standard") {
     let initial_multiverses = BOARDS[board.toUpperCase()][1].split(" ").map(x => parse_timeline(x));
     game = new Game(width, height, initial_multiverses);
     game.tags = {
-      Mode: "5D",
-      Board: board,
-      Size: "8x8",
+      mode: "5D",
+      board: board,
+      size: "8x8",
     };
-    game.parse_fen(BOARDS[board.toUpperCase()][0]);
+    game.parse_legacy_fen(BOARDS[board.toUpperCase()][0]);
   } else {
     game = new Game(8, 8, [0]);
     game.tags = {
-      Mode: "5D",
-      Board: board,
-      Size: "8x8",
+      mode: "5D",
+      board: board,
+      size: "8x8",
     };
-    game.parse_fen(BOARDS.STANDARD[0]);
+    game.parse_legacy_fen(BOARDS.STANDARD[0]);
   }
 
   let turn = 0;

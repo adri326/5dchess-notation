@@ -223,6 +223,91 @@ Here is what the end of that game looks like:
 
 ![End of the aforementionned game](https://cdn.discordapp.com/attachments/740361438375313540/743827989321744467/unknown.png)
 
+## 5DFEN and custom variants
+
+You can encode custom variants and puzzles using the 5DFEN extension of that notation.
+The grammar of 5DFEN can be found in [here](./fen.ebnf) in [EBNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) format.
+
+To use this extension, you need to set the board tag to `"custom"` and encode the initial boards as 5DFEN board strings.
+
+A board is considered initial if one of the following conditions is true:
+- it does not emanate from any other board (eg. the first board in standard)
+- there weren't any move from the board that it emanated that would yield that board (eg. the second board in standard - turn zero)
+
+A *board string* is the 5DFEN way of describing the state of an initial board.
+A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
+There should be no spaces, as to not confuse a board string with a regular header.
+
+The first field contains the board's pieces.
+The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
+Each row is a string of pieces, encoded using letters (optionally followed by a `+`), and blanks, encoded using numbers.
+
+A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
+To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+by a `+`.
+
+The list of the pieces' corresponding letters is as follows:
+- `P/p` for [p]awn
+- `B/b` for [b]ishop
+- `R/r` for [r]ook
+- `N/n` for k[n]ight
+- `K/k` for [k]ing
+- `Q/q` for [q]ueen
+- `U/u` for [u]nicorn
+- `D/d` for [d]ragon
+- `S/s` for prince[s]s
+- `W/w` for bra[w]n
+- `C/c` for [c]ommon king
+- `Q+/q+` for royal [q]ueen
+
+Blanks are encoded using numbers:
+- If there is a one-piece blank, then it is encoded using `1`.
+- If there is a two-piece blank, then it is encoded using `2`.
+- If there is a ten-piece blank, then it is encoded using `10.
+- If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
+
+If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
+- An unmoved white pawn is encoded as `P*`
+- An unmoved black king is encoded as `k*`
+
+If `+` and `*` need to be combined, then `+` comes first: `q+*`.
+
+The other three fields are (in order):
+- Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
+- Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
+- Player color, may be `w` for white and `b` for black
+
+### Additionnal Metadata
+
+The following metadata fields are required to have within the headers of a game using this extension:
+
+- `Board = "custom"`, as to indicate that 5DFEN needs to be used
+- `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
+- `Puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
+  as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
+
+### Examples
+
+This is how the standard position would be encoded:
+
+```pgn
+[Size "8x8"]
+[Board "custom"]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
+```
+
+This is how `Rook Tactics I` would be encoded:
+
+```pgn
+[Size "5x5"]
+[Puzzle "mate-in-1"]
+[Board "custom"]
+[4k/5/5/5/K1R2:0:1:w]
+
+1. Kb2 / Ke4
+2. Re1 / Kd3
+```
+
 ## Notes
 
 ### Even-numbered starting boards
