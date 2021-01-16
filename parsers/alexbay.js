@@ -5,7 +5,7 @@ import {PIECE_TO_NUM, PIECES_REGEXP, parse_tag} from "./pgn.js";
 
 export const TURN_PREFIX = /^(\d+)([bwBW])\s*\./;
 export const FIRST_PART = /^(\d+)\s*([+\-]\d+)?$/;
-export const SECOND_PART_DEST = /^(\d+)\s*([+\-]\d+)?/;
+export const SECOND_PART_DEST = /^(\d+)?\s*([+\-]\d+)?/;
 export const COORDS = /^([a-w])(\d+)/;
 export const BRANCH = /^<\s*([+\-]\d+)?\s*>/;
 
@@ -193,9 +193,9 @@ export function parse_move(game, raw) {
     let second_part_dest = SECOND_PART_DEST.exec(parts[1]);
     let t_to = t_from;
     let l_to = l_from;
-    if (second_part_dest) {
+    if (second_part_dest[1] || second_part_dest[2]) {
       t_to = +(second_part_dest[1] || t_from);
-      l_to = parse_timeline(second_part_dest[2] || "0");
+      l_to = second_part_dest[2] ? parse_timeline(second_part_dest[2]) : l_from;
     }
 
     let capture = parts[2].startsWith("x");
