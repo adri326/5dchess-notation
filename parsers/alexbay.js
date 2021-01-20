@@ -1,7 +1,7 @@
 "use strict";
 
 import {Game, BOARDS, PIECES, index_to_letter, letter_to_index, Move} from "./game.js";
-import {PIECE_TO_NUM, PIECES_REGEXP, parse_tag} from "./pgn.js";
+import {PIECES_REGEXP, parse_tag} from "./pgn.js";
 
 export const TURN_PREFIX = /^(\d+)([bwBW])\s*\./;
 export const FIRST_PART = /^(\d+)\s*([+\-]\d+)?$/;
@@ -25,7 +25,16 @@ export const NUM_TO_PIECE = {
   [PIECES.W_BISHOP]: "B",
   [PIECES.W_KNIGHT]: "N",
   [PIECES.W_PRINCESS]: "P",
-}
+};
+
+export const PIECE_TO_NUM = {
+  "K": PIECES.W_KING,
+  "Q": PIECES.W_QUEEN,
+  "R": PIECES.W_ROOK,
+  "B": PIECES.W_BISHOP,
+  "N": PIECES.W_KNIGHT,
+  "P": PIECES.W_PRINCESS,
+};
 
 export function parse(raw, verbose = false, princess_to_queen = false) {
   let white = true;
