@@ -3,13 +3,15 @@
 This is my take at an algebraic notation for [5D chess](https://5dchesswithmultiversetimetravel.com/).
 Other, proposed notations include:
 
-- [Axel's algebraic, a take on 5D chess notation](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view)
+- ["Axel's algebraic, a take on 5D chess notation"](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view)
 - [Matrix Notation](https://drive.google.com/drive/folders/10332r6crq_pD-d4pG4VSynM8ziu1uT98)
 - [Hexicube's adaptation of Axel' AN](https://github.com/Hexicube/5D-Chess-Game-Viewer)
 - [nidlatam's notation](https://github.com/nidlatam/my-5d-chess-notation)
 - [Internal notation of 5d-chess-js](https://gitlab.com/alexbay218/5d-chess-js)
 - [AverageHuman's Simplified 5D Algebraic notation](https://pastebin.com/raw/EwVSTFbj)
 - [AquaBaby's analysis of several notations and proposal for a modern notation](https://docs.google.com/document/d/1-SnsdYIzrGao0ToyGXSaoEd_0tYKxYePO1C-Bp5ziXA/view)
+- [Alexbay's notation as part of their library](https://gitlab.com/alexbay218/5d-chess-js/)
+- [AquaBaby's client, written in Java and using a custom notation for both moves and FEN](https://github.com/Slavrick/5dChessGUI/)
 
 This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
 It does not claim to be a standardized way of writing down games nor should it be the go-to choice to communicate moves and lines to other humans.
@@ -26,6 +28,37 @@ The priorities of this notation, as of right now, are:
 ## Included converter
 
 This repository includes a converter and previewer. For information on how to run it and use it, check [USAGE.md](USAGE.md).
+
+## TOC
+
+- [Shad's 5D chess algebraic notation (5dpgn)](#shads-5d-chess-algebraic-notation-5dpgn)
+  - [Included converter](#included-converter)
+  - [TOC](#toc)
+  - [Vocabulary](#vocabulary)
+  - [Coordinates](#coordinates)
+  - [Moves](#moves)
+    - [Jumps](#jumps)
+    - [Promotions](#promotions)
+    - [Inactive timeline reactivation](#inactive-timeline-reactivation)
+    - [Complex scenarios](#complex-scenarios)
+  - [Turns](#turns)
+  - [Tags](#tags)
+  - [Raw or minimal notation](#raw-or-minimal-notation)
+    - [Raw moves](#raw-moves)
+    - [Raw turns](#raw-turns)
+  - [Examples](#examples)
+    - [Rook Tactics I](#rook-tactics-i)
+    - [Knight tactics III](#knight-tactics-iii)
+    - [Actual game](#actual-game)
+  - [5DFEN and custom variants](#5dfen-and-custom-variants)
+    - [Additionnal Metadata](#additionnal-metadata)
+    - [Examples](#examples-1)
+  - [Notes](#notes)
+    - [Even-numbered starting boards](#even-numbered-starting-boards)
+    - [Branching](#branching)
+    - [Omission](#omission)
+    - [Turn zero](#turn-zero)
+    - [FEN](#fen)
 
 ## Vocabulary
 
@@ -155,6 +188,36 @@ This format's specific tags are the following:
 - `InitialMultiverses`: a list of space-separated, initial multiverses' indexes (`-0 +0 1`); defaults to `0`, unless the board is already known
 - `Mode`: should always be set to `5D`
 
+## Raw or minimal notation
+
+Depending on the usecase, the exported, formatted data may not need to or cannot contain all of the information that this notation tries to convey.
+The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation.
+
+*This raw notation is still a proposal!*
+
+### Raw moves
+
+A minimal move is made up of:
+
+- the super-physical coordinates of the starting board `(<l>T<t>)`
+- *the piece's letter (optional)*
+- the physical coordinates of the moving piece
+- the super-physical coordinates of the target board
+- the physical coordinates of the target square
+
+### Raw turns
+
+A raw turn is made up of an introductory token, which indicates which player is playing, and a set of space-separated raw moves.
+
+The introductory token is for white `w.` and for black `b.`
+
+Such a raw turn would thus look like:
+
+```
+w. (0T1)d2(0T1)d4
+b. (0T1)d7(0T1)d6
+```
+
 ## Examples
 
 ### Rook Tactics I
@@ -223,6 +286,46 @@ Here is what the end of that game looks like:
 
 ![End of the aforementionned game](https://cdn.discordapp.com/attachments/740361438375313540/743827989321744467/unknown.png)
 
+This is another game, between Shad and PseudoAbstractMeta, using the modern features of the notation:
+
+```pgn
+[Mode "5D"]
+[Board "Standard - Half Reflected"]
+[Size "8x8"]
+[White "Shad Amethyst"]
+[Black "PseudoAbstractMeta"]
+[Date "2021.01.22"]
+[Result "1-0"]
+
+1. f4 / e5
+2. f5 / f6
+3. g3 / Bd6
+4. b3? {This turned out later to be a weak move} / Qh5
+5. Bh3 / Qg5
+6. Nf3 / (0T6)Qg5>>x(0T4)g3+~
+7. (-1T5)hxg3 / (-1T5)e4
+8. (-1T6)e3 / (-1T6)g6?
+9. (0T7)Bh3>>x(0T5)h5~ / (1T5)Nc6
+10. (1T6)Be8+ / (1T6)Kxe8 {Forced}
+11. (-1T7)Ne2 (1T7)e3 / (-1T7)gxf5 (0T7)Ne7 (1T7)h5 {Forced}
+12. (0T8)Nf3>x(-1T8)f5 (1T8)Nh3 / (-1T8)Qg6 (0T8)Bd6>(1T8)d5
+13. (1T9)Nh3>>x(1T8)h5~ / (2T8)Kd8!
+14. (0T9)Rf1 (-1T9)Nxd6 (2T9)Qg4 / (-1T9)cxd6 (0T9)Ng8! {Protects (L+2)g7} (1T9)Nd4? (2T9)b6
+15. (-1T10)Ba3 (0T10)Ba3 {Threatening mate on f8} (1T10)exd4 (2T10)Ne2 {Protecting (L+1)e4} / (-1T10)f5! (0T10)d6! (1T10)b6 (2T10)Nge7
+16. (-1T11)Rg1 (0T11)Qd1>(2T11)f3 (1T11)Nc3 / (-1T11)Nc6 (0T11)Nc6 (1T11)Bxh1? (2T11)Bb7
+17. (-1T12)Nf4 {Threatening the queen} (0T12)Nc3 (2T12)Rh1>x(1T12)h1 / (-1T12)Qg6>>x(-1T9)d6~ (>L-2)
+18. (-2T10)Rg1 / (-2T10)h5
+19. (-2T11)Nf4 / (-2T11)Qg5
+20. (-2T12)Qe2 / (-2T12)h4 (0T12)Nd4 (1T12)Ne7 (2T12)Kc8 {Time trouble for black}
+21. (2T13)Qg4>>x(2T10)g7~! (>L+3) / (3T10)Bd6>>x(1T10)d4~ (>L-3)
+22. (3T11)Qg7g6*! (-3T11)Qh5+ / (-3T11)Rxh5 (2T13)Bd6>>x(2T9)d2~ {One of the two legal moves, black is losing} (>L-4)
+23. (-4T10)Bxd2 / 1-0 {White wins by timeout; possible continuation would have been (-4T10)d4; 24. (-4T10)Qxd4#}
+```
+
+The final position looks like this (a dummy move was made on `(3T11)` to highlight the checks causing the softmate).
+
+![End of the second aforementionned game](https://cdn.discordapp.com/attachments/592381888778207242/802304944307961906/Screenshot_2021-01-22_23-33-02.png)
+
 ## 5DFEN and custom variants
 
 You can encode custom variants and puzzles using the 5DFEN extension of that notation.
@@ -271,6 +374,7 @@ If a piece is sensitive to having been moved already or not and hasn't moved yet
 - An unmoved black king is encoded as `k*`
 
 If `+` and `*` need to be combined, then `+` comes first: `q+*`.
+When designing new fairy pieces, you should try to avoid this scenario, though.
 
 The other three fields are (in order):
 - Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
@@ -332,6 +436,7 @@ If `-0` and `+0` are used, the `+` sign is mandatory (just like how it's always 
 The `+` sign can be omitted for other integers.
 
 The included parser goes around the signed zero equality issue by converting during the token parsing phase `"-0"` to `-0.5` and `"+0"` to `0.5`.
+The reverse conversion is done whenever we need to write/export the coordinates.
 
 ### Branching
 
@@ -353,7 +458,8 @@ In those cases, this piece can be considered pinned and may be left out of the e
 
 Because checks in 5D chess aren't as trivial as in traditional chess (sometimes requiring a specific move order between boards), the source square's coordinates should still be specified.
 
-Omission of super-physical coordinates is being considered.
+The super-physical coordinates may now be omitted in one-timeline scenarios.
+No omissions beyond that are currently considered, but suggestions are always welcome!
 
 ### Turn zero
 
@@ -361,7 +467,9 @@ Turn zero boards have recently been introduced. They can be referenced with `T0`
 
 ### FEN
 
-The included parser proposes a FEN format that is extended to 5D Chess.
+The internal format for FEN will become deprecated soon and get replaced with the new [5DFEN](./fen.ebnf).
+
+<!-- The included parser proposes a FEN format that is extended to 5D Chess.
 Numerous starting boards are simply separated by a space.
 Two-character piece names have been substituted with the following greek letters:
 
@@ -369,4 +477,4 @@ Two-character piece names have been substituted with the following greek letters
 - `CK` (common king) becomes `κ`
 - `RQ` (royal queen) becomes `ρ`
 
-Examples can be found in `parsers/game.js`.
+Examples can be found in `parsers/game.js`. -->
