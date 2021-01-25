@@ -101,7 +101,7 @@ If there is only one timeline up to this point, then physical moves may be writt
 Piece letters are the same as standard algebraic notation, with additional letters used for fairy pieces:
 
 - `P` for **p**awn
-- `BR` for **br**awn
+- `BR` or `W` for **br**awn (the former is the recommended one)
 - `K` for **r**ook
 - `CK` for **c**ommon **k**ing (non-royal king)
 - `Q` for **q**ueen
