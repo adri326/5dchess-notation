@@ -318,7 +318,7 @@ export class Game {
     let l = 0;
     if (split[1] === '-0') l = -0.5;
     if (split[1] === '+0') l = +0.5;
-    else l = Math.round(+l);
+    else l = Math.round(+split[1]);
 
     if (isNaN(l)) {
       throw new Error("Invalid 5DFEN timeline: " + split[1]);
