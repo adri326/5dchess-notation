@@ -103,7 +103,7 @@ Piece letters are the same as standard algebraic notation, with additional lette
 - `P` for **p**awn
 - `BR` or `W` for **br**awn (the former is the recommended one)
 - `K` for **r**ook
-- `CK` for **c**ommon **k**ing (non-royal king)
+- `C` or `CK` for **c**ommon **k**ing (non-royal king, the latter is the recommended one)
 - `Q` for **q**ueen
 - `RQ` for **r**oyal **q**ueen
 - `S` or `PR` for princes**s** (the former is still the recommended one)

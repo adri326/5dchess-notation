@@ -6,7 +6,7 @@ import {Game, BOARDS, PIECES, letter_to_index, index_to_letter, parse_timeline, 
 
 export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*([+-]?\d+)\s*T\s*(\d+)\s*\)/;
 export const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
-export const PIECES_REGEXP = /^(?:BR|CK|RQ|PR|[PKNRQDUBSW])/;
+export const PIECES_REGEXP = /^(?:BR|CK|RQ|PR|[PKNRQDUBSWC])/;
 export const PRESENT_REGEXP = /^\(~T(\d+)\)/;
 export const TIMELINE_REGEXP = /^\(>L([+\-]?\d+)\)/;
 export const PIECE_TO_NUM = {
@@ -20,6 +20,7 @@ export const PIECE_TO_NUM = {
   D: PIECES.W_DRAGON,
   S: PIECES.W_PRINCESS,
   W: PIECES.W_BRAWN,
+  C: PIECES.W_CKING,
   PR: PIECES.W_PRINCESS,
   BR: PIECES.W_BRAWN,
   CK: PIECES.W_CKING,
