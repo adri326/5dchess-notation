@@ -651,12 +651,17 @@ export class Game {
 
   is_en_passant(from, to, white) {
     // Here
-    if (from[0] === to[0] && from[1] === to[1] && (from[2] === to[2] + 1 || from[2] === to[2] - 1)) {
+    if (
+      from[0] === to[0]
+      && from[1] === to[1]
+      && (from[2] === to[2] + 1 || from[2] === to[2] - 1)
+      && (from[3] === to[3] + 1 || from[3] === to[3] - 1)
+    ) {
       return this.get_as(...to, white) === PIECES.BLANK
         && this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? -1 : 1), white) === PIECES.BLANK
         && is_opponent_pawnlike(this.get_as(to[0], to[1], to[2], to[3] + (white ? -1 : 1), white), white)
         && is_opponent_pawnlike(this.get_as(to[0], to[1] - 1, to[2], to[3] + (white ? 1 : -1), white), white)
-        && this.get_as(to[0], to[1], to[2], to[3] + (white ? 1 : -1), white) === PIECES.BLANK
+        && this.get_as(to[0], to[1], to[2], to[3] + (white ? 1 : -1), white) === PIECES.BLANK;
     }
   }
 
@@ -1248,7 +1253,7 @@ export function write_timeline(num, plus = false) {
 }
 
 export function is_opponent_pawnlike(piece, white) {
-  if ((piece <= PIECES.W_OFFSET) === white) return false;
-  piece = piece % PIECES.W_OFFSET;
+  if (!piece || (piece <= PIECES.B_OFFSET) === white) return false;
+  piece = piece % PIECES.B_OFFSET;
   return piece === PIECES.W_PAWN || piece === PIECES.W_BRAWN;
 }
