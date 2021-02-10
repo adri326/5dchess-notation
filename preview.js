@@ -1,19 +1,32 @@
-import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game.js";
+const {PIECES, MOVE_KIND, index_to_letter, write_timeline} = require("./parsers/game.js");
+const blessed = require("blessed");
+const multi = require("./preview-multi.js");
+const single = require("./preview-single.js");
 
 // TODO: handle negative time!
 
-export const WHITE_FG = "{#20d0f0-fg}{bold}";
-export const BLACK_FG = "{#f06036-fg}{bold}";
-export const WHITE_BG = "{#333-bg}";
-export const BLACK_BG = "{black-bg}";
-export const MOVE_BG = "{#660-bg}";
-export const JUMP_BG = "{#66a-bg}";
-export const SELECTION_HIGHLIGHT = "gray";
-export const JUMP_HIGHLIGHT = "#66a";
-export const BLACK_BG_ON = "black";
-export const BLACK_BG_OFF = null;
+const WHITE_FG = "{#20d0f0-fg}{bold}";
+exports.WHITE_FG = WHITE_FG;
+const BLACK_FG = "{#f06036-fg}{bold}";
+exports.BLACK_FG = BLACK_FG;
+const WHITE_BG = "{#333-bg}";
+exports.WHITE_BG = WHITE_BG;
+const BLACK_BG = "{black-bg}";
+exports.BLACK_BG = BLACK_BG;
+const MOVE_BG = "{#660-bg}";
+exports.MOVE_BG = MOVE_BG;
+const JUMP_BG = "{#66a-bg}";
+exports.JUMP_BG = JUMP_BG;
+const SELECTION_HIGHLIGHT = "gray";
+exports.SELECTION_HIGHLIGHT = SELECTION_HIGHLIGHT;
+const JUMP_HIGHLIGHT = "#66a";
+exports.JUMP_HIGHLIGHT = JUMP_HIGHLIGHT;
+const BLACK_BG_ON = "black";
+exports.BLACK_BG_ON = BLACK_BG_ON;
+const BLACK_BG_OFF = null;
+exports.BLACK_BG_OFF = BLACK_BG_OFF;
 
-export const PIECE_CHAR = {
+const PIECE_CHAR = {
   [PIECES.BLANK]: " ",
   [PIECES.W_PAWN]: WHITE_FG + "P" + "{/}",
   [PIECES.W_KNIGHT]: WHITE_FG + "N" + "{/}",
@@ -40,9 +53,10 @@ export const PIECE_CHAR = {
   [PIECES.B_CKING]: BLACK_FG + "κ" + "{/}",
   [PIECES.B_RQUEEN]: BLACK_FG + "ρ" + "{/}",
   [PIECES.MARKER]: "*",
-}
+};
+exports.PIECE_CHAR = PIECE_CHAR;
 
-export const PIECE_CHAR_UNICODE = {
+PIECE_CHAR_UNICODE = {
   [PIECES.BLANK]: " ",
   [PIECES.W_PAWN]: WHITE_FG + "♙" + "{/}",
   [PIECES.W_KNIGHT]: WHITE_FG + "♘" + "{/}",
@@ -70,27 +84,19 @@ export const PIECE_CHAR_UNICODE = {
   [PIECES.B_RQUEEN]: BLACK_FG + "ρ" + "{/}",
   [PIECES.MARKER]: "*",
 };
+exports.PIECE_CHAR_UNICODE = PIECE_CHAR_UNICODE;
 
-export function preview(game, use_unicode = false, multi_board = false, black_bg = false) {
+function preview(game, use_unicode = false, multi_board = false, black_bg = false) {
   let piece_set = use_unicode ? PIECE_CHAR_UNICODE : PIECE_CHAR;
-  import("blessed").then((blessed) => {
-    blessed = blessed.default;
-    if (multi_board) {
-      import("./preview-multi.js").then((multi) => {
-        multi.run(game, piece_set, black_bg ? BLACK_BG_ON : BLACK_BG_OFF, blessed);
-      }).catch(console.error);
-    } else {
-      import("./preview-single.js").then((single) => {
-        single.run(game, piece_set, black_bg ? BLACK_BG_ON : BLACK_BG_OFF, blessed);
-      }).catch(console.error);
-    }
-  }).catch((err) => {
-    console.log("Couldn't load module 'blessed': did you install it with `npm i blessed`?");
-    console.error(err);
-  });
+  if (multi_board) {
+    multi.run(game, piece_set, black_bg ? BLACK_BG_ON : BLACK_BG_OFF, blessed);
+  } else {
+    single.run(game, piece_set, black_bg ? BLACK_BG_ON : BLACK_BG_OFF, blessed);
+  };
 }
+exports.preview = preview;
 
-export function timeline_above(n, game) {
+function timeline_above(n, game) {
   if (game.board_indices.find(x => x === 0.5)) {
     if (n === -1) return -0.5;
     if (n === 0.5) return 1;
@@ -99,8 +105,9 @@ export function timeline_above(n, game) {
     return n + 1;
   }
 }
+exports.timeline_above = timeline_above;
 
-export function timeline_below(n, game) {
+function timeline_below(n, game) {
   if (game.board_indices.find(x => x === 0.5)) {
     if (n === 1) return 0.5;
     if (n === -0.5) return -1;
@@ -109,14 +116,16 @@ export function timeline_below(n, game) {
     return n - 1;
   }
 }
+exports.timeline_below = timeline_below;
 
-export function shift_timeline(l, dl, game) {
+function shift_timeline(l, dl, game) {
   if (dl > 0) while (dl-- > 0) l = timeline_above(l, game);
   else if (dl < 0) while (dl++ < 0) l = timeline_below(l, game);
   return l;
 }
+exports.shift_timeline = shift_timeline;
 
-export function write_move(move) {
+function write_move(move) {
   let res;
   if (move.kind === MOVE_KIND.JUMP_OUT) {
     res = `${PIECE_CHAR[move.piece]}${index_to_letter(move.from[2])}${move.from[3] + 1} {yellow-fg}→{/} (${write_timeline(move.to[0])}T${move.to[1] + 1})`;
@@ -148,3 +157,4 @@ export function write_move(move) {
 
   return res;
 }
+exports.write_move = write_move;

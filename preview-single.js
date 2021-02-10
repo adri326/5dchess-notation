@@ -1,7 +1,7 @@
-import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game.js";
-import * as preview from "./preview.js";
+const {PIECES, MOVE_KIND, index_to_letter, write_timeline} = require("./parsers/game.js");
+const preview = require("./preview.js");
 
-export function run(game, piece_set, black_bg, blessed) {
+function run(game, piece_set, black_bg, blessed) {
   let screen = blessed.screen({
     smartCSR: true
   });
@@ -255,6 +255,7 @@ export function run(game, piece_set, black_bg, blessed) {
 
   screen.render();
 }
+exports.run = run;
 
 function print_board(board, game, set = preview.PIECE_CHAR, highlight_x = -1, highlight_y = -1) {
   let res = "";

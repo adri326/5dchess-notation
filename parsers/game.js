@@ -9,7 +9,7 @@
   Others will accept as `t` the actual index of the board (`t = 2*t' + !white`, with `t'` the visible board index minus one).
 **/
 
-export const PIECES = {
+const PIECES = {
   BLANK: 0,
   W_PAWN: 1,
   W_KNIGHT: 2,
@@ -41,8 +41,9 @@ export const PIECES = {
 
   B_OFFSET: 32,
 };
+exports.PIECES = PIECES;
 
-export const PIECE_CHAR = {
+const PIECE_CHAR = {
   [PIECES.BLANK]: ".",
   [PIECES.W_PAWN]: "P",
   [PIECES.W_KNIGHT]: "N",
@@ -70,8 +71,9 @@ export const PIECE_CHAR = {
   [PIECES.B_CKING]: "κ",
   [PIECES.MARKER]: "*",
 };
+exports.PIECE_CHAR = PIECE_CHAR;
 
-export const MOVE_KIND = {
+const MOVE_KIND = {
   MOVE: 0,
   JUMP_OUT: 1,
   JUMP_IN: 2,
@@ -79,8 +81,9 @@ export const MOVE_KIND = {
   CASTLE_LONG: 4,
   NONE: 99,
 };
+exports.MOVE_KIND = MOVE_KIND;
 
-export const BOARDS = {
+exports.BOARDS = {
   "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "STANDARD - TURN ZERO": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR|rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0:-1", "8x8"],
   "STANDARD - PRINCESS": ["rnbskbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBSKBNR", "0", "8x8"],
@@ -130,14 +133,14 @@ export const BOARDS = {
   "CHECKMATE PRACTICE - PAWNS": ["2ppp1/6/6/6/6/3K2", "0", "6x6"]
 };
 
-export const OMIT = {
+exports.OMIT = {
   NONE: 0,
   X: 1,
   Y: 2,
   BOTH: 3,
 };
 
-export const FEN_TO_PIECE = {
+exports.FEN_TO_PIECE = {
   "p": PIECES.B_PAWN,
   "P": PIECES.W_PAWN,
   "b": PIECES.B_BISHOP,
@@ -164,7 +167,7 @@ export const FEN_TO_PIECE = {
   "Q+": PIECES.W_RQUEEN,
 };
 
-export const PIECE_TO_FEN = {
+exports.PIECE_TO_FEN = {
   [PIECES.B_PAWN]: "p",
   [PIECES.W_PAWN]: "P",
   [PIECES.B_BISHOP]: "b",
@@ -191,7 +194,7 @@ export const PIECE_TO_FEN = {
   [PIECES.W_RQUEEN]: "Q+",
 };
 
-export class Game {
+class Game {
   /**?
     Constructs a new boardset, with `board_indices.length` initial boards
   **/
@@ -1149,8 +1152,9 @@ export class Game {
     console.log("\n");
   }
 }
+exports.Game = Game;
 
-export class Timeline {
+class Timeline {
   constructor(width, height, index, begins_at = 0, emerges_from = null) {
     this.states = [new Array(width * height).fill(PIECES.BLANK)];
     if (Array.isArray(index)) {
@@ -1173,9 +1177,10 @@ export class Timeline {
     return !!((this.states.length + this.begins_at) % 2) != this.synthetic;
   }
 }
+exports.Timeline = Timeline;
 
 // Common move format; each of its fields are supposed to contain the necessary information, should they be available
-export class Move {
+class Move {
   constructor(from, to, src_piece, dst_piece, turn, white, {
     promotion = null,
     softmate = false,
@@ -1214,17 +1219,20 @@ export class Move {
     this.en_passant = false;
   }
 }
+exports.Move = Move;
 
-export function letter_to_index(letter) {
+function letter_to_index(letter) {
   if (!letter || letter < "a" || letter > "z" || letter.length != 1) return -1;
   return "abcdefghijklmnopqrstuvw".split("").indexOf(letter);
 }
+exports.letter_to_index = letter_to_index;
 
-export function index_to_letter(index) {
+function index_to_letter(index) {
   return "abcdefghijklmnopqrstuvw"[index];
 }
+exports.index_to_letter = index_to_letter;
 
-export function parse_timeline(str) {
+function parse_timeline(str) {
   let split = str.split(":");
   if (split.length == 1) {
     if (split[0] === "-0") {
@@ -1238,8 +1246,9 @@ export function parse_timeline(str) {
     return [parse_timeline(split[0]), +split[1]];
   }
 }
+exports.parse_timeline = parse_timeline;
 
-export function write_timeline(num, plus = false) {
+function write_timeline(num, plus = false) {
   if (num === -0.5) {
     return "-0";
   } else if (num === 0.5) {
@@ -1251,9 +1260,11 @@ export function write_timeline(num, plus = false) {
     return num.toString();
   }
 }
+exports.write_timeline = write_timeline;
 
-export function is_opponent_pawnlike(piece, white) {
+function is_opponent_pawnlike(piece, white) {
   if (!piece || (piece <= PIECES.B_OFFSET) === white) return false;
   piece = piece % PIECES.B_OFFSET;
   return piece === PIECES.W_PAWN || piece === PIECES.W_BRAWN;
 }
+exports.is_opponent_pawnlike = is_opponent_pawnlike;

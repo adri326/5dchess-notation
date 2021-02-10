@@ -1,5 +1,5 @@
-import * as game from "../parsers/game.js";
-import assert from "assert";
+const game = require("../parsers/game.js");
+const assert = require("assert");
 const {PIECES, PIECE_CHAR, Game} = game;
 
 describe("Testing the FEN parsing", () => {

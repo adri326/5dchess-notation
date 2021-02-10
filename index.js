@@ -1,15 +1,15 @@
-#! /bin/node
+#!/usr/bin/env node
 
-import * as pgn from "./parsers/pgn.js";
-import * as game from "./parsers/game.js";
-import * as axel from "./parsers/axel.js";
-import * as json from "./parsers/json.js";
-import * as alexbay from "./parsers/alexbay.js";
-import * as preview from "./preview.js";
-import * as fs from "fs";
-import * as yargs from "yargs";
+const pgn = require("./parsers/pgn.js");
+const game = require("./parsers/game.js");
+const axel = require("./parsers/axel.js");
+const json = require("./parsers/json.js");
+const alexbay = require("./parsers/alexbay.js");
+const preview = require("./preview.js");
+const fs = require("fs");
+const yargs = require("yargs");
 
-yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>", (y) => {
+yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Convert from <from> to <to>", (y) => {
   y.positional("from", {
     describe: "the notation to convert from (shad, json, axel)"
   }).positional("to", {
@@ -60,7 +60,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   }
 }).command("preview <format> <file>", "Previews the given game", (y) => {
   y.positional("format", {
-    describe: "The format that <file> is in",
+    describe: "The format that <file> is in (shad, json, axel)",
   }).positional("file", {
     describe: "The file to read from"
   }).option("board", {
@@ -103,4 +103,4 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   }
 
   preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);
-}).argv;
+}).demandCommand().argv;

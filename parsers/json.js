@@ -1,6 +1,6 @@
-import {Game, Timeline} from "./game.js";
+const {Game, Timeline} = require("./game.js");
 
-export function parse(raw) {
+exports.parse = function(raw) {
   let deserialized = JSON.parse(raw);
   let g = new Game(1, 1, [0]);
   for (let key in deserialized) {

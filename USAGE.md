@@ -1,9 +1,6 @@
 # 5dchess-notation's built-in converter
 
-This repository includes a converter and previewer, written in node.js.
-
-To run it, you will need a version of Node.js with `esm` supporting the `"type": "module"` flag (v12.x and higher).
-As the writing of this document, the latest version of Node.js is `14.8.0`; running with this version does not require the `--experimental-modules` flag, although previous versions did.
+This package includes a converter and previewer, written in node.js.
 
 ## Installation
 
@@ -12,16 +9,17 @@ Clone this repository and install its dependencies:
 ```sh
 git clone https://github.com/adri326/5dchess-notation
 cd 5dchess-notation
-npm i
+npm i -g
 ```
+If desired, you can install this package only to the local context by using `npm i` instead of `npm i -g`.
 
 ## Running
 
+If you installed this package globally (i.e. using `npm i -g`), you can use `5dchess-notation`.
+
 On Unix platforms, you can run the `index.js` file right away.
 
-Alternatively, you can use `node .` (or `node --experimental-modules .` if your version does require the flag).
-
-To get help, run the same command with `--help`.
+Alternatively, you can use `node .`.
 
 ## Notations
 
@@ -37,28 +35,23 @@ Axel's notation does not support (as of writing this) a way of specifying boards
 Therefore, if the board that the source file plays on isn't the standard board, is should be specified so using the `--board` parameter:
 
 ```sh
-node . convert axel 5dpgn test/game-2.4xel --board "Standard"
+5dchess-notation convert axel 5dpgn test/game-2.4xel --board "Standard"
 ```
 
 ## Preview
 
 You can preview the games you transcribed with this parser.
-To do so, you'll have to install the optional dependencies:
-
-```sh
-npm i blessed
-```
 
 Then, you can preview your games with the `preview` sub-command:
 
 ```sh
-node . preview axel test/game-2.4xel
+5dchess-notation preview axel test/game-2.4xel
 ```
 
 Be sure to check out the available options that the previewer supports by running:
 
 ```sh
-node . preview --help
+5dchess-notation preview --help
 ```
 
 ## Implementing your own notation

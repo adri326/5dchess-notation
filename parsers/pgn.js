@@ -2,14 +2,24 @@
   Parses and writes 5dpgn (Shad's notation).
 **/
 
-import {Game, BOARDS, PIECES, letter_to_index, index_to_letter, parse_timeline, write_timeline} from "./game.js";
+const {Game, BOARDS, PIECES, letter_to_index, index_to_letter, parse_timeline, write_timeline} = require("./game.js");
 
-export const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*([+-]?\d+)\s*T\s*(\d+)\s*\)/;
-export const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
-export const PIECES_REGEXP = /^(?:BR|CK|RQ|PR|[PKNRQDUBSWC])/;
-export const PRESENT_REGEXP = /^\(~T(\d+)\)/;
-export const TIMELINE_REGEXP = /^\(>L([+\-]?\d+)\)/;
-export const PIECE_TO_NUM = {
+const SUPERPHYSICAL_REGEXP = /^\(\s*L?\s*([+-]?\d+)\s*T\s*(\d+)\s*\)/;
+exports.SUPERPHYSICAL_REGEXP = SUPERPHYSICAL_REGEXP;
+
+const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
+exports.ANNOTATIONS_REGEXP = ANNOTATIONS_REGEXP;
+
+const PIECES_REGEXP = /^(?:BR|CK|RQ|PR|[PKNRQDUBSWC])/;
+exports.PIECES_REGEXP = PIECES_REGEXP;
+
+const PRESENT_REGEXP = /^\(~T(\d+)\)/;
+exports.PRESENT_REGEXP = PRESENT_REGEXP;
+
+const TIMELINE_REGEXP = /^\(>L([+\-]?\d+)\)/;
+exports.TIMELINE_REGEXP = TIMELINE_REGEXP;
+
+const PIECE_TO_NUM = {
   P: PIECES.W_PAWN,
   N: PIECES.W_KNIGHT,
   B: PIECES.W_BISHOP,
@@ -26,7 +36,9 @@ export const PIECE_TO_NUM = {
   CK: PIECES.W_CKING,
   RQ: PIECES.W_RQUEEN,
 };
-export const NUM_TO_PIECE = {
+exports.PIECE_TO_NUM = PIECE_TO_NUM;
+
+const NUM_TO_PIECE = {
   [PIECES.W_PAWN]: "P",
   [PIECES.W_KNIGHT]: "N",
   [PIECES.W_BISHOP]: "B",
@@ -39,18 +51,21 @@ export const NUM_TO_PIECE = {
   [PIECES.W_BRAWN]: "BR",
   [PIECES.W_CKING]: "CK",
   [PIECES.W_RQUEEN]: "RQ",
-}
-export const DEFAULT_TAGS = {
+};
+exports.NUM_TO_PIECE = NUM_TO_PIECE;
+
+const DEFAULT_TAGS = {
   Mode: "5D",
   Site: "5D Chess",
   Board: "Standard",
   Size: "8x8",
 };
+exports.DEFAULT_TAGS = DEFAULT_TAGS;
 
 /**?
   Parses 5D PGN (Shad's notation); returns a Game structure.
 **/
-export function parse(raw, verbose = false) {
+function parse(raw, verbose = false) {
   let tokens = [];
   raw = raw.trimLeft();
 
@@ -233,8 +248,9 @@ export function parse(raw, verbose = false) {
 
   return game;
 }
+exports.parse = parse;
 
-export function write(game) {
+function write(game) {
   let res = "";
   for (let tag in (game.tags || DEFAULT_TAGS)) {
     res += `[${tag} "${game.tags[tag]}"]\n`;
@@ -270,8 +286,9 @@ export function write(game) {
 
   return res;
 }
+exports.write = write;
 
-export function parse_tag(raw) {
+function parse_tag(raw) {
   let fen;
   if (fen = /^[^\s]+\]/.exec(raw)) {
     return [{
@@ -303,8 +320,9 @@ export function parse_tag(raw) {
     value,
   }, raw.slice(ptr).trimLeft()]
 }
+exports.parse_tag = parse_tag;
 
-export function parse_turn_index(raw) {
+function parse_turn_index(raw) {
   let match = /^(\d+)\s*\./.exec(raw);
   if (!match) throw new Error("Invalid turn index!");
   return [{
@@ -313,12 +331,13 @@ export function parse_turn_index(raw) {
     raw: match[0],
   }, raw.slice(match[0].length).trimLeft()];
 }
+exports.parse_turn_index = parse_turn_index;
 
 /**?
   Parses a single move, be it a jump, a time travel, a castle or a regular, physical move.
   Does not fill in the missing details.
 **/
-export function parse_move(raw) {
+function parse_move(raw) {
   let ptr = 0;
 
   let sp1 = SUPERPHYSICAL_REGEXP.exec(raw);
@@ -469,6 +488,7 @@ export function parse_move(raw) {
     ...(promotion ? {promotion} : {}),
   }, raw.slice(ptr).trimLeft()];
 }
+exports.parse_move = parse_move;
 
 function write_move(move, game) {
   if (move.type == "castle" || move.castle) {
@@ -522,12 +542,13 @@ function write_move(move, game) {
   return res;
 }
 
-export function parse_comment(raw) {
+function parse_comment(raw) {
   let to = raw.split("").findIndex(e => e == "}");
   return [{
     type: "comment",
     value: raw.slice(1, to),
   }, raw.slice(to + 1).trimLeft()];
 }
+exports.parse_comment = parse_comment;
 
 // TODO: parse_branch?

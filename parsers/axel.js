@@ -3,20 +3,28 @@
   Target coordinates may not be omitted.
 **/
 
-import {Game, BOARDS, PIECES, index_to_letter, letter_to_index, parse_timeline, write_timeline} from "./game.js";
-import {PIECE_TO_NUM, NUM_TO_PIECE} from "./pgn.js";
+const {Game, BOARDS, PIECES, index_to_letter, letter_to_index, parse_timeline, write_timeline} = require("./game.js");
+const {PIECE_TO_NUM, NUM_TO_PIECE} = require("./pgn.js");
 
-export const TURN_PREFIX = /^(?:([bwBW])\s*)?(\d+)\s*(?:T\s*(\d+)\s*)?\./;
-export const TIMELINE_REGEX = /^L\s*([+-]?\d+)/;
-export const TIME_REGEX = /^T\s*([+-]?\d+)/;
-export const PIECES_REGEXP = /^[PKNRQDUB]/;
-export const BRANCHING = /^\(\+\s*L\s*([+-]?\d*)\s*(?:(p)\s*)?\)/;
+const TURN_PREFIX = /^(?:([bwBW])\s*)?(\d+)\s*(?:T\s*(\d+)\s*)?\./;
+exports.TURN_PREFIX = TURN_PREFIX;
+const TIMELINE_REGEX = /^L\s*([+-]?\d+)/;
+exports.TIMELINE_REGEX = TIMELINE_REGEX;
+const TIME_REGEX = /^T\s*([+-]?\d+)/;
+exports.TIME_REGEX = TIME_REGEX;
+const PIECES_REGEXP = /^[PKNRQDUB]/;
+exports.PIECES_REGEXP = PIECES_REGEXP;
+const BRANCHING = /^\(\+\s*L\s*([+-]?\d*)\s*(?:(p)\s*)?\)/;
+exports.BRANCHING = BRANCHING;
 
-export const CHECK = /^(?:\+|\*|\*\+)/;
-export const CHECKMATE = /^#/;
-export const SOFTMATE = /^\+\+/;
+const CHECK = /^(?:\+|\*|\*\+)/;
+exports.CHECK = CHECK;
+const CHECKMATE = /^#/;
+exports.CHECKMATE = CHECKMATE;
+const SOFTMATE = /^\+\+/;
+exports.SOFTMATE = SOFTMATE;
 
-export function parse(raw, verbose = false, board = "Standard") {
+function parse(raw, verbose = false, board = "Standard") {
   raw = raw.replace(/\.\./g, ";..");
   let white = false;
   let game;
@@ -108,11 +116,12 @@ export function parse(raw, verbose = false, board = "Standard") {
 
   return game;
 }
+exports.parse = parse;
 
 /**?
   Exports to 4xel RAN
 **/
-export function write(game) {
+function write(game) {
   let was_white = false;
   let present = 0;
   let turn = 0;
@@ -144,8 +153,9 @@ export function write(game) {
 
   return res;
 }
+exports.write = write;
 
-export function write_move(move) {
+function write_move(move) {
   let res = "";
   res += `L${write_timeline(move.from[0], true)}`;
   res += `T${move.from[1] + 1}`;
@@ -172,8 +182,9 @@ export function write_move(move) {
   }
   return res;
 }
+exports.write_move = write_move;
 
-export function parse_move(raw, game, white, turn, present) {
+function parse_move(raw, game, white, turn, present) {
   let res_raw = raw;
   raw = raw.trim();
   let l = white ? game.lowest_active_timeline(true) : game.highest_active_timeline(false);
@@ -366,3 +377,4 @@ export function parse_move(raw, game, white, turn, present) {
     promotion,
   };
 }
+exports.parse_move = parse_move;
