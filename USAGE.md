@@ -40,9 +40,7 @@ Therefore, if the board that the source file plays on isn't the standard board, 
 
 ## Preview
 
-You can preview the games you transcribed with this parser.
-
-Then, you can preview your games with the `preview` sub-command:
+You can preview the games you transcribe with the `preview` sub-command:
 
 ```sh
 5dchess-notation preview axel test/game-2.4xel
