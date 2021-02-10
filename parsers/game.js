@@ -83,7 +83,7 @@ const MOVE_KIND = {
 };
 exports.MOVE_KIND = MOVE_KIND;
 
-exports.BOARDS = {
+const BOARDS = {
   "STANDARD": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0", "8x8"],
   "STANDARD - TURN ZERO": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR|rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "0:-1", "8x8"],
   "STANDARD - PRINCESS": ["rnbskbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBSKBNR", "0", "8x8"],
@@ -132,15 +132,17 @@ exports.BOARDS = {
   "CHECKMATE PRACTICE - KNIGHT": ["5n/6/6/6/6/K5", "0", "6x6"],
   "CHECKMATE PRACTICE - PAWNS": ["2ppp1/6/6/6/6/3K2", "0", "6x6"]
 };
+exports.BOARDS = BOARDS;
 
-exports.OMIT = {
+const OMIT = {
   NONE: 0,
   X: 1,
   Y: 2,
   BOTH: 3,
 };
+exports.OMIT = OMIT;
 
-exports.FEN_TO_PIECE = {
+const FEN_TO_PIECE = {
   "p": PIECES.B_PAWN,
   "P": PIECES.W_PAWN,
   "b": PIECES.B_BISHOP,
@@ -166,8 +168,9 @@ exports.FEN_TO_PIECE = {
   "q+": PIECES.B_RQUEEN,
   "Q+": PIECES.W_RQUEEN,
 };
+exports.FEN_TO_PIECE = FEN_TO_PIECE;
 
-exports.PIECE_TO_FEN = {
+const PIECE_TO_FEN = {
   [PIECES.B_PAWN]: "p",
   [PIECES.W_PAWN]: "P",
   [PIECES.B_BISHOP]: "b",
@@ -193,6 +196,7 @@ exports.PIECE_TO_FEN = {
   [PIECES.B_RQUEEN]: "q+",
   [PIECES.W_RQUEEN]: "Q+",
 };
+exports.PIECE_TO_FEN = PIECE_TO_FEN;
 
 class Game {
   /**?
