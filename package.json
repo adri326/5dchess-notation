@@ -1,10 +1,10 @@
 {
   "name": "5dchess-notation",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Shad's 5D chess notation, extending PGN to the game '5D chess'",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -21,11 +21,19 @@
     "url": "https://github.com/adri326/5dchess-notation/issues"
   },
   "homepage": "https://github.com/adri326/5dchess-notation#readme",
-  "type": "module",
+  "bin": {
+    "5dchess-notation": "./index.js"
+  },
   "exports": {
     ".": "./index.js",
-    "./parsers/pgn": "./parsers/pgn.js",
-    "./parsers/game": "./parsers/game.js"
+    "./parsers/pgn": {
+      "require": "./parsers/pgn.js",
+      "import": "./esm/pgn.js"
+    },
+    "./parsers/game": {
+      "require": "./parsers/game.js",
+      "import": "./esm/game.js"
+    }
   },
   "dependencies": {
     "assert": "^2.0.0",

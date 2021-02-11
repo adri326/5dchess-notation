@@ -1,7 +1,7 @@
-import {PIECES, MOVE_KIND, index_to_letter, write_timeline} from "./parsers/game.js";
-import * as preview from "./preview.js";
+const {PIECES, MOVE_KIND, index_to_letter, write_timeline} = require("./parsers/game.js");
+const preview = require("./preview.js");
 
-export function run(game, piece_set, black_bg, blessed) {
+function run(game, piece_set, black_bg, blessed) {
   Board.game = game;
   Board.piece_set = piece_set;
   Board.black_bg = black_bg;
@@ -308,6 +308,7 @@ export function run(game, piece_set, black_bg, blessed) {
 
   screen.render();
 }
+exports.run = run;
 
 class Board {
   static one_color_mode = false;

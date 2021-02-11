@@ -1,19 +1,19 @@
-#! /bin/node
+#!/usr/bin/env node
 
-import * as pgn from "./parsers/pgn.js";
-import * as game from "./parsers/game.js";
-import * as axel from "./parsers/axel.js";
-import * as json from "./parsers/json.js";
-import * as alexbay from "./parsers/alexbay.js";
-import * as preview from "./preview.js";
-import * as fs from "fs";
-import * as yargs from "yargs";
+const pgn = require("./parsers/pgn.js");
+const game = require("./parsers/game.js");
+const axel = require("./parsers/axel.js");
+const json = require("./parsers/json.js");
+const alexbay = require("./parsers/alexbay.js");
+const preview = require("./preview.js");
+const fs = require("fs");
+const yargs = require("yargs");
 
-yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>", (y) => {
+yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Convert from <from> to <to>", (y) => {
   y.positional("from", {
-    describe: "the notation to convert from (shad, json, axel)"
+    describe: "the notation to convert from (shad, json, axel, alexbay)"
   }).positional("to", {
-    describe: "the notation to convert into (shad, json, axel)"
+    describe: "the notation to convert into (shad, json, axel, alexbay)"
   }).positional("file", {
     describe: "the file to read from"
   }).option("v", {
@@ -23,12 +23,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     describe: "more verbose parsing/writing"
   }).option("board", {
     default: "Standard",
-    describe: "The board that is played on (used for 4xel)",
-  }).option("princess-to-queen", {
-    alias: "q",
-    default: false,
-    type: "boolean",
-    describe: "Turn princesses into queens (used for alexbay; tries to convert back when parsing alexbay's notation, but cannot revert the information loss)"
+    describe: "The board that is played on (used for axel)",
   })
 }, (argv) => {
   let g;
@@ -44,7 +39,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   } else if (from === "4xel" || from === "axel") {
     g = axel.parse(raw, argv.verbose, argv.board);
   } else if (from === "alexbay") {
-    g = alexbay.parse(raw, argv.verbose, argv.princessToQueen);
+    g = alexbay.parse(raw, argv.verbose, false);
   } else {
     throw new Error("No notation named " + from + " found!");
   }
@@ -53,14 +48,16 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
     console.log(pgn.write(g));
   } else if (to === "json") {
     console.log(JSON.stringify(g));
-  } else if (to === "4xel" || from === "axel") {
+  } else if (to === "4xel" || to === "axel") {
     console.log(axel.write(g));
   } else if (to === "alexbay") {
-    console.log(alexbay.write(g, argv.verbose, argv.princessToQueen));
+    console.log(alexbay.write(g, argv.verbose, false));
+  } else {
+    throw new Error("No notation named " + to + " found!");
   }
 }).command("preview <format> <file>", "Previews the given game", (y) => {
   y.positional("format", {
-    describe: "The format that <file> is in",
+    describe: "The format that <file> is in (shad, json, axel, alexbay)",
   }).positional("file", {
     describe: "The file to read from"
   }).option("board", {
@@ -103,4 +100,7 @@ yargs.default.command("convert <from> <to> <file>", "Convert from <from> to <to>
   }
 
   preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);
-}).argv;
+}).demandCommand().argv;
+
+  preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);
+}).demandCommand().argv;

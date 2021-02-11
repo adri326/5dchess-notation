@@ -1,15 +1,24 @@
 "use strict";
 
-import {Game, BOARDS, PIECES, index_to_letter, letter_to_index, Move} from "./game.js";
-import {PIECES_REGEXP, parse_tag} from "./pgn.js";
+const {Game, BOARDS, PIECES, index_to_letter, letter_to_index, Move} = require("./game.js");
+const {PIECES_REGEXP, parse_tag} = require("./pgn.js");
 
-export const TURN_PREFIX = /^(\d+)([bwBW])\s*\./;
-export const FIRST_PART = /^(\d+)\s*([+\-]\d+)?$/;
-export const SECOND_PART_DEST = /^(\d+)?\s*([+\-]\d+)?/;
-export const COORDS = /^([a-w])(\d+)/;
-export const BRANCH = /^<\s*([+\-]\d+)?\s*>/;
+const TURN_PREFIX = /^(\d+)([bwBW])\s*\./;
+exports.TURN_PREFIX = TURN_PREFIX;
 
-export const KNOWN_BOARDS = {
+const FIRST_PART = /^(\d+)\s*([+\-]\d+)?$/;
+exports.FIRST_PART = FIRST_PART;
+
+const SECOND_PART_DEST = /^(\d+)?\s*([+\-]\d+)?/;
+exports.SECOND_PART_DEST = SECOND_PART_DEST;
+
+const COORDS = /^([a-w])(\d+)/;
+exports.COORDS = COORDS;
+
+const BRANCH = /^<\s*([+\-]\d+)?\s*>/;
+exports.BRANCH = BRANCH;
+
+const KNOWN_BOARDS = {
   "STANDARD": "standard",
   "STANDARD - PRINCESS": "princess",
   "STANDARD - DEFENDED PAWN": "defended_pawn",
@@ -17,8 +26,9 @@ export const KNOWN_BOARDS = {
   "STANDARD - TURN ZERO": "turn_zero",
   "CUSTOM": "custom",
 };
+exports.KNOWN_BOARDS = KNOWN_BOARDS;
 
-export const NUM_TO_PIECE = {
+const NUM_TO_PIECE = {
   [PIECES.W_KING]: "K",
   [PIECES.W_QUEEN]: "Q",
   [PIECES.W_ROOK]: "R",
@@ -26,8 +36,9 @@ export const NUM_TO_PIECE = {
   [PIECES.W_KNIGHT]: "N",
   [PIECES.W_PRINCESS]: "P",
 };
+exports.NUM_TO_PIECE = NUM_TO_PIECE;
 
-export const PIECE_TO_NUM = {
+const PIECE_TO_NUM = {
   "K": PIECES.W_KING,
   "Q": PIECES.W_QUEEN,
   "R": PIECES.W_ROOK,
@@ -35,8 +46,9 @@ export const PIECE_TO_NUM = {
   "N": PIECES.W_KNIGHT,
   "P": PIECES.W_PRINCESS,
 };
+exports.PIECE_TO_NUM = PIECE_TO_NUM;
 
-export function parse(raw, verbose = false, princess_to_queen = false) {
+function parse(raw, verbose = false, princess_to_queen = false) {
   let white = true;
   let turn = 1;
 
@@ -101,8 +113,9 @@ export function parse(raw, verbose = false, princess_to_queen = false) {
 
   return game;
 }
+exports.parse = parse;
 
-export function write(game, verbose, princess_to_queen) {
+function write(game, verbose, princess_to_queen) {
   game.tags = game.tags || DEFAULT_TAGS;
   if (!game.tags["variant"]) {
     game.tags["variant"] = KNOWN_BOARDS[game.tags["board"].toUpperCase()];
@@ -124,8 +137,9 @@ export function write(game, verbose, princess_to_queen) {
 
   return res;
 }
+exports.write = write;
 
-export function write_move(move, game, princess_to_queen) {
+function write_move(move, game, princess_to_queen) {
   let res = `${move.from[1] + 1}${move.from[0] ? write_timeline(move.from[0], true) : ""}:`;
 
   if (move.castle) {
@@ -159,16 +173,18 @@ export function write_move(move, game, princess_to_queen) {
 
   return res;
 }
+exports.write_move = write_move;
 
-export function find_board(name) {
+function find_board(name) {
   let res = Reflect.ownKeys(KNOWN_BOARDS).map((key) =>
     [Reflect.get(KNOWN_BOARDS, key), key]
   ).find(([value, key]) => name.toLowerCase() === value);
   if (!res) return null;
   else return res[1];
 }
+exports.find_board = find_board;
 
-export function parse_move(game, raw) {
+function parse_move(game, raw) {
   let turn_prefix = TURN_PREFIX.exec(raw);
   if (!turn_prefix) throw new Error("Couldn't parse turn prefix! " + raw);
 
@@ -271,12 +287,15 @@ export function parse_move(game, raw) {
     throw new Error("Syntax error: " + raw);
   }
 }
+exports.parse_move = parse_move;
 
-export function parse_timeline(raw) {
+function parse_timeline(raw) {
   return +raw;
 }
+exports.parse_timeline = parse_timeline;
 
-export function write_timeline(num) {
+function write_timeline(num) {
   if (num >= 0) return `+${num}`;
   else return num.toString();
 }
+exports.write_timeline = write_timeline;
