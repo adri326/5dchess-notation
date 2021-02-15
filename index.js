@@ -101,6 +101,3 @@ yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Conv
 
   preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);
 }).demandCommand().argv;
-
-  preview.preview(g, argv.unicode, argv.multi, argv["black-bg"]);
-}).demandCommand().argv;
