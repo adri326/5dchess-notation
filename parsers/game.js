@@ -530,7 +530,7 @@ class Game {
       case PIECES.W_BRAWN: { // brawn's generalized moves
           let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
           a = a.map(x => Math.abs(x)).sort().reverse();
-          if (a[0] === 1 && a[1] === 1 && a[2] === 0 && a[3] === 0 && this.get_as(to[0], to[1], to[2], to[3] - 1, white) !== PIECES.BLANK) {
+          if (a[0] === 1 && a[1] === 1 && a[2] === 0 && a[3] === 0 && this.get_as(to[0], to[1], to[2], to[3], white) !== PIECES.BLANK) {
             return true; // We shall be permissive
           }
         }
@@ -563,7 +563,7 @@ class Game {
       case PIECES.B_BRAWN: { // brawn's generalized moves
           let a = [to[0] - from[0], to[1] - from[1], to[2] - from[2], to[3] - from[3]];
           a = a.map(x => Math.abs(x)).sort().reverse();
-          if (a[0] === 1 && a[1] === 1 && a[2] === 0 && a[3] === 0 && this.get_as(to[0], to[1], to[2], to[3] - 1, white) !== PIECES.BLANK) {
+          if (a[0] === 1 && a[1] === 1 && a[2] === 0 && a[3] === 0 && this.get_as(to[0], to[1], to[2], to[3], white) !== PIECES.BLANK) {
             return true; // We shall be permissive
           }
         }
