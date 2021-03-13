@@ -118,6 +118,14 @@ The following informations about checks can be appended to the move:
 - `*` if the move softmates the opponent's king (if it is a sequence of moves that achieve this, then the last one should have the softmate indicator)
 - `#` if the move checkmates the opponent's king
 
+### Castling
+
+Castling moves have the same super-physical prefix requirements as normal moves.
+
+On starting positions with the white king on `e1` and the black king on `e8`, `O-O` (using the upper case latin letter O, not the digit zero) may be used to denote castling towards `g1` and `g8` for either player, whereas `O-O-O` may be used to denote castling towards `c1` and `c8` for either player.
+
+On starting positions with more than one king for either player or kings in other places than `e1` and `e8`, the notation `K<file_from><rank_from><file_to><rank_to>` must be used. `file_from` and `rank_from` may be left out if no other king can go to `(file_to, rank_to)`.
+
 ### Jumps
 
 Jumps use the following syntax:
@@ -187,36 +195,6 @@ This format's specific tags are the following:
 - `Size`: the size of the board (`8x8`, `7x7`, `5x5`)
 - `InitialMultiverses`: a list of space-separated, initial multiverses' indexes (`-0 +0 1`); defaults to `0`, unless the board is already known
 - `Mode`: should always be set to `5D`
-
-## Raw or minimal notation
-
-Depending on the usecase, the exported, formatted data may not need to or cannot contain all of the information that this notation tries to convey.
-The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation.
-
-*This raw notation is still a proposal!*
-
-### Raw moves
-
-A minimal move is made up of:
-
-- the super-physical coordinates of the starting board `(<l>T<t>)`
-- *the piece's letter (optional)*
-- the physical coordinates of the moving piece
-- the super-physical coordinates of the target board
-- the physical coordinates of the target square
-
-### Raw turns
-
-A raw turn is made up of an introductory token, which indicates which player is playing, and a set of space-separated raw moves.
-
-The introductory token is for white `w.` and for black `b.`
-
-Such a raw turn would thus look like:
-
-```
-w. (0T1)d2(0T1)d4
-b. (0T1)d7(0T1)d6
-```
 
 ## Examples
 
@@ -366,7 +344,7 @@ The list of the pieces' corresponding letters is as follows:
 Blanks are encoded using numbers:
 - If there is a one-piece blank, then it is encoded using `1`.
 - If there is a two-piece blank, then it is encoded using `2`.
-- If there is a ten-piece blank, then it is encoded using `10.
+- If there is a ten-piece blank, then it is encoded using `10`.
 - If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
 
 If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
@@ -389,6 +367,7 @@ The following metadata fields are required to have within the headers of a game 
 - `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
 - `Puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
   as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
+- `Promotions = "Q,R"`, a comma-separated list of pieces that pawns and brawns can promote to. *A default behavior has yet to be decided on.*
 
 ### Examples
 
@@ -410,6 +389,38 @@ This is how `Rook Tactics I` would be encoded:
 
 1. Kb2 / Ke4
 2. Re1 / Kd3
+```
+
+## Export or minimal notation
+
+Depending on the usecase, the exported, formatted data may not need to or cannot contain all of the information that this notation tries to convey.
+The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation.
+
+*This raw notation is still a proposal!*
+
+### Export moves
+
+An export move is made up of:
+
+- the super-physical coordinates of the starting board `(<l>T<t>)`
+- *the piece's letter (optional)*
+- the physical coordinates of the moving piece
+- the super-physical coordinates of the target board
+- the physical coordinates of the target square
+
+Castling is encoded as the king moving two pieces: `(0T6)Ke1(0T6)g1`. The rook's movement is not annotated.
+
+### Export turns
+
+An export turn is made up of an introductory token, which indicates which player is playing, and a set of space-separated raw moves.
+
+The introductory token is for white `w.` and for black `b.`
+
+Such a raw turn would thus look like:
+
+```
+w. (0T1)d2(0T1)d4
+b. (0T1)d7(0T1)d6
 ```
 
 ## Notes
