@@ -37,22 +37,23 @@ This repository includes a converter and previewer. For information on how to ru
   - [Vocabulary](#vocabulary)
   - [Coordinates](#coordinates)
   - [Moves](#moves)
+    - [Castling](#castling)
     - [Jumps](#jumps)
     - [Promotions](#promotions)
     - [Inactive timeline reactivation](#inactive-timeline-reactivation)
     - [Complex scenarios](#complex-scenarios)
   - [Turns](#turns)
   - [Tags](#tags)
-  - [Raw or minimal notation](#raw-or-minimal-notation)
-    - [Raw moves](#raw-moves)
-    - [Raw turns](#raw-turns)
   - [Examples](#examples)
     - [Rook Tactics I](#rook-tactics-i)
     - [Knight tactics III](#knight-tactics-iii)
     - [Actual game](#actual-game)
   - [5DFEN and custom variants](#5dfen-and-custom-variants)
-    - [Additionnal Metadata](#additionnal-metadata)
+    - [Additional Metadata](#additional-metadata)
     - [Examples](#examples-1)
+  - [Export or minimal notation](#export-or-minimal-notation)
+    - [Export moves](#export-moves)
+    - [Export turns](#export-turns)
   - [Notes](#notes)
     - [Even-numbered starting boards](#even-numbered-starting-boards)
     - [Branching](#branching)
@@ -359,7 +360,7 @@ The other three fields are (in order):
 - Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
 - Player color, may be `w` for white and `b` for black
 
-### Additionnal Metadata
+### Additional Metadata
 
 The following metadata fields are required to have within the headers of a game using this extension:
 
@@ -367,7 +368,7 @@ The following metadata fields are required to have within the headers of a game 
 - `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
 - `Puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
   as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
-- `Promotions = "Q,R"`, a comma-separated list of pieces that pawns and brawns can promote to. *A default behavior has yet to be decided on.*
+- `Promotions = "Q,R"`, a comma-separated list of pieces that pawns and brawns can promote to. It should be ordered from most important to least important (putting the queen/princess first is a good rule of thumb). *A default behavior has yet to be decided on.*
 
 ### Examples
 
