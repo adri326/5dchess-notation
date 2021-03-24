@@ -120,7 +120,7 @@ const BOARDS = {
   "FOCUSED - JUST ROOKS": ["1rk1r/5/5/5/R1KR1", "0", "5x5"],
   "FOCUSED - JUST QUEENS": ["1q1k2/6/6/6/6/2K1Q1", "0", "6x6"],
   "FOCUSED - JUST PAWNS": ["ppppk/5/5/5/KPPPP", "0", "5x5"],
-  "FOCUSED - JUST KINGS": ["2k/3/k2", "0", "3x3"],
+  "FOCUSED - JUST KINGS": ["2k/3/K2", "0", "3x3"],
   "FOCUSED - JUST UNICORNS": ["1u1uk/5/5/5/KU1U1", "0", "5x5"],
   "FOCUSED - JUST DRAGONS": ["2ddk/5/5/5/KDD2", "0", "5x5"],
   "FOCUSED - JUST BRAWNS": ["ββββk/5/5/5/KΒΒΒΒ", "0", "5x5"],
