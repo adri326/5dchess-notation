@@ -10,9 +10,9 @@ function run(game, piece_set, black_bg, blessed) {
   let main_box_dims = [game.width * 4 + 1, game.height * 2 + 1];
 
   let l = 0;
-  let t = 0;
-
   if (game.board_indices.find(x => x === 0.5)) l = -0.5;
+
+  let t = game.timelines.find(tl => tl.index === l).begins_at;
 
   let main_box = blessed.box({
     top: "center",
