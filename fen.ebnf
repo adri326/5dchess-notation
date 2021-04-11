@@ -54,10 +54,10 @@ There should be no spaces, as to not confuse a board string with a regular heade
 
 The first field contains the board's pieces.
 The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
-Each row is a string of pieces, encoded using letters (optionally followed by a `+`), and blanks, encoded using numbers.
+Each row is a string of pieces, encoded using letters (optionally preceded by a `+`), and blanks, encoded using numbers.
 
 A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
-To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be *preceded*
 by a `+`.
 
 Here is a list of candidate piece letters for your implementation of this extension.
@@ -73,7 +73,7 @@ This list is the one used by Alexbay's implementation of this extension:
 - `S/s` for prince[s]s
 - `W/w` for bra[w]n
 - `C/c` for [c]ommon king
-- `Q+/q+` for royal [q]ueen
+- `Y/y` for ro[y]al queen
 
 Blanks are encoded using numbers:
 - If there is a one-piece blank, then it is encoded using `1`.
@@ -85,8 +85,6 @@ If a piece is sensitive to having been moved already or not and hasn't moved yet
 - An unmoved white pawn is encoded as `P*`
 - An unmoved black king is encoded as `k*`
 
-If `+` and `*` need to be combined, then `+` comes first: `q+*`.
-
 The other three fields are:
 - Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
 - Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
@@ -96,31 +94,19 @@ The other three fields are:
 
 (* ## Prerequisites: *)
 space = ' ' | '\n';
-lowercase = ? all lowercase characters from a to z ?;
-uppercase = ? all uppercase characters from A to Z ?;
+lowercase = ? a-z ?;
+uppercase = ? A-Z ?;
 number = ? 0-9 ?;
 escaped_string = ? any character that may fit in a quotation-mark-delimited string, including '\"' ?;
 period = '.';
 underscore = '_';
 dash = '-';
 
-(* ## Root: *)
-ROOT = [{HEADER}], [{BOARD}], [{MOVE}];
-(* In this implementation, moves are formatted using either Shad's notation or Alexbay's *)
-MOVE = ? a move formatted in a formalized notation ?, [{space}];
-key_character = lowercase | uppercase | period | underscore | dash;
-HEADER = '[', {key_character}, {space}, '"', {escaped_string}, '"]', [{space}];
-BOARD = '[', fen_pieces, ':', board_layer, ':', board_time, ':', board_color, ']', [{space}];
-
-(* ## FEN-formatted pieces *)
-fen_pieces = {fen_piece | number}, {'/', {fen_piece}};
-fen_piece = (piece_white | piece_black), [unmoved];
-
 (*
 This policy can be extended depending on the need for more characters.
 *)
-piece_white = lowercase, ['+'];
-piece_black = uppercase, ['+'];
+piece_white = ['+'], lowercase;
+piece_black = ['+'], uppercase;
 
 (*
 Whether or not the piece hadn't already moved. This can safely be ignored if the piece has no special move requiring it to had moved or not.
@@ -135,3 +121,16 @@ unmoved = '*';
 board_layer = (('-' | '+'), {number}) | '0';
 board_time = {number};
 board_color = 'w' | 'b';
+
+(* ## FEN-formatted pieces *)
+fen_piece = (piece_white | piece_black), [unmoved];
+fen_pieces = {fen_piece | number}, {'/', {fen_piece}};
+
+(* In this implementation, moves are formatted using either Shad's notation or Alexbay's *)
+MOVE = ? a move formatted in a formalized notation ?, [{space}];
+key_character = lowercase | uppercase | period | underscore | dash;
+HEADER = '[', {key_character}, {space}, '"', {escaped_string}, '"]', [{space}];
+BOARD = '[', fen_pieces, ':', board_layer, ':', board_time, ':', board_color, ']', [{space}];
+
+(* ## Root: *)
+ROOT = [{HEADER}], [{BOARD}], [{MOVE}];

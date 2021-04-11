@@ -54,9 +54,9 @@ const PIECE_CHAR = {
   [PIECES.W_UNICORN]: "U",
   [PIECES.W_DRAGON]: "D",
   [PIECES.W_PRINCESS]: "S",
-  [PIECES.W_BRAWN]: "Β",
-  [PIECES.W_RQUEEN]: "Ρ",
-  [PIECES.W_CKING]: "Κ",
+  [PIECES.W_BRAWN]: "W",
+  [PIECES.W_RQUEEN]: "Y",
+  [PIECES.W_CKING]: "C",
   [PIECES.B_PAWN]: "p",
   [PIECES.B_KNIGHT]: "n",
   [PIECES.B_BISHOP]: "b",
@@ -66,9 +66,9 @@ const PIECE_CHAR = {
   [PIECES.B_UNICORN]: "u",
   [PIECES.B_DRAGON]: "d",
   [PIECES.B_PRINCESS]: "s",
-  [PIECES.B_BRAWN]: "β",
-  [PIECES.B_RQUEEN]: "ρ",
-  [PIECES.B_CKING]: "κ",
+  [PIECES.B_BRAWN]: "w",
+  [PIECES.B_RQUEEN]: "y",
+  [PIECES.B_CKING]: "c",
   [PIECES.MARKER]: "*",
 };
 exports.PIECE_CHAR = PIECE_CHAR;
@@ -165,8 +165,8 @@ const FEN_TO_PIECE = {
   "D": PIECES.W_DRAGON,
   "c": PIECES.B_CKING,
   "C": PIECES.W_CKING,
-  "q+": PIECES.B_RQUEEN,
-  "Q+": PIECES.W_RQUEEN,
+  "y": PIECES.B_RQUEEN,
+  "Y": PIECES.W_RQUEEN,
 };
 exports.FEN_TO_PIECE = FEN_TO_PIECE;
 
@@ -193,8 +193,8 @@ const PIECE_TO_FEN = {
   [PIECES.W_DRAGON]: "D",
   [PIECES.B_CKING]: "c",
   [PIECES.W_CKING]: "C",
-  [PIECES.B_RQUEEN]: "q+",
-  [PIECES.W_RQUEEN]: "Q+",
+  [PIECES.B_RQUEEN]: "y",
+  [PIECES.W_RQUEEN]: "Y",
 };
 exports.PIECE_TO_FEN = PIECE_TO_FEN;
 
@@ -303,7 +303,7 @@ class Game {
           for (let n = 0; n < +match[0]; n++) {
             row.push(PIECES.BLANK);
           }
-        } else if (match = /^([a-zA-Z]\+?)(\*?)/.exec(raw_row)) {
+        } else if (match = /^(\+?[a-zA-Z])(\*?)/.exec(raw_row)) {
           raw_row = raw_row.slice(match[0].length);
           let piece = FEN_TO_PIECE[match[1]];
           if (!piece) {

@@ -10,7 +10,7 @@ exports.SUPERPHYSICAL_REGEXP = SUPERPHYSICAL_REGEXP;
 const ANNOTATIONS_REGEXP = /^(?:\?+|!+|\?!|!\?)/;
 exports.ANNOTATIONS_REGEXP = ANNOTATIONS_REGEXP;
 
-const PIECES_REGEXP = /^(?:BR|CK|RQ|PR|[PKNRQDUBSWC])/;
+const PIECES_REGEXP = /^(?:BR|CK|RQ|PR|[YPKNRQDUBSWC])/;
 exports.PIECES_REGEXP = PIECES_REGEXP;
 
 const PRESENT_REGEXP = /^\(~T(\d+)\)/;
@@ -34,6 +34,7 @@ const PIECE_TO_NUM = {
   PR: PIECES.W_PRINCESS,
   BR: PIECES.W_BRAWN,
   CK: PIECES.W_CKING,
+  Y: PIECES.W_RQUEEN,
   RQ: PIECES.W_RQUEEN,
 };
 exports.PIECE_TO_NUM = PIECE_TO_NUM;
@@ -48,9 +49,9 @@ const NUM_TO_PIECE = {
   [PIECES.W_UNICORN]: "U",
   [PIECES.W_DRAGON]: "D",
   [PIECES.W_PRINCESS]: "S",
-  [PIECES.W_BRAWN]: "BR",
-  [PIECES.W_CKING]: "CK",
-  [PIECES.W_RQUEEN]: "RQ",
+  [PIECES.W_BRAWN]: "W",
+  [PIECES.W_CKING]: "C",
+  [PIECES.W_RQUEEN]: "Y",
 };
 exports.NUM_TO_PIECE = NUM_TO_PIECE;
 
@@ -452,7 +453,7 @@ function parse_move(raw) {
       takes = true;
     } else throw new Error("Invalid move: invalid pawn move or missing/wrong piece name: " + raw.slice(ptr, 10) + "...");
 
-    if (match = /^=([QRBNDU])?/.exec(raw.slice(ptr))) {
+    if (match = /^=([RBUDQSNC])?/.exec(raw.slice(ptr))) {
       promotion = match[1] || "Q";
       ptr += match[0].length;
     }

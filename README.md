@@ -106,8 +106,8 @@ Piece letters are the same as standard algebraic notation, with additional lette
 - `K` for **k**ing
 - `C` for **c**ommon king (non-royal king)
 - `Q` for **q**ueen
-- `RQ` for **r**oyal **q**ueen
-- `S` or `PR` for princes**s** (the former is still the recommended one)
+- `Y` or `RQ` for ro**y**al queen (the former is the recommended one)
+- `S` or `PR` for princes**s** (the former is the recommended one)
 - `N` for k**n**ight
 - `R` for **r**ook
 - `B` for **b**ishop
@@ -323,25 +323,25 @@ There should be no spaces, as to not confuse a board string with a regular heade
 
 The first field contains the board's pieces.
 The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
-Each row is a string of pieces, encoded using letters (optionally followed by a `+`), and blanks, encoded using numbers.
+Each row is a string of pieces, encoded using letters (optionally preceded by a `+`), and blanks, encoded using numbers.
 
 A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
-To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be *preceded*
 by a `+`.
 
 The list of the pieces' corresponding letters is as follows:
-- `P/p` for [p]awn
-- `B/b` for [b]ishop
-- `R/r` for [r]ook
-- `N/n` for k[n]ight
-- `K/k` for [k]ing
-- `Q/q` for [q]ueen
-- `U/u` for [u]nicorn
-- `D/d` for [d]ragon
-- `S/s` for prince[s]s
-- `W/w` for bra[w]n
-- `C/c` for [c]ommon king
-- `Q+/q+` for royal [q]ueen
+- `P/p` for **p**awn
+- `B/b` for **b**ishop
+- `R/r` for **r**ook
+- `N/n` for k**n**ight
+- `K/k` for **k**ing
+- `Q/q` for **q**ueen
+- `U/u` for **u**nicorn
+- `D/d` for **d**ragon
+- `S/s` for prince**s**s
+- `W/w` for bra**w**n
+- `C/c` for **c**ommon king
+- `Y/y` for ro**y**al queen
 
 Blanks are encoded using numbers:
 - If there is a one-piece blank, then it is encoded using `1`.
@@ -352,9 +352,6 @@ Blanks are encoded using numbers:
 If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
 - An unmoved white pawn is encoded as `P*`
 - An unmoved black king is encoded as `k*`
-
-If `+` and `*` need to be combined, then `+` comes first: `q+*`.
-When designing new fairy pieces, you should try to avoid this scenario, though.
 
 The other three fields are (in order):
 - Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
