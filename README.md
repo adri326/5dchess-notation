@@ -84,7 +84,7 @@ Since players can only interact with boards belonging to their sub-turns, there 
 
 Super-physical coordinates uses the following notation: `(L<a> T<b>)`, which can be shortened to `(<a>T<b>)`. Both should be considered valid by parsers, though the latter is the recommended form and will be used throughout this document.
 
-`<a>` is the multiverse coordinate, it is an integer ranging from `-n` to `n`. `-0` and `0` are considered the same. Timelines created by the white player are given the next, unused positive integer; while timelines created by black are given the next, unused negative integer.
+`<a>` is the multiverse coordinate, it is an integer ranging from `-n` to `n`. Timelines created by the white player are given the next, unused positive integer; while timelines created by black are given the next, unused negative integer.
 `<b>` is the time coordinate, it is an integer ranging from `1` to `n'`.
 
 A standard game starts with one empty timeline on `L0`.
