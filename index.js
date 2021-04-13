@@ -11,9 +11,9 @@ const yargs = require("yargs");
 
 yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Convert from <from> to <to>", (y) => {
   y.positional("from", {
-    describe: "the notation to convert from (shad, json, axel)"
+    describe: "the notation to convert from (shad, json, axel, alexbay)"
   }).positional("to", {
-    describe: "the notation to convert into (shad, json, axel)"
+    describe: "the notation to convert into (shad, json, axel, alexbay)"
   }).positional("file", {
     describe: "the file to read from"
   }).option("v", {
@@ -23,12 +23,7 @@ yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Conv
     describe: "more verbose parsing/writing"
   }).option("board", {
     default: "Standard",
-    describe: "The board that is played on (used for 4xel)",
-  }).option("princess-to-queen", {
-    alias: "q",
-    default: false,
-    type: "boolean",
-    describe: "Turn princesses into queens (used for alexbay; tries to convert back when parsing alexbay's notation, but cannot revert the information loss)"
+    describe: "The board that is played on (used for axel)",
   })
 }, (argv) => {
   let g;
@@ -44,7 +39,7 @@ yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Conv
   } else if (from === "4xel" || from === "axel") {
     g = axel.parse(raw, argv.verbose, argv.board);
   } else if (from === "alexbay") {
-    g = alexbay.parse(raw, argv.verbose, argv.princessToQueen);
+    g = alexbay.parse(raw, argv.verbose, false);
   } else {
     throw new Error("No notation named " + from + " found!");
   }
@@ -53,14 +48,16 @@ yargs.scriptName("5dchess-notation").command("convert <from> <to> <file>", "Conv
     console.log(pgn.write(g));
   } else if (to === "json") {
     console.log(JSON.stringify(g));
-  } else if (to === "4xel" || from === "axel") {
+  } else if (to === "4xel" || to === "axel") {
     console.log(axel.write(g));
   } else if (to === "alexbay") {
-    console.log(alexbay.write(g, argv.verbose, argv.princessToQueen));
+    console.log(alexbay.write(g, argv.verbose, false));
+  } else {
+    throw new Error("No notation named " + to + " found!");
   }
 }).command("preview <format> <file>", "Previews the given game", (y) => {
   y.positional("format", {
-    describe: "The format that <file> is in (shad, json, axel)",
+    describe: "The format that <file> is in (shad, json, axel, alexbay)",
   }).positional("file", {
     describe: "The file to read from"
   }).option("board", {

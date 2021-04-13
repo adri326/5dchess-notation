@@ -36,22 +36,26 @@ This repository includes a converter and previewer. For information on how to ru
   - [Vocabulary](#vocabulary)
   - [Coordinates](#coordinates)
   - [Moves](#moves)
+    - [Castling](#castling)
     - [Jumps](#jumps)
     - [Promotions](#promotions)
     - [Inactive timeline reactivation](#inactive-timeline-reactivation)
     - [Complex scenarios](#complex-scenarios)
   - [Turns](#turns)
   - [Tags](#tags)
-  - [Raw or minimal notation](#raw-or-minimal-notation)
-    - [Raw moves](#raw-moves)
-    - [Raw turns](#raw-turns)
   - [Examples](#examples)
     - [Rook Tactics I](#rook-tactics-i)
     - [Knight tactics III](#knight-tactics-iii)
     - [Actual game](#actual-game)
   - [5DFEN and custom variants](#5dfen-and-custom-variants)
-    - [Additionnal Metadata](#additionnal-metadata)
+    - [Additional Metadata](#additional-metadata)
     - [Examples](#examples-1)
+  - [Export or minimal notation](#export-or-minimal-notation)
+    - [Export moves](#export-moves)
+    - [Export turns](#export-turns)
+  - [Hashing](#hashing)
+    - [5DFEN Stricness](#5dfen-strictness)
+    - [Examples](#examples-2)
   - [Notes](#notes)
     - [Even-numbered starting boards](#even-numbered-starting-boards)
     - [Branching](#branching)
@@ -82,7 +86,7 @@ Since players can only interact with boards belonging to their sub-turns, there 
 
 Super-physical coordinates uses the following notation: `(L<a> T<b>)`, which can be shortened to `(<a>T<b>)`. Both should be considered valid by parsers, though the latter is the recommended form and will be used throughout this document.
 
-`<a>` is the multiverse coordinate, it is an integer ranging from `-n` to `n`. `-0` and `0` are considered the same. Timelines created by the white player are given the next, unused positive integer; while timelines created by black are given the next, unused negative integer.
+`<a>` is the multiverse coordinate, it is an integer ranging from `-n` to `n`. Timelines created by the white player are given the next, unused positive integer; while timelines created by black are given the next, unused negative integer.
 `<b>` is the time coordinate, it is an integer ranging from `1` to `n'`.
 
 A standard game starts with one empty timeline on `L0`.
@@ -100,22 +104,31 @@ If there is only one timeline up to this point, then physical moves may be writt
 Piece letters are the same as standard algebraic notation, with additional letters used for fairy pieces:
 
 - `P` for **p**awn
-- `BR` or `W` for **br**awn (the former is the recommended one)
-- `K` for **r**ook
-- `C` or `CK` for **c**ommon **k**ing (non-royal king, the latter is the recommended one)
+- `W` for bra**w**n
+- `K` for **k**ing
+- `C` for **c**ommon king (non-royal king)
 - `Q` for **q**ueen
-- `RQ` for **r**oyal **q**ueen
-- `S` or `PR` for princes**s** (the former is still the recommended one)
-- `B` for **b**ishop
+- `Y` or `RQ` for ro**y**al queen (the former is the recommended one)
+- `S` or `PR` for princes**s** (the former is the recommended one)
 - `N` for k**n**ight
-- `D` for **d**ragon
+- `R` for **r**ook
+- `B` for **b**ishop
 - `U` for **u**nicorn
+- `D` for **d**ragon
 
 The following informations about checks can be appended to the move:
 
 - `+` if the move checks the opponent's king
 - `*` if the move softmates the opponent's king (if it is a sequence of moves that achieve this, then the last one should have the softmate indicator)
 - `#` if the move checkmates the opponent's king
+
+### Castling
+
+Castling moves have the same super-physical prefix requirements as normal moves.
+
+On starting positions with the white king on `e1` and the black king on `e8`, `O-O` (using the upper case latin letter O, not the digit zero) may be used to denote castling towards `g1` and `g8` for either player, whereas `O-O-O` may be used to denote castling towards `c1` and `c8` for either player.
+
+On starting positions with more than one king for either player or kings in other places than `e1` and `e8`, the notation `K<file_from><rank_from><file_to><rank_to>` must be used. `file_from` and `rank_from` may be left out if no other king can go to `(file_to, rank_to)`.
 
 ### Jumps
 
@@ -186,36 +199,6 @@ This format's specific tags are the following:
 - `Size`: the size of the board (`8x8`, `7x7`, `5x5`)
 - `InitialMultiverses`: a list of space-separated, initial multiverses' indexes (`-0 +0 1`); defaults to `0`, unless the board is already known
 - `Mode`: should always be set to `5D`
-
-## Raw or minimal notation
-
-Depending on the usecase, the exported, formatted data may not need to or cannot contain all of the information that this notation tries to convey.
-The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation.
-
-*This raw notation is still a proposal!*
-
-### Raw moves
-
-A minimal move is made up of:
-
-- the super-physical coordinates of the starting board `(<l>T<t>)`
-- *the piece's letter (optional)*
-- the physical coordinates of the moving piece
-- the super-physical coordinates of the target board
-- the physical coordinates of the target square
-
-### Raw turns
-
-A raw turn is made up of an introductory token, which indicates which player is playing, and a set of space-separated raw moves.
-
-The introductory token is for white `w.` and for black `b.`
-
-Such a raw turn would thus look like:
-
-```
-w. (0T1)d2(0T1)d4
-b. (0T1)d7(0T1)d6
-```
 
 ## Examples
 
@@ -342,45 +325,42 @@ There should be no spaces, as to not confuse a board string with a regular heade
 
 The first field contains the board's pieces.
 The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
-Each row is a string of pieces, encoded using letters (optionally followed by a `+`), and blanks, encoded using numbers.
+Each row is a string of pieces, encoded using letters (optionally preceded by a `+`), and blanks, encoded using numbers.
 
 A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
-To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be *preceded*
 by a `+`.
 
 The list of the pieces' corresponding letters is as follows:
-- `P/p` for [p]awn
-- `B/b` for [b]ishop
-- `R/r` for [r]ook
-- `N/n` for k[n]ight
-- `K/k` for [k]ing
-- `Q/q` for [q]ueen
-- `U/u` for [u]nicorn
-- `D/d` for [d]ragon
-- `S/s` for prince[s]s
-- `W/w` for bra[w]n
-- `C/c` for [c]ommon king
-- `Q+/q+` for royal [q]ueen
+- `P/p` for **p**awn
+- `B/b` for **b**ishop
+- `R/r` for **r**ook
+- `N/n` for k**n**ight
+- `K/k` for **k**ing
+- `Q/q` for **q**ueen
+- `U/u` for **u**nicorn
+- `D/d` for **d**ragon
+- `S/s` for prince**s**s
+- `W/w` for bra**w**n
+- `C/c` for **c**ommon king
+- `Y/y` for ro**y**al queen
 
 Blanks are encoded using numbers:
 - If there is a one-piece blank, then it is encoded using `1`.
 - If there is a two-piece blank, then it is encoded using `2`.
-- If there is a ten-piece blank, then it is encoded using `10.
+- If there is a ten-piece blank, then it is encoded using `10`.
 - If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
 
 If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
 - An unmoved white pawn is encoded as `P*`
 - An unmoved black king is encoded as `k*`
 
-If `+` and `*` need to be combined, then `+` comes first: `q+*`.
-When designing new fairy pieces, you should try to avoid this scenario, though.
-
 The other three fields are (in order):
 - Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
 - Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
 - Player color, may be `w` for white and `b` for black
 
-### Additionnal Metadata
+### Additional Metadata
 
 The following metadata fields are required to have within the headers of a game using this extension:
 
@@ -388,6 +368,7 @@ The following metadata fields are required to have within the headers of a game 
 - `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
 - `Puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
   as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
+- `Promotions = "Q,R"`, a comma-separated list of pieces that pawns and brawns can promote to. It should be ordered from most important to least important (putting the queen/princess first is a good rule of thumb). *A default behavior has yet to be decided on.*
 
 ### Examples
 
@@ -411,11 +392,43 @@ This is how `Rook Tactics I` would be encoded:
 2. Re1 / Kd3
 ```
 
+## Export or minimal notation
+
+Depending on the usecase, the exported, formatted data may not need to or cannot contain all of the information that this notation tries to convey.
+The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation.
+
+*This raw notation is still a proposal!*
+
+### Export moves
+
+An export move is made up of:
+
+- the super-physical coordinates of the starting board `(<l>T<t>)`
+- *the piece's letter (optional)*
+- the physical coordinates of the moving piece
+- the super-physical coordinates of the target board
+- the physical coordinates of the target square
+
+Castling is encoded as the king moving two pieces: `(0T6)Ke1(0T6)g1`. The rook's movement is not annotated.
+
+### Export turns
+
+An export turn is made up of an introductory token, which indicates which player is playing, and a set of space-separated raw moves.
+
+The introductory token is for white `w.` and for black `b.`
+
+Such a raw turn would thus look like:
+
+```
+w. (0T1)d2(0T1)d4
+b. (0T1)d7(0T1)d6
+```
+
 ## Hashing
 
 For certain applications, getting a hash or checksum of either the full state (all boards) or a single board is desired. To facilitate standardization, hashing both the full state and a single board should be create by the following processes.
 
-*This standard is still just a proposal and not official yet*
+*This standard is still just a proposal and not official yet!*
 
 For single board hashing:
 
@@ -432,7 +445,7 @@ For full state hashing:
   4. Extract the resulting hash as hexadecimal digits
   5. Convert to UTF-8 string (alphabet characters should be lowercase)
 
-### Notes
+### 5DFEN Strictness
 
 For purposes of sorting, timeline -0 is considered lower than timeline +0.
 

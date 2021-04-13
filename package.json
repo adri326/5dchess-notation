@@ -1,6 +1,6 @@
 {
   "name": "5dchess-notation",
-  "version": "1.4.1",
+  "version": "1.4.4",
   "description": "Shad's 5D chess notation, extending PGN to the game '5D chess'",
   "main": "index.js",
   "scripts": {
