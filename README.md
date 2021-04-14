@@ -54,7 +54,7 @@ This repository includes a converter and previewer. For information on how to ru
     - [Export moves](#export-moves)
     - [Export turns](#export-turns)
   - [Hashing](#hashing)
-    - [5DFEN Stricness](#5dfen-strictness)
+    - [5DFEN Strictness](#5dfen-strictness)
     - [Examples](#examples-2)
   - [Notes](#notes)
     - [Even-numbered starting boards](#even-numbered-starting-boards)
@@ -439,8 +439,8 @@ For single board hashing:
 
 For full state hashing:
 
-  1. Grab the 5DFEN string of all boards, sorting boards by timeline (ascending) and then by turn (ascending)
-  2. Concatenate all of these 5DFEN strings together (keeping the order), stripping any and all whitespaces (including newlines)
+  1. Grab the 5DFEN string of all boards.
+  2. Concatenate all of these 5DFEN strings together (sorting boards by timeline (ascending) first and then by turn (ascending)), stripping any and all whitespaces (including newlines)
   3. Feed the resulting string (encoded as UTF-8) into the MD5 message-digest algorithm
   4. Extract the resulting hash as hexadecimal digits
   5. Convert to UTF-8 string (alphabet characters should be lowercase)
@@ -455,8 +455,6 @@ For strictness, extracting 5DFEN strings should standardize on move sensitivity.
   - Rook
   - King
   - Brawn
-  - Common King
-  - Royal Queen
 
 ### Examples
 
