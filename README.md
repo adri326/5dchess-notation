@@ -264,7 +264,7 @@ Following is an example of a game, encoded in the described standard:
 
 Here is what the end of that game looks like:
 
-![End of the aforementionned game](https://cdn.discordapp.com/attachments/740361438375313540/743827989321744467/unknown.png)
+![End of the aforementioned game](https://cdn.discordapp.com/attachments/740361438375313540/743827989321744467/unknown.png)
 
 This is another game, between Shad and PseudoAbstractMeta, using the modern features of the notation:
 
@@ -315,7 +315,7 @@ To use this extension, you need to set the board tag to `"custom"` and encode th
 
 A board is considered initial if one of the following conditions is true:
 - it does not emanate from any other board (eg. the first board in standard)
-- there weren't any move from the board that it emanated that would yield that board (eg. the second board in standard - turn zero)
+- there weren't any moves from the board that it emanated that would yield that board (eg. the second board in standard - turn zero)
 
 A *board string* is the 5DFEN way of describing the state of an initial board.
 A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
