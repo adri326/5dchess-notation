@@ -50,7 +50,7 @@ This repository includes a converter and previewer. For information on how to ru
   - [5DFEN and custom variants](#5dfen-and-custom-variants)
     - [Additional Metadata](#additional-metadata)
     - [Examples](#examples-1)
-  - [Export or minimal notation](#export-or-minimal-notation)
+  - [Raw notation mode](#raw-notation-mode)
     - [Export moves](#export-moves)
     - [Export turns](#export-turns)
   - [Hashing](#hashing)
@@ -135,14 +135,18 @@ On starting positions with more than one king for either player or kings in othe
 Jumps use the following syntax:
 
 - The super-physical coordinate of the origin board
-- The piece's letter
+- The piece's letter*
 - The piece's physical coordinate
-- `>>` if the jump is branching, `>` if the jump isn't branching
-- `x` if a piece is being taken
+- `>>` if the jump is branching, `>` if the jump isn't branching**
+- `x` if a piece is being taken*
 - The super-physical coordinate of the target board
 - The physical coordinate of the target square
-- `+`, `*` or `#` if the moves checks, softmates or checkmates the adversary
-- `~` if the jump is branching and the present is being moved to the new branch
+- *[Optional]* `+`, `*` or `#` if the moves checks, softmates or checkmates the adversary*
+- `~` if the jump is branching and the present is being moved to the new branch*
+
+**Parsers aiming for raw notation mode compatibility should not rely on this token for information*
+
+***Parsers aiming for raw notation mode compatibility should expect only the character `>` when in raw notation mode*
 
 All put together, it looks like this: `(-1T4)Nc3>>x(0T2)c3+~` ("The knight from board -1L, T4, c3 jumps and takes on L, T2, c3, creating a new timeline (-2L) and moving the present").
 
@@ -175,20 +179,29 @@ Both present movement and created timeline tokens are purely for better human co
 
 ## Turns
 
-During their turn, each player may make several moves. Each move is written next to each other, separated by one or more spaces.
+During their turn, each player may make several moves. Each move is written next to each other, separated by one or more spaces and/or newlines (`\r\n` or `\n`).
 Sub-turns are separated by a forward slash (`/`).
 
 A turn's syntax is the following:
 
-- `<x>.`, with `<x>` being the turn number (remember that this is different from the time coordinate of a board)
+- `<x>.`, with `<x>` being the turn number (remember that this is different from the time coordinate of a board)*
 - White's moves
 - `/`
 - Black's moves
+
+**Parsers aiming for raw notation mode compatibility should expect only a `.` character instead*
 
 Such a turn looks like this:
 
 ```
 1. (0T1)d4 / (0T1)d6
+```
+
+With newlines:
+
+```
+1. (0T1)d4
+/  (0T1)d6
 ```
 
 ## Tags
@@ -392,36 +405,37 @@ This is how `Rook Tactics I` would be encoded:
 2. Re1 / Kd3
 ```
 
-## Export or minimal notation
+## Raw notation mode
 
-Depending on the usecase, the exported, formatted data may not need to or cannot contain all of the information that this notation tries to convey.
-The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation.
+Depending on the usecase, the notation does not need to be human readable and instead only needs to convey the raw move information.
+The following is a raw or "minimalized" version of this notation, which can later be parsed again into the full notation. This notation format should be close to being a subset of the regular notation, making converting existing parsers to support raw notation mode trivial.
 
-*This raw notation is still a proposal!*
+*This standard is still just a proposal and not official yet!*
 
-### Export moves
+### Raw notation moves
 
-An export move is made up of:
+A raw notation move is made up of:
 
-- the super-physical coordinates of the starting board `(<l>T<t>)`
-- *the piece's letter (optional)*
-- the physical coordinates of the moving piece
-- the super-physical coordinates of the target board
-- the physical coordinates of the target square
+- The super-physical coordinates of the starting board in the format: `(<l>T<t>)`
+- The physical coordinates of the moving piece
+- The `>` character 
+- The super-physical coordinates of the target board
+- The physical coordinates of the target square
+- The promotion piece character, if needed
 
-Castling is encoded as the king moving two pieces: `(0T6)Ke1(0T6)g1`. The rook's movement is not annotated.
+Castling is encoded as the king moving two pieces: `(0T6)e1>(0T6)g1`. The rook's movement is not annotated.
 
-### Export turns
+### Raw notation turns
 
-An export turn is made up of an introductory token, which indicates which player is playing, and a set of space-separated raw moves.
+A raw notation turn has a similar format as regular turns:
 
-The introductory token is for white `w.` and for black `b.`
-
-Such a raw turn would thus look like:
+ - The `.` character if white, `/` if black
+ - All raw notation moves separated by a single space
+ - Newline (`\n` only) character
 
 ```
-w. (0T1)d2(0T1)d4
-b. (0T1)d7(0T1)d6
+. (0T1)d2>(0T1)d4
+/ (0T1)d7>(0T1)d6
 ```
 
 ## Hashing
