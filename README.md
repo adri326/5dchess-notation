@@ -7,10 +7,9 @@ Other, proposed notations include:
 - [Matrix Notation](https://drive.google.com/drive/folders/10332r6crq_pD-d4pG4VSynM8ziu1uT98)
 - [Hexicube's adaptation of Axel' AN](https://github.com/Hexicube/5D-Chess-Game-Viewer)
 - [nidlatam's notation](https://github.com/nidlatam/my-5d-chess-notation)
-- [Internal notation of 5d-chess-js](https://gitlab.com/alexbay218/5d-chess-js)
 - [AverageHuman's Simplified 5D Algebraic notation](https://pastebin.com/raw/EwVSTFbj)
 - [AquaBaby's analysis of several notations and proposal for a modern notation](https://docs.google.com/document/d/1-SnsdYIzrGao0ToyGXSaoEd_0tYKxYePO1C-Bp5ziXA/view)
-- [Alexbay's notation as part of their library](https://gitlab.com/alexbay218/5d-chess-js/)
+- [Alexbay's notation as part of their library **\[DEPRECIATED\]**](https://gitlab.com/alexbay218/5d-chess-js/)
 - [AquaBaby's client, written in Java and using a custom notation for both moves and FEN](https://github.com/Slavrick/5dChessGUI/)
 
 This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
@@ -54,6 +53,9 @@ This repository includes a converter and previewer. For information on how to ru
   - [Export or minimal notation](#export-or-minimal-notation)
     - [Export moves](#export-moves)
     - [Export turns](#export-turns)
+  - [Hashing](#hashing)
+    - [5DFEN Strictness](#5dfen-strictness)
+    - [Examples](#examples-2)
   - [Notes](#notes)
     - [Even-numbered starting boards](#even-numbered-starting-boards)
     - [Branching](#branching)
@@ -420,6 +422,62 @@ Such a raw turn would thus look like:
 ```
 w. (0T1)d2(0T1)d4
 b. (0T1)d7(0T1)d6
+```
+
+## Hashing
+
+For certain applications, getting a hash or checksum of either the full state (all boards) or a single board is desired. To facilitate standardization, hashing both the full state and a single board should be create by the following processes.
+
+*This standard is still just a proposal and not official yet!*
+
+For single board hashing:
+
+  1. Create the 5DFEN string of the single board, stripping any and all whitespaces (including newlines)
+  2. Feed the resulting string (encoded as UTF-8) into the MD5 message-digest algorithm
+  3. Extract the resulting hash as hexadecimal digits
+  4. Convert to UTF-8 string (alphabet characters should be lowercase)
+
+For full state hashing:
+
+  1. Grab the 5DFEN string of all boards.
+  2. Concatenate all of these 5DFEN strings together (sorting boards by timeline (ascending) first and then by turn (ascending)), stripping any and all whitespaces (including newlines)
+  3. Feed the resulting string (encoded as UTF-8) into the MD5 message-digest algorithm
+  4. Extract the resulting hash as hexadecimal digits
+  5. Convert to UTF-8 string (alphabet characters should be lowercase)
+
+### 5DFEN Strictness
+
+For purposes of sorting, timeline -0 is considered lower than timeline +0.
+
+For strictness, extracting 5DFEN strings should standardize on move sensitivity. The following pieces should be marked as unmoved if needed (the rest of the pieces should not include the unmoved marking):
+
+  - Pawn
+  - Rook
+  - King
+  - Brawn
+
+### Examples
+
+For the 'Standard' variant, both the single board and full state have the same hash:
+
+```
+md5('[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]')
+
+                |
+                V
+
+'d574889fd9da3f2bc65249ff27249b00'
+```
+
+For the 'Standard - Two Timeline' variant, the full state hash looks like this:
+
+```
+md5('[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:-0:1:w][r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:+0:1:w]')
+
+                |
+                V
+
+'3672761404ffcd15ae644c75401812be'
 ```
 
 ## Notes
