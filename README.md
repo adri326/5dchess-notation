@@ -1,7 +1,9 @@
 # Shad's 5D chess algebraic notation (5dpgn)
 
-This is my take at an algebraic notation for [5D chess](https://5dchesswithmultiversetimetravel.com/).
-Other, proposed notations include:
+This is my take at an algebraic notation for [5D Chess](https://5dchesswithmultiversetimetravel.com/), which has been adopted as the standard notation for interfacing with programs, for storing games and is commonly used to write out complex moves.
+This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
+
+Other, publicly available notations for 5D Chess include:
 
 - ["Axel's algebraic, a take on 5D chess notation"](https://docs.google.com/document/d/1G456NzkPc_ZsAj3HBpdTZuTP3tP-g1k98GdoRE38E5A/view)
 - [Matrix Notation](https://drive.google.com/drive/folders/10332r6crq_pD-d4pG4VSynM8ziu1uT98)
@@ -12,17 +14,22 @@ Other, proposed notations include:
 - [Alexbay's notation as part of their library **\[DEPRECIATED\]**](https://gitlab.com/alexbay218/5d-chess-js/)
 - [AquaBaby's client, written in Java and using a custom notation for both moves and FEN](https://github.com/Slavrick/5dChessGUI/)
 
-This algebraic notation is meant to be an extension of [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) for 5D chess.
-It does not claim to be a standardized way of writing down games nor should it be the go-to choice to communicate moves and lines to other humans.
-
 The priorities of this notation, as of right now, are:
 
 - Accurate transcription of games (any state of the game should be able to be transcribed)
 - Ease of writing by a human
-- Ease of reading for a computer (no need to hold the state of the game while initially parsing the moves)
+- Ease of reading for a computer (there should be no need to hold the state of the game while initially parsing the moves)
 - Ease of reading for a human
 - Ability to convert from/to other notations
-- Ease of writing by a computer
+- Ease of writing by a computer (a computer should be able to automatically transcribe any state of the game)
+
+To accomplish this, the notation is built around the following components:
+
+- Coordinates, to describe where the pieces move from and to
+- Piece names, to describe which pieces move
+- A move notation, to describe a single move
+- A turn notation, to describe a sequence of moves
+- Headers, to store the metadata of a game, including the different variants
 
 ## Included converter
 
@@ -65,8 +72,9 @@ This repository includes a converter and previewer. For information on how to ru
 
 ## Vocabulary
 
-- A **turn** is an alternation between white's sub-turn and black's sub-turn. Each player may only make moves during their (sub-)turn. This differs from a board **step**.
-- A **move** happens when a player moves one of their pieces to a legal position. Moves that were not submitted with the submit button yet are referred to as **temporary moves**. We will only consider moves that were already submitted.
+- A **turn** is an alternation between white's sub-turn and black's sub-turn. Each player may only make moves during their (sub-)turn. This differs from a board **step**, as playing on some boards becomes optionnal when new timelines are created.
+- A **move** happens when a player moves one of their pieces to a legal position. Moves that were not submitted with the submit button yet are referred to as **temporary moves**, but we will only consider moves that were already submitted.
+- An **actions** is a sequence of moves within a player's turn.
 - A **board** is the state of the chess board at any point in time. Each time a player moves a piece, one or two new board(s) is/are created, with the new piece disposition(s).
 - A **multiverse** or a **timeline** is an alternate version of one of the game's universe. A new multiverse is created when a piece from another dimension or from the future jumps to an already-played board. Each game starts with at least one multiverse.
 - A **jump** is when a piece moves outside of its board; if it jumps to another board whose turn is the current player's turn, no new multiverse is created. Otherwise, a new multiverse is created containing the piece that jumped.
@@ -79,24 +87,33 @@ This repository includes a converter and previewer. For information on how to ru
 
 ## Coordinates
 
-Each tile in a board is numbered as per the classical chess notation (`a1` through `h8` on an 8 by 8 board).
+Within a board, each tile is numbered as it would be with the classical chess notation: `a1` refers to the bottom-left corner of the board and `h8` to the top-right corner of an 8 by 8 board.
 
-Boards themselved are localized by their date (denoted in-game with `T1`, `T2`, ...) and their timeline (in-game: `L`, `1L`, `-1L`, `2L`, `-2L`).
-Since players can only interact with boards belonging to their sub-turns, there is no need for us to differentiate between the two boards
+Boards themselved are localized using their time coordinate (denoted in-game with `T1`, `T2`, ...) and their timeline coordinate (in-game: `L`, `1L`, `-1L`, `2L`, `-2L`).
+Since players can only interact with boards belonging to their sub-turns, it is not necessary to annotate the sub-turn of boards.
 
-Super-physical coordinates uses the following notation: `(L<a> T<b>)`, which can be shortened to `(<a>T<b>)`. Both should be considered valid by parsers, though the latter is the recommended form and will be used throughout this document.
+Super-physical coordinates use the following notation: `(L<a> T<b>)`, which can be shortened to `(<a>T<b>)`.
+Both should be considered valid by parsers, though the latter is the recommended form and will be used throughout this document.
 
 `<a>` is the multiverse coordinate, it is an integer ranging from `-n` to `n`. Timelines created by the white player are given the next, unused positive integer; while timelines created by black are given the next, unused negative integer.
-`<b>` is the time coordinate, it is an integer ranging from `1` to `n'`.
+`<b>` is the time coordinate, it is an integer ranging from `0` to `n'`.
 
-A standard game starts with one empty timeline on `L0`.
-Using this notation, the first board of a standard game is reffered to as `(0T1)` or `(L0 T1)`.
+*Note:* On even timelines, the centermost timelines have as coordinates `-0` and `+0`. More information on this can be found in the [Notes](#notes) section.
 
-Super-physical coordinates are written before the physical coordinates: `(-1T6)e4` is the square `e4` on the `(L-1 T6)` board.
+*Note:* On turn zero variants, the turn zero board(s) has as time coordinate `T0`, while the others have `T1`, `T2`, etc. On non-turn-zero variants, no board has as time coordinate `T0`.
+
+*Example:* A `Standard` game starts with one empty timeline on `L0`.
+Using this notation, the first board of a `Standard` game is referred to as `(0T1)` or `(L0 T1)`.
+
+When combined with physical coordinates, super-physical coordinates are written before the physical coordinates: `(-1T6)e4` is the square `e4` on the `(L-1 T6)` board.
 
 ## Moves
 
+### Physical moves
+
 Physical moves are written the same as traditional chess [standard algebraic notation](https://en.wikipedia.org/wiki/Algebraic_notation_%28chess%29).
+
+*Note:* omissions follow similar rules, which can be found in the [Notes](#notes) section.
 
 They *must* be preceded by their board's coordinates if there is more than one timeline at the currently described state of the game.
 If there is only one timeline up to this point, then physical moves may be written without their corresponding board's coordinate.
@@ -119,8 +136,8 @@ Piece letters are the same as standard algebraic notation, with additional lette
 The following informations about checks can be appended to the move:
 
 - `+` if the move checks the opponent's king
-- `*` if the move softmates the opponent's king (if it is a sequence of moves that achieve this, then the last one should have the softmate indicator)
-- `#` if the move checkmates the opponent's king
+- `*` if the move softmates the opponent's king (if the softmate is the result of a sequence of moves, the last move of that sequence should have the softmate indicator)
+- `#` if the move checkmates the opponent's king (similarly, the last move contributing to the checkmate should have the checkmate indicator)
 
 ### Castling
 
@@ -129,6 +146,8 @@ Castling moves have the same super-physical prefix requirements as normal moves.
 On starting positions with the white king on `e1` and the black king on `e8`, `O-O` (using the upper case latin letter O, not the digit zero) may be used to denote castling towards `g1` and `g8` for either player, whereas `O-O-O` may be used to denote castling towards `c1` and `c8` for either player.
 
 On starting positions with more than one king for either player or kings in other places than `e1` and `e8`, the notation `K<file_from><rank_from><file_to><rank_to>` must be used. `file_from` and `rank_from` may be left out if no other king can go to `(file_to, rank_to)`.
+
+*Note:* `O-O` can be seen as a shortcut for `Ke1g1`/`Ke8g8` and `O-O-O` as a shortcut for `Ke1c1`/`Ke8c8`.
 
 ### Jumps
 
@@ -141,6 +160,7 @@ Jumps use the following syntax:
 - `x` if a piece is being taken
 - The super-physical coordinate of the target board
 - The physical coordinate of the target square
+- Promotions, if any (see [Promotions](#promotions))
 - `+`, `*` or `#` if the moves checks, softmates or checkmates the adversary
 - `~` if the jump is branching and the present is being moved to the new branch
 
@@ -150,9 +170,9 @@ A non-branching jump may look like this: `(0T6)Pd5>(1T6)d5`.
 
 ### Promotions
 
-As of right now, underpromotion is not allowed/implemented yet.
+Underpromotion in the base game is not available, but other clients for the game have implemented underpromotion.
 
-Promotions can only occur in physical moves and are denoted by adding the `=` symbol at the end of the move (before `+` or `#`), followed by the piece the pawn is promoted into (currently, only `Q` is possible).
+Promotions are denoted by adding the `=` symbol at the end of the move (before `+`, `*` or `#`), followed by the piece that the pawn/brawn promotes as (`Q` for queen, `N` for knight, etc).
 
 ### Inactive timeline reactivation
 
@@ -178,11 +198,11 @@ Both present movement and created timeline tokens are purely for better human co
 During their turn, each player may make several moves. Each move is written next to each other, separated by one or more spaces.
 Sub-turns are separated by a forward slash (`/`).
 
-A turn's syntax is the following:
+A turn's basic syntax is the following:
 
-- `<x>.`, with `<x>` being the turn number (remember that this is different from the time coordinate of a board)
+- `<x>.` or `<x>w.`, with `<x>` being the turn number; the former is the recommended syntax for simple turns
 - White's moves
-- `/`
+- `/` or `<x>b.`; the former is the recommended syntax for simple turns
 - Black's moves
 
 Such a turn looks like this:
@@ -191,16 +211,42 @@ Such a turn looks like this:
 1. (0T1)d4 / (0T1)d6
 ```
 
-## Tags
+In some rare cases, especially in puzzles, black's moves need to be annotated first.
+In this case, the first turn should ommit white's moves:
 
-This format's specific tags are the following:
+```
+1b. (0T10)Qg6+
+2w. (0T11)Kh1 / (0T11)Bb7+
+3. (0T12)Nf3 / (0T12)Qg6>>(0T8)g2#~
+```
 
-- `Board`: which variation was chosen (`Standard`, `Simple - No Queens`, etc.)
-- `Size`: the size of the board (`8x8`, `7x7`, `5x5`)
-- `InitialMultiverses`: a list of space-separated, initial multiverses' indexes (`-0 +0 1`); defaults to `0`, unless the board is already known
+## Headers
+
+Metadata is stored as **Headers** or tags. They are formatted like PGN headers.
+A header's format is as follows:
+
+```pgn
+[HeaderName "Header Value"]
+```
+
+*Note:* There must be at least one space between the header name and the header value. Several headers can be on the same line, but it is recommended to put them on different lines.
+
+*Note:* The header value is encoded as a unicode string, unlike classical PGN.
+
+It is recommended to include the metadata also used for PGN (`White`, `Black`, `Result`, `Date`, etc.); additionally, this format recommends the use of its specific headers:
+
+- `Board`: which variation was chosen (`Standard`, `Simple - No Queens`, etc.), defaults to `Standard`
+- `Size`: the size of the board (`8x8`, `7x7`, `5x5`), recommended for non-standard variants and required for custom variants
 - `Mode`: should always be set to `5D`
+- `Puzzle`: used for puzzles, to indicate what kind of puzzle it is (mate in N, aid mate, find the best move, etc.)
+- `Promotions`: a space-separated list of piece letters, describing which pieces pawns can promote into, recommended for non-standard variants and required for custom variants
 
-## Examples
+## Comments
+
+Comments may be put within curly braces: `{}`.
+Nested comments are not supported.
+
+## Full examples
 
 ### Rook Tactics I
 
@@ -311,7 +357,7 @@ The final position looks like this (a dummy move was made on `(3T11)` to highlig
 ## 5DFEN and custom variants
 
 You can encode custom variants and puzzles using the 5DFEN extension of that notation.
-The grammar of 5DFEN can be found in [here](./fen.ebnf) in [EBNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) format.
+The formal grammar of 5DFEN can be found in [here](./fen.ebnf) in [EBNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) format.
 
 To use this extension, you need to set the board tag to `"custom"` and encode the initial boards as 5DFEN board strings.
 
@@ -409,7 +455,7 @@ An export move is made up of:
 - the super-physical coordinates of the target board
 - the physical coordinates of the target square
 
-Castling is encoded as the king moving two pieces: `(0T6)Ke1(0T6)g1`. The rook's movement is not annotated.
+Castling is encoded as the king moving two pieces: `(0T6)Ke1(0T6)g1`. The rook's movement when castling is not annotated.
 
 ### Export turns
 
@@ -458,7 +504,7 @@ For strictness, extracting 5DFEN strings should standardize on move sensitivity.
 
 ### Examples
 
-For the 'Standard' variant, both the single board and full state have the same hash:
+For the `Standard` variant, both the single board and full state have the same hash:
 
 ```
 md5('[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]')
@@ -469,7 +515,7 @@ md5('[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]')
 'd574889fd9da3f2bc65249ff27249b00'
 ```
 
-For the 'Standard - Two Timeline' variant, the full state hash looks like this:
+For the `Standard - Two Timeline` variant, the full state hash looks like this:
 
 ```
 md5('[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:-0:1:w][r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:+0:1:w]')
@@ -498,7 +544,6 @@ Arguments for numbering boards using `-0` and `+0` are:
 - Axel's notation, Hexicube's parser and the Matrix notation already use `-0` and `+0`
 
 Thus, this notation now allows using `-0` and `+0` as starting board indices.
-Reluctants may still use `-1` and `0` by specifying it in the `InitialMultiverses` tag.
 
 If `-0` and `+0` are used, the `+` sign is mandatory (just like how it's always displayed in such cases in the game).
 The `+` sign can be omitted for other integers.
@@ -508,13 +553,15 @@ The reverse conversion is done whenever we need to write/export the coordinates.
 
 ### Branching
 
-Branching notation (as in SAN) is not yet supported, and it is unknown how it should behave with the super-physical coordinates.
+Branching notation (as in SAN+RAV) is not yet supported, and it is unknown how it should behave with the super-physical coordinates.
 Possibilities include:
 
-- Keeping parenthesis-enclosed super-physical coordinates and simply introducing branching (both are compatible as long as token priority is introduced)
+- Keeping parenthesis-enclosed super-physical coordinates and simply introducing branching (both are compatible as long as token priority is introduced or if a recursive block is introduced with a space-isolated parenthesis)
 - Having square bracket-enclosed super-physical coordinates and parenthesis-enclosed branches
 - Having square bracket-enclosed super-physical coordinates *in* parenthesis-enclosed branches
 - Remove the parentheses around super-physical coordinates, at the cost of readability
+- Use indentation to indicate recursive blocks
+- Include the block depth within the turn indicator (`2w1.` or `2~1w.`, for instance)
 
 ### Omission
 
@@ -523,8 +570,7 @@ While the parser bundled here could handle omission in super-physical moves, thi
 
 In some cases, moving a piece to an otherwise valid square is illegal because it would put the king in check.
 In those cases, this piece can be considered pinned and may be left out of the equation when looking for omission.
-
-Because checks in 5D chess aren't as trivial as in traditional chess (sometimes requiring a specific move order between boards), the source square's coordinates should still be specified.
+However, because checks in 5D chess aren't as trivial as in traditional chess (sometimes requiring a specific move order between boards), the source square's coordinates should still be specified.
 
 The super-physical coordinates may now be omitted in one-timeline scenarios.
 No omissions beyond that are currently considered, but suggestions are always welcome!
@@ -532,17 +578,3 @@ No omissions beyond that are currently considered, but suggestions are always we
 ### Turn zero
 
 Turn zero boards have recently been introduced. They can be referenced with `T0`.
-
-### FEN
-
-The internal format for FEN will become deprecated soon and get replaced with the new [5DFEN](./fen.ebnf).
-
-<!-- The included parser proposes a FEN format that is extended to 5D Chess.
-Numerous starting boards are simply separated by a space.
-Two-character piece names have been substituted with the following greek letters:
-
-- `BR` (brawn) becomes `β`
-- `CK` (common king) becomes `κ`
-- `RQ` (royal queen) becomes `ρ`
-
-Examples can be found in `parsers/game.js`. -->
